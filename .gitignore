@@ -1,0 +1,8 @@
+bin
+obj
+*.suo
+*.user
+*.pidb
+*.userprefs
+packages/*
+*.nupkg

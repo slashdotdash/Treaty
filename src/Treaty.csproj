@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <ProjectGuid>{71EED5A6-82E8-4D48-8C2E-2A02CF80D3DE}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>4.0</OldToolsVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UpgradeBackupLocation />
+  </PropertyGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="rules\ruleBuilder.ts" />
+    <TypeScriptCompile Include="knowledge\knowledgeBase.ts" />
+    <TypeScriptCompile Include="facts\fact.ts" />
+    <Content Include="facts\fact.js">
+      <DependentUpon>fact.ts</DependentUpon>
+    </Content>
+    <Content Include="knowledge\knowledgeBase.js">
+      <DependentUpon>knowledgeBase.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="knowledge\workingMemory.ts" />
+    <Content Include="knowledge\workingMemory.js">
+      <DependentUpon>workingMemory.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="rules\rule.ts" />
+    <Content Include="rules\Copy of ruleBuilder.js">
+      <DependentUpon>rule.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\rule.js">
+      <DependentUpon>rule.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\ruleBuilder.js">
+      <DependentUpon>ruleBuilder.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="tests\knowledge\knowledgeBase.ts" />
+    <Content Include="tests\knowledge\knowledgeBase.js">
+      <DependentUpon>knowledgeBase.ts</DependentUpon>
+    </Content>
+    <Content Include="tests\knowledge\ruleBuilding.js">
+      <DependentUpon>knowledgeBase.ts</DependentUpon>
+    </Content>
+    <Content Include="tests\rules\ruleBuilding.js">
+      <DependentUpon>ruleBuilding.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="tests\rules\ruleBuilding.ts" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Treaty</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:50888/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="BeforeBuild">
+    <Exec Command="&quot;$(PROGRAMFILES)\Microsoft SDKs\TypeScript\0.8.0.0\tsc&quot; @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
+  </Target>
+</Project>

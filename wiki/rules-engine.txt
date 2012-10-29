@@ -1,0 +1,115 @@
+
+# Knowledge Base
+Repository of all the application's knowledge definitions. It may contain rules, processes, functions, and type models. 
+The Knowledge Base itself does not contain instance data, known as facts; instead, sessions are created from the Knowledge Base into which data can be inserted and where process instances may be started.
+
+* Add/remove rule packages.
+* Store rules.
+* Create stateful knowledge session
+* Create stateless knowledge session
+
+## KnowledgeBuilder
+Responsible for taking source files, such as a DRL file or an Excel file, and turning them into a Knowledge Package of rule and process definitions which a `KnowledgeBase` can consume.
+
+* Add rule(s)
+* Validates added rules.
+* Get built rule package
+
+# Working Memory
+Stores matching facts. Facts are asserted into the Working Memory where they may then be modified or retracted.
+It holds references to all facts that has been "asserted" into it (until retracted) and it is the place where the interaction with your application occurs. 
+Working memories are stateful objects. They may be shortlived or longlived.
+Provides the main interaction with the engine. It is available in rule consequences and process actions.
+
+## StatefulKnowledgeSession
+Stores and executes the runtime data. It is created from the `KnowledgeBase`.
+
+* Add, update/modify and retract facts
+* Fire all rules
+* Attach event listeners
+* Disposal
+
+## Live Queries
+Invoking queries and processing the results by iterating over the returned set is not a good way to monitor changes over time.
+Instead, live queries stay open by creating a view and publishing change events for the contents of this view. 
+To activate, you start your query with parameters and listen to changes in the resulting view. 
+The dispose method terminates the query and discontinues this reactive scenario.
+
+# Facts
+
+## Assertion
+The act of telling the Working Memory about the facts (inserting new facts).
+When inserted, the fact is examined for matches against the rules. The work of determining what rules to fire is done during insertion, but no rules are executed at this time. 
+The rules are executed when `fire` is called, and it should only be called after you have inserted all your facts.
+
+When an Object is inserted it returns a `FactHandle`, a the token used to the inserted object within the WorkingMemory. 
+It is also used for interactions with the WorkingMemory when you wish to retract or modify an object.
+
+### Logical Assertion
+A "assertLogical" is used when a fact is logically inserted, this fact is dependant on the truth of the "when" clause. It means that when the rule becomes false the fact is automatically retracted.
+
+## Retraction
+When you remove a fact from the Working Memory, which means it will no longer track and match that fact.
+Any rules that are activated and dependent on that fact will be cancelled.
+
+## Update
+Notify the `WorkingMemory` that a fact has changed. 
+Used when the fact object is not able to notify the `WorkingMemory` itself (does not implement `INotifyPropertyChanged`).
+Modification is actually a retract and then an insert.
+
+
+# Conflict Resolution
+A system with a large number of rules and facts may result in many rules being true for the same fact assertion; these rules are said to be in conflict.
+Required when there are multiple rules on the agenda as firing a rule may have side effects on working memory. 
+The rule engine needs to know in what order the rules should fire.
+
+Default conflict resolution strategies are: 
+
+* Salience 
+* LIFO (last in, first out)
+
+The most visible strategy is "salience" or priority. You can specify that a certain rule has a higher priority (by giving it a higher number) than other rules. In that case, the higher salience rule will always be preferred.
+
+Each rule has an integer salience attribute which defaults to zero and can be negative or positive. Salience is a form of priority where rules with higher salience values are given higher priority when ordered in the Activation queue.
+
+# Rules
+
+	rule "name"
+		attributes
+		when
+			LHS
+		then
+			RHS
+	end
+
+# Rete Nodes
+
+1. Root
+2. 1-input
+3. 2-input
+4. Terminal
+
+# ReteOO Nodes
+
+* Root / Rete
+* Object type
+* Alpha
+* Left input adapter
+* Beta
+	* Join
+	* Not
+* Eval
+* Terminal
+
+
+# Events
+Notifications of rule engine events, including rules firing, objects being asserted, etc. 
+Allows separation of logging and auditing activities from the main part of your application (and the rules).
+
+
+# Notes
+
+Rule names must be unique per rule package.	
+A rule with an 'or' conditional disjunctive connective results in subrule generation for each possible logically branch; thus one rule can have multiple terminal nodes.
+DRL.g which is the Antlr3 grammar for the rule Drools language.
+Rete tree diagram.
