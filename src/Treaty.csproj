@@ -20,6 +20,29 @@
     <UpgradeBackupLocation />
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="compilation\conditionVisitor.ts" />
+    <Content Include="compilation\conditionVisitor.js">
+      <DependentUpon>conditionVisitor.ts</DependentUpon>
+    </Content>
+    <Content Include="compilation\conditionVisitor.min.js">
+      <DependentUpon>conditionVisitor.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\rule.min.js">
+      <DependentUpon>rule.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="tests\compilation\compiling.ts" />
+    <Content Include="tests\compilation\compiling.js">
+      <DependentUpon>compiling.ts</DependentUpon>
+    </Content>
+    <Content Include="tests\compilation\compiling.min.js">
+      <DependentUpon>compiling.ts</DependentUpon>
+    </Content>
+    <Content Include="tests\knowledge\knowledgeBase.min.js">
+      <DependentUpon>knowledgeBase.ts</DependentUpon>
+    </Content>
+    <Content Include="tests\rules\ruleBuilding.min.js">
+      <DependentUpon>ruleBuilding.ts</DependentUpon>
+    </Content>
     <TypeScriptCompile Include="rules\ruleBuilder.ts" />
     <TypeScriptCompile Include="knowledge\knowledgeBase.ts" />
     <TypeScriptCompile Include="facts\fact.ts" />
@@ -34,9 +57,6 @@
       <DependentUpon>workingMemory.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="rules\rule.ts" />
-    <Content Include="rules\Copy of ruleBuilder.js">
-      <DependentUpon>rule.ts</DependentUpon>
-    </Content>
     <Content Include="rules\rule.js">
       <DependentUpon>rule.ts</DependentUpon>
     </Content>
@@ -44,10 +64,10 @@
       <DependentUpon>ruleBuilder.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="tests\knowledge\knowledgeBase.ts" />
-    <Content Include="tests\knowledge\knowledgeBase.js">
-      <DependentUpon>knowledgeBase.ts</DependentUpon>
+    <Content Include="rules\ruleBuilder.min.js">
+      <DependentUpon>ruleBuilder.ts</DependentUpon>
     </Content>
-    <Content Include="tests\knowledge\ruleBuilding.js">
+    <Content Include="tests\knowledge\knowledgeBase.js">
       <DependentUpon>knowledgeBase.ts</DependentUpon>
     </Content>
     <Content Include="tests\rules\ruleBuilding.js">

@@ -13,7 +13,7 @@ declare function afterEach(action: Function);
 
 //declare function expect(spy: Function): JasmineSpyMatchers;
 //declare function expect(spy: JasmineSpy): JasmineSpyMatchers;
-//declare function expect(actual: any): JasmineMatchers;
+declare function expect(actual: any): JasmineMatchers;
 
 //declare function spyOn(object: any, method: string): JasmineSpyOn;
 

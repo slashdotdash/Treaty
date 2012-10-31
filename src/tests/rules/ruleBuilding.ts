@@ -1,7 +1,7 @@
-///<reference path='..\..\..\typings\jasmine-1.2.d.ts' />
-
-///<reference path='..\..\rules\rule.ts' />
-///<reference path='..\..\rules\ruleBuilder.ts' />
+/// <reference path="..\..\..\typings\jasmine-1.2.d.ts" />
+/// <reference path="..\..\rules\ruleBuilder.ts" />
+/// <reference path="..\..\rules\rule.ts" />
+/// <reference path="..\..\rules\" />
 
 module Treaty {
     module Tests {
@@ -9,7 +9,7 @@ module Treaty {
             class Person {
                 constructor (public name: string) { }
             }
-
+            
             describe("ruleBuilder", function () {
                 var subject = new Treaty.Rules.RuleBuilder();
 
@@ -24,7 +24,6 @@ module Treaty {
                             .when(typeof (Person), (person: Person) => person.name == "Bob")
                             .build();
                     });
-
                 });
                 
                 // var p: IPoint = new Shapes.Point(3, 4);

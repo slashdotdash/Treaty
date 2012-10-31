@@ -2,7 +2,7 @@
 
 ///<reference path='..\..\knowledge\knowledgeBase.ts' />
 ///<reference path='..\..\rules\ruleBuilder.ts' />
-///<reference path='..\..\rules\ruleBuilder.ts' />
+///<reference path='..\..\rules\rule.ts' />
 
 module Treaty {
     module Tests {
@@ -11,7 +11,7 @@ module Treaty {
                 var subject = new Treaty.Knowlegde.KnowledgeBase();
 
                 it("should add rules", function () {
-                    subject.add(new Treaty.Rules.Rule());
+                    //subject.add(new Treaty.Rules.Rule());
                 });
             });
         }
