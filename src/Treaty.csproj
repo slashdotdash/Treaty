@@ -27,6 +27,13 @@
     <Content Include="compilation\conditionVisitor.min.js">
       <DependentUpon>conditionVisitor.ts</DependentUpon>
     </Content>
+    <TypeScriptCompile Include="rules\conditions\condition.ts" />
+    <Content Include="rules\conditions\condition.js">
+      <DependentUpon>condition.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\conditions\condition.min.js">
+      <DependentUpon>condition.ts</DependentUpon>
+    </Content>
     <Content Include="rules\rule.min.js">
       <DependentUpon>rule.ts</DependentUpon>
     </Content>

@@ -1,14 +1,14 @@
 module Treaty {
    export module Rules {
         export class Rule {
-            constructor (private name: string, private conditions: Condition[], private consequences: Consequence[]) {                
+            constructor (private name: string, private conditions: ICondition[], private consequences: IConsequence[]) {                
             }
         }
         
-        export class Condition {
+        export interface ICondition {
         }
 
-        export class Consequence {
+        export interface IConsequence {
 
         }
     }

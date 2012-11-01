@@ -1,7 +1,11 @@
 /// <reference path="..\..\..\typings\jasmine-1.2.d.ts" />
 /// <reference path="..\..\rules\ruleBuilder.ts" />
 /// <reference path="..\..\rules\rule.ts" />
-/// <reference path="..\..\rules\" />
+
+///<reference path='..\..\..\lib\TypeScript\compiler\' />
+///<reference path='..\..\rules\' />
+///<reference path='..\..\rules\conditions\' />
+///<reference path='..\..\compilation\' />
 
 module Treaty {
     module Tests {
@@ -26,11 +30,9 @@ module Treaty {
                     });
                 });
                 
-                // var p: IPoint = new Shapes.Point(3, 4);
-
-    //rule.named("Issue Adult Bus Pass")
-	//	.when(instanceof(Person), p => IsAdult(p))
-	//    .then(p => insertLogical(new AdultBusPass(p));
+                //rule.named("Issue Adult Bus Pass")
+	            //	.when(instanceof(Person), p => IsAdult(p))
+	            //    .then(p => insertLogical(new AdultBusPass(p));
             });
         }
     }

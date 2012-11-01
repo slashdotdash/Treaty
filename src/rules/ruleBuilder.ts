@@ -1,4 +1,5 @@
 ///<reference path='.\rule.ts' />
+///<reference path='..\compilation\conditionVisitor.ts' />
 
 module Treaty {
     export module Rules {
@@ -10,12 +11,9 @@ module Treaty {
 
         export class RuleBuilder implements IBuildRule {
             private name: string;
-            private conditions: Condition[] = [];
-            private consequences: Consequence[] = [];
-
-            constructor () {
-            }
-
+            private expressionParser: Treaty.Compilation.ExpressionParser = new Treaty.Compilation.ExpressionParser();
+            private conditionBuilders: ConditionBuilder[] = [];
+            
             public rule(): IBuildRule {
                 return this;
             }
@@ -25,29 +23,37 @@ module Treaty {
                 return this;
             }
 
-            public when(leftInstanceType: string, expression: (instance) => bool): IBuildRule {
-                var condition = new ConditionBuilder(leftInstanceType, expression).build();
-                this.conditions.push(condition);
+            public when(instanceType: string, expression: (instance) => bool): IBuildRule {
+                this.conditionBuilders.push(new ConditionBuilder(instanceType, expression));
                 return this;
             }
 
             public build(): Rule {
-                return new Rule(this.name, this.conditions, this.consequences);
+                var conditions: ICondition[] = [];
+                var consequences: IConsequence[] = [];
+
+                this.conditionBuilders.forEach(builder => {
+                    builder.build(this.expressionParser).forEach(condition => {
+                        conditions.push(condition);
+                    });
+                });
+
+                return new Rule(this.name, conditions, consequences);
             }
         }
-
+        
         export class ConditionBuilder {
-            constructor (private leftInstanceType: string, private expression: (instance) => bool) { }
+            constructor (private instanceType: string, private expression: (instance) => bool) { }
 
-            public build(): Condition {
-                return new PropertyEqualCondition(this.leftInstanceType, this.expression);
+            public build(expressionParser: Treaty.Compilation.ExpressionParser): ICondition[] {
+                console.log('this.expression:');
+                console.log(this.expression);
+                var script = expressionParser.parse(this.expression);
+                console.log('script:');
+                console.log(script);
+                var conditionParser = new Treaty.Compilation.ConditionParser();
+                return conditionParser.parse(script);
             }
-        }
-
-        export class PropertyEqualCondition extends Condition {
-            constructor (private instanceType: string, private expression: (instance) => bool) {
-                super();
-            }
-        }
+        }        
     }
 }
