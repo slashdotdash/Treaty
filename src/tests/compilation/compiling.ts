@@ -1,6 +1,7 @@
 ///<reference path='..\..\..\typings\jasmine-1.2.d.ts' />
 ///<reference path='..\..\..\lib\TypeScript\compiler\typescript.ts' />
 
+///<reference path='..\..\compilation\compiler.ts' />
 ///<reference path='..\..\compilation\conditionVisitor.ts' />
 ///<reference path='..\..\rules\rule.ts' />
 ///<reference path='..\..\rules\ruleBuilder.ts' />
@@ -14,63 +15,44 @@
 module Treaty {
     module Tests {
         module Compilation {
-            describe("compiling", () => {
-                var parseErrorMessage: string = null;
-                var subject: TypeScript.Parser;
-                var sourceText: Treaty.Compilation.FuncSourceText;
-                var filename = 'tmp.ts';
-                var script: TypeScript.Script;
+            class NullNodeSelectorFactory implements Treaty.Compilation.INodeSelectorFactory {
+                public create(): Treaty.Compilation.ISelectNode {
+                    return null;
+                }
+            }
 
-                var globalAstWalkerFactory: TypeScript.AstWalkerFactory = new TypeScript.AstWalkerFactory();
+            class Example {
+
+            }
+
+            describe("compiling rules", () => {
+                var subject: Treaty.Compilation.PropertyExpressionVisitor;
+                var selector: Treaty.Compilation.ISelectNode;
 
                 beforeEach(() => {
-                    subject = new TypeScript.Parser();
-
-                    subject.errorCallback = (minChar: number, charLen: number, message: string, unit: number) => {
-                        console.log('Parsing failed: ' + message);
-                        parseErrorMessage = message;
-                    };
-
-                    var func = (s: string) => s.length == 1;
-                    sourceText = new Treaty.Compilation.FuncSourceText(func);
-
-                    script = subject.parse(sourceText, filename, 0, TypeScript.AllowedElements.Global);
+                    subject = new Treaty.Compilation.PropertyExpressionVisitor(new NullNodeSelectorFactory());
+                    //selector = subject.createSelector((example: Example) => example);
+                    selector = subject.createSelector('prop');
                 });
 
-                it("should compile simple function", () => {
-                    expect(script).toNotBe(null);
-                    expect(parseErrorMessage).toBeNull();
+                it("should access no level property", () => {
+                    expect(selector instanceof Treaty.Compilation.TypeNodeSelector).toBeTruthy();
                 });
 
-                it("should compile as Script", () => {
-                    expect(script.nodeType).toEqual(TypeScript.NodeType.Script);
-                });
-
-                describe("visiting conditions", () => {
-                    var conditionParser: Treaty.Compilation.ConditionParser;
-                    var state: Treaty.Rules.ICondition[];
-
-                    beforeEach(() => {
-                        conditionParser = new Treaty.Compilation.ConditionParser();
-                        state = conditionParser.parse(script);
-                    });
-
-                    it("should allow traversing compiled AST", () => {
-                        console.log('state: ');
-                        console.log(state);
-
-                        expect(state.length).toNotBe(0);
-                    });
-
-                    it("should construct conditions from AST", () => {
-                        var condition = state.pop();
-                        expect(condition instanceof Treaty.Rules.Conditions.PropertyEqualCondition).toBeTruthy();
-                    });
+                it("should have no next", () => {
+                    expect(selector.next).toBeNull();
                 });
             });
         }
     }
 }
+/*Expression<Func<A, A>> propertyExpression = (A a) => a;
 
-/*// <reference path='..\..\..\typings\lib.d.ts' />*/
-//var script: Script = this.parser.parse(sourceText, filename, this.units.length, AllowedElements.Global);
+PropertyExpressionVisitor visitor = new PropertyExpressionVisitor<A>(_configurator);
+
+NodeSelector selector = visitor.CreateSelector(propertyExpression.Body);
+
+selector.ConsoleWriteLine();
+
+Assert.IsInstanceOf<TypeNodeSelector<A>>(selector);
+Assert.IsNull(selector.Next);*?

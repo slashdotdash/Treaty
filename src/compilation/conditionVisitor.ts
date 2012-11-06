@@ -61,13 +61,8 @@ module Treaty {
             }
 
             private visitBinary(binaryExpr: TypeScript.BinaryExpression, walker: TypeScript.IAstWalker): void {
-                console.log('visitBinary');
-                
                 switch (binaryExpr.nodeType) {
                     case TypeScript.NodeType.Eq: {
-                        console.log('Eq');
-                        console.log(binaryExpr);
-
                         var condition = this.parseEq(binaryExpr);
 
                         walker.state.push(condition);
@@ -89,22 +84,21 @@ module Treaty {
 
                 // TODO: Convert value to member type?
 
-                console.log('member: ' + member);
-                console.log('value: ' + value);
-
-                return new Treaty.Rules.Conditions.PropertyEqualCondition();
+                return new Treaty.Rules.Conditions.PropertyEqualCondition(member, value);
             }
         }
 
         class LeftHandSideExpressionVisitor {
             public member: string;
+            public symbol: TypeScript.Symbol;
 
             public visitMember(operand: TypeScript.AST): void {
                 if (operand instanceof TypeScript.BinaryExpression) {
                     var binaryExpr = <TypeScript.BinaryExpression>operand;
                     var memberExpr = <TypeScript.Identifier>binaryExpr.operand2;
-
+                    
                     this.member = memberExpr.text;
+                    this.symbol = memberExpr.sym;
                 }
             }
         }

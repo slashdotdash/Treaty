@@ -21,6 +21,13 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="compilation\conditionVisitor.ts" />
+    <TypeScriptCompile Include="compilation\compiler.ts" />
+    <Content Include="compilation\compiler.js">
+      <DependentUpon>compiler.ts</DependentUpon>
+    </Content>
+    <Content Include="compilation\compiler.min.js">
+      <DependentUpon>compiler.ts</DependentUpon>
+    </Content>
     <Content Include="compilation\conditionVisitor.js">
       <DependentUpon>conditionVisitor.ts</DependentUpon>
     </Content>
@@ -28,11 +35,21 @@
       <DependentUpon>conditionVisitor.ts</DependentUpon>
     </Content>
     <TypeScriptCompile Include="rules\conditions\condition.ts" />
+    <Content Include="knowledge\knowledgeBase.min.js">
+      <DependentUpon>knowledgeBase.ts</DependentUpon>
+    </Content>
     <Content Include="rules\conditions\condition.js">
       <DependentUpon>condition.ts</DependentUpon>
     </Content>
     <Content Include="rules\conditions\condition.min.js">
       <DependentUpon>condition.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="rules\consequences\consequence.ts" />
+    <Content Include="rules\consequences\consequence.js">
+      <DependentUpon>consequence.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\consequences\consequence.min.js">
+      <DependentUpon>consequence.ts</DependentUpon>
     </Content>
     <Content Include="rules\rule.min.js">
       <DependentUpon>rule.ts</DependentUpon>
@@ -43,6 +60,13 @@
     </Content>
     <Content Include="tests\compilation\compiling.min.js">
       <DependentUpon>compiling.ts</DependentUpon>
+    </Content>
+    <TypeScriptCompile Include="tests\compilation\conditionVisiting.ts" />
+    <Content Include="tests\compilation\Copy of compiling.js">
+      <DependentUpon>conditionVisiting.ts</DependentUpon>
+    </Content>
+    <Content Include="tests\compilation\Copy of compiling.min.js">
+      <DependentUpon>conditionVisiting.ts</DependentUpon>
     </Content>
     <Content Include="tests\knowledge\knowledgeBase.min.js">
       <DependentUpon>knowledgeBase.ts</DependentUpon>
