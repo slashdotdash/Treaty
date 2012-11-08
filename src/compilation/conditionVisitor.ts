@@ -21,8 +21,9 @@ module Treaty {
             }
 
             public parse(expression: Function): TypeScript.Script {
-                var sourceText = new Treaty.Compilation.FuncSourceText(expression);
-                
+                //var sourceText = new Treaty.Compilation.FuncSourceText(expression);
+                var sourceText = new Treaty.Compilation.ExpressionSource(expression);
+
                 return this.parser.parse(sourceText, this.filename, 0, TypeScript.AllowedElements.Global);
             }            
         }
@@ -49,7 +50,6 @@ module Treaty {
             
             public visit(ast: TypeScript.AST, parent: TypeScript.AST, walker: TypeScript.IAstWalker): TypeScript.AST {
                 if (this.startedCollecting === true) {
-
                     if (ast instanceof TypeScript.BinaryExpression) {
                         this.visitBinary(<TypeScript.BinaryExpression>ast, walker);
                     }                    
@@ -117,12 +117,59 @@ module Treaty {
             }
         }
 
+        export class ExpressionSource implements TypeScript.ISourceText {
+            private source: string;
+
+            constructor (private expression: Function) {
+                this.source = 'var f = ' + expression.toString() + ';';
+
+                console.log('source: ' + this.source);
+            }
+
+            getText(start: number, end: number): string {
+                return this.source.substring(start, end);
+            }
+
+            getLength(): number {
+                return this.source.length;
+            }
+        }
+
+        export class ExpressionAdapter {
+            private globalAstWalkerFactory: TypeScript.AstWalkerFactory = new TypeScript.AstWalkerFactory();
+
+            public parse(script: TypeScript.Script): TypeScript.AST {
+                var state: TypeScript.AST[] = [];
+                var visitor = new ExpressionVisitor();
+                var callback = (ast, parent, walker) => visitor.visit(ast, parent, walker);
+                var walker = this.globalAstWalkerFactory.getWalker(callback, null, null, state);
+                
+                walker.walk(script.bod, script);
+                
+                return state[0];
+            }
+        }
+
+        class ExpressionVisitor {
+            private startedCollecting: bool = false;
+            
+            public visit(ast: TypeScript.AST, parent: TypeScript.AST, walker: TypeScript.IAstWalker): TypeScript.AST {
+                if (this.startedCollecting === true) {
+                    walker.state.push(ast);
+                } else if (ast.nodeType == TypeScript.NodeType.Return) {
+                    this.startedCollecting = true;
+                }
+
+                return ast;
+            }
+        }
+
         export class FuncSourceText implements TypeScript.ISourceText {
             private source: string;
 
             constructor (private func: Function) {
                 this.source = 'var f = ' + func.toString() + ';';
-                   
+
                 this.source = "var f: (s: string) => bool;"
                 this.source += "f = (s: string) => s.length == 1;"
 

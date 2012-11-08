@@ -25,9 +25,6 @@
     <Content Include="compilation\compiler.js">
       <DependentUpon>compiler.ts</DependentUpon>
     </Content>
-    <Content Include="compilation\compiler.min.js">
-      <DependentUpon>compiler.ts</DependentUpon>
-    </Content>
     <Content Include="compilation\conditionVisitor.js">
       <DependentUpon>conditionVisitor.ts</DependentUpon>
     </Content>

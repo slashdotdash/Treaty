@@ -29,34 +29,44 @@ module Treaty {
                 var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create()));
                 var nodeFactory = selectorFactory(alphaFactory);
 
-                new PropertyExpressionVisitor(nodeFactory)
-                    .createSelector(memberName)
-                    .select();
+                //new PropertyExpressionVisitor('TODO', nodeFactory)
+                //    .createSelector(memberName)
+                //    .select();
             }
         }
 
         export class PropertyExpressionVisitor {
             private nodeSelector: ISelectNode;
 
-            constructor (private nodeFactory: INodeSelectorFactory) { }
+            constructor (private instanceType: string, private nodeFactory: INodeSelectorFactory) { }
 
-            public createSelector(memberName: string): ISelectNode {
-                this.nodeSelector = new PropertyNodeSelector(memberName, this.nodeFactory.create());
+            public createSelector(expression: TypeScript.AST): ISelectNode {
+                console.log('expression:');
+                console.log(expression);
 
-                this.visitParameter(memberName);
+                if (expression instanceof TypeScript.Identifier) {
+                    this.visitParameter(<TypeScript.Identifier>expression);
+                } else if (expression instanceof TypeScript.BinaryExpression) {
+                    this.visitBinary(<TypeScript.BinaryExpression>expression);
+                } else {
+                    console.log('Expression type "' + typeof (expression) + '" not yet supported.');
+                }
 
                 return this.nodeSelector;
             }
 
-            private visitParameter(memberName: string): void {
-                this.nodeSelector = new TypeNodeSelector(this.nodeFactory.create());
+            private visitParameter(parameter: TypeScript.Identifier): void {
+                this.nodeSelector = new TypeNodeSelector(this.nodeFactory.create(), this.instanceType);
             }
-        }
 
-        class PropertyNodeSelector implements ISelectNode {
-            constructor (private memberName: string, public next: ISelectNode) { }
+            private visitBinary(binaryExpr: TypeScript.BinaryExpression): void {
+                var identifier = <TypeScript.Identifier>binaryExpr.operand2;
 
-            public select(): void { }
+                var propertyNodeFactory = new NodeSelectorFactory(() => new PropertyNodeSelector(this.nodeFactory.create(), identifier.text));
+                var visitor = new PropertyExpressionVisitor(this.instanceType, propertyNodeFactory);
+                
+                this.nodeSelector = visitor.createSelector(binaryExpr.operand1);
+            }
         }
 
         export interface INodeSelectorFactory {
@@ -88,9 +98,7 @@ module Treaty {
         class AlphaNodeSelector implements ISelectNode {
             constructor (public next: ISelectNode) { }
 
-            public select(): ISelectNode {
-                return null;
-            }
+            public select(): void { }
         }
 
         class EqualNodeSelector implements ISelectNode {
@@ -100,12 +108,17 @@ module Treaty {
         }
 
         export class TypeNodeSelector implements ISelectNode {
-            constructor (public next: ISelectNode) { }
+            constructor (public next: ISelectNode, public instanceType: string) { }
 
-            public select(): void {
-            }
+            public select(): void { }
         }
 
+        export class PropertyNodeSelector implements ISelectNode {
+            constructor (public next: ISelectNode, public memberName: string) { }
+
+            public select(): void { }
+        }
+        
         export class ConsequenceCompiler {
         }
     }
