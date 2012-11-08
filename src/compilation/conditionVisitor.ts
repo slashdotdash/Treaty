@@ -21,11 +21,10 @@ module Treaty {
             }
 
             public parse(expression: Function): TypeScript.Script {
-                //var sourceText = new Treaty.Compilation.FuncSourceText(expression);
                 var sourceText = new Treaty.Compilation.ExpressionSource(expression);
 
                 return this.parser.parse(sourceText, this.filename, 0, TypeScript.AllowedElements.Global);
-            }            
+            }
         }
 
         export class ConditionParser {
@@ -39,8 +38,6 @@ module Treaty {
                 
                 walker.walk(script.bod, script);
                 
-                console.log('state: '+state);
-
                 return state;
             }
         }
@@ -75,31 +72,24 @@ module Treaty {
             private parseEq(binaryExpr: TypeScript.BinaryExpression): Treaty.Rules.ICondition {
                 var lhs = new LeftHandSideExpressionVisitor();                        
                 var rhs = new RightHandSideExpressionVisitor()
-                        
+
                 lhs.visitMember(binaryExpr.operand1);
                 rhs.visitConstant(binaryExpr.operand2);
 
-                var member = lhs.member;
+                var memberExpression = lhs.member;
                 var value = rhs.value;
 
                 // TODO: Convert value to member type?
 
-                return new Treaty.Rules.Conditions.PropertyEqualCondition(member, value);
+                return new Treaty.Rules.Conditions.PropertyEqualCondition(memberExpression, value);
             }
         }
 
         class LeftHandSideExpressionVisitor {
-            public member: string;
-            public symbol: TypeScript.Symbol;
-
+            public member: TypeScript.AST;
+            
             public visitMember(operand: TypeScript.AST): void {
-                if (operand instanceof TypeScript.BinaryExpression) {
-                    var binaryExpr = <TypeScript.BinaryExpression>operand;
-                    var memberExpr = <TypeScript.Identifier>binaryExpr.operand2;
-                    
-                    this.member = memberExpr.text;
-                    this.symbol = memberExpr.sym;
-                }
+                this.member = operand;
             }
         }
 
@@ -122,8 +112,6 @@ module Treaty {
 
             constructor (private expression: Function) {
                 this.source = 'var f = ' + expression.toString() + ';';
-
-                console.log('source: ' + this.source);
             }
 
             getText(start: number, end: number): string {
@@ -161,30 +149,6 @@ module Treaty {
                 }
 
                 return ast;
-            }
-        }
-
-        export class FuncSourceText implements TypeScript.ISourceText {
-            private source: string;
-
-            constructor (private func: Function) {
-                this.source = 'var f = ' + func.toString() + ';';
-
-                this.source = "var f: (s: string) => bool;"
-                this.source += "f = (s: string) => s.length == 1;"
-
-                console.log('source: ' + this.source);
-
-                //var f: (s: string) => bool;
-                //f = (s: string) => s.lengthxxx == 1;
-            }
-
-            getText(start: number, end: number): string {
-                return this.source.substring(start, end);
-            }
-
-            getLength(): number {
-                return this.source.length;
             }
         }
     }

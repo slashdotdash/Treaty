@@ -17,7 +17,7 @@ module Treaty {
             describe("compiling", () => {
                 var parseErrorMessage: string = null;
                 var subject: TypeScript.Parser;
-                var sourceText: Treaty.Compilation.FuncSourceText;
+                var sourceText: Treaty.Compilation.ExpressionSource;
                 var filename = 'tmp.ts';
                 var script: TypeScript.Script;
 
@@ -31,8 +31,7 @@ module Treaty {
                         parseErrorMessage = message;
                     };
 
-                    var func = (s: string) => s.length == 1;
-                    sourceText = new Treaty.Compilation.FuncSourceText(func);
+                    sourceText = new Treaty.Compilation.ExpressionSource((s: string) => s.length == 1);
 
                     script = subject.parse(sourceText, filename, 0, TypeScript.AllowedElements.Global);
                 });
@@ -56,15 +55,17 @@ module Treaty {
                     });
 
                     it("should allow traversing compiled AST", () => {
-                        console.log('state: ');
-                        console.log(state);
-
-                        expect(state.length).toNotBe(0);
+                        expect(state.length).toBe(1);
                     });
 
                     it("should construct conditions from AST", () => {
                         var condition = state.pop();
                         expect(condition instanceof Treaty.Rules.Conditions.PropertyEqualCondition).toBeTruthy();
+                    });
+
+                    it("should set property equal value", () => {
+                        var propertyEqualCondition = <Treaty.Rules.Conditions.PropertyEqualCondition>state.pop();
+                        expect(propertyEqualCondition.value).toBe(1)
                     });
                 });
             });

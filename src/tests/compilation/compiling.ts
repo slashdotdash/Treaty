@@ -165,37 +165,3 @@ module Treaty {
         }
     }
 }
-/*[Test]
-public void Should_access_second_level_property()
-{
-    Expression<Func<A, C>> propertyExpression = (A a) => a.TheB.TheC;
-
-    var visitor = new PropertyExpressionVisitor<A>(_configurator);
-
-    NodeSelector selector = visitor.CreateSelector(propertyExpression.Body);
-
-    selector.ConsoleWriteLine();
-
-    Assert.IsInstanceOf<TypeNodeSelector<A>>(selector);
-    Assert.IsInstanceOf<PropertyNodeSelector<A, B, B>>(selector.Next);
-    Assert.IsInstanceOf<PropertyNodeSelector<A, B, C, C>>(selector.Next.Next);
-    Assert.IsNull(selector.Next.Next.Next);
-}
-
-[Test]
-public void Should_access_third_level_property()
-{
-    Expression<Func<A, string>> propertyExpression = (A a) => a.TheB.TheC.Value;
-
-    var visitor = new PropertyExpressionVisitor<A>(_configurator);
-
-    NodeSelector selector = visitor.CreateSelector(propertyExpression.Body);
-
-    selector.ConsoleWriteLine();
-
-    Assert.IsInstanceOf<TypeNodeSelector<A>>(selector);
-    Assert.IsInstanceOf<PropertyNodeSelector<A, B,B>>(selector.Next);
-    Assert.IsInstanceOf<PropertyNodeSelector<A, B, C, C>>(selector.Next.Next);
-    Assert.IsInstanceOf<PropertyNodeSelector<Token<A, B>, C, string, string>>(selector.Next.Next.Next);
-    Assert.IsNull(selector.Next.Next.Next.Next);
-}*/
