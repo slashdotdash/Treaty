@@ -51,7 +51,7 @@ module Treaty {
 
                     beforeEach(() => {
                         conditionParser = new Treaty.Compilation.ConditionParser();
-                        state = conditionParser.parse(script);
+                        state = conditionParser.parse('string', script);
                     });
 
                     it("should allow traversing compiled AST", () => {

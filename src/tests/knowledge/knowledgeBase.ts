@@ -8,10 +8,10 @@ module Treaty {
     module Tests {
         module Knowledge {
             describe("ruleBuilder", function () {
-                var subject = new Treaty.Knowlegde.KnowledgeBase();
+                var subject = new Treaty.Knowlegde.KnowledgeBuilder();
 
                 it("should add rules", function () {
-                    //subject.add(new Treaty.Rules.Rule());
+                    subject.add(new Treaty.Rules.Rule('rule', new Treaty.Rules.ICondition[], new Treaty.Rules.IConsequence[]));
                 });
             });
         }

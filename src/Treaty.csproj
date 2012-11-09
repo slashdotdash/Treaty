@@ -22,86 +22,26 @@
   <ItemGroup>
     <TypeScriptCompile Include="compilation\conditionVisitor.ts" />
     <TypeScriptCompile Include="compilation\compiler.ts" />
-    <Content Include="compilation\compiler.js">
-      <DependentUpon>compiler.ts</DependentUpon>
-    </Content>
-    <Content Include="compilation\conditionVisitor.js">
-      <DependentUpon>conditionVisitor.ts</DependentUpon>
-    </Content>
-    <Content Include="compilation\conditionVisitor.min.js">
-      <DependentUpon>conditionVisitor.ts</DependentUpon>
-    </Content>
     <TypeScriptCompile Include="rules\conditions\condition.ts" />
-    <Content Include="knowledge\knowledgeBase.min.js">
-      <DependentUpon>knowledgeBase.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\conditions\condition.js">
-      <DependentUpon>condition.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\conditions\condition.min.js">
-      <DependentUpon>condition.ts</DependentUpon>
-    </Content>
     <TypeScriptCompile Include="rules\consequences\consequence.ts" />
-    <Content Include="rules\consequences\consequence.js">
-      <DependentUpon>consequence.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\consequences\consequence.min.js">
-      <DependentUpon>consequence.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\rule.min.js">
-      <DependentUpon>rule.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="tests\compilation\compiling.ts" />
-    <Content Include="tests\compilation\compiling.js">
-      <DependentUpon>compiling.ts</DependentUpon>
-    </Content>
-    <Content Include="tests\compilation\compiling.min.js">
-      <DependentUpon>compiling.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="tests\compilation\conditionVisiting.ts" />
-    <Content Include="tests\compilation\conditionVisiting.js">
-      <DependentUpon>conditionVisiting.ts</DependentUpon>
-    </Content>
-    <Content Include="tests\compilation\conditionVisiting.min.js">
-      <DependentUpon>conditionVisiting.ts</DependentUpon>
+    <TypeScriptCompile Include="rules\ruleBuilder.ts" />
+    <TypeScriptCompile Include="knowledge\knowledgeBase.ts" />
+    <TypeScriptCompile Include="facts\fact.ts" />
+    <TypeScriptCompile Include="knowledge\workingMemory.ts" />
+    <TypeScriptCompile Include="rules\rule.ts" />
+    <TypeScriptCompile Include="tests\knowledge\knowledgeBase.ts" />
+    <TypeScriptCompile Include="tests\rules\ruleBuilding.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="rules\ruleEngine.ts" />
+    <Content Include="tests\compilation\compiling.ts" />
+    <Content Include="tests\compilation\conditionVisiting.ts" />
+    <Content Include="tests\knowledge\knowledgeBase.js">
+      <DependentUpon>knowledgeBase.ts</DependentUpon>
     </Content>
     <Content Include="tests\knowledge\knowledgeBase.min.js">
       <DependentUpon>knowledgeBase.ts</DependentUpon>
     </Content>
-    <Content Include="tests\rules\ruleBuilding.min.js">
-      <DependentUpon>ruleBuilding.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="rules\ruleBuilder.ts" />
-    <TypeScriptCompile Include="knowledge\knowledgeBase.ts" />
-    <TypeScriptCompile Include="facts\fact.ts" />
-    <Content Include="facts\fact.js">
-      <DependentUpon>fact.ts</DependentUpon>
-    </Content>
-    <Content Include="knowledge\knowledgeBase.js">
-      <DependentUpon>knowledgeBase.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="knowledge\workingMemory.ts" />
-    <Content Include="knowledge\workingMemory.js">
-      <DependentUpon>workingMemory.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="rules\rule.ts" />
-    <Content Include="rules\rule.js">
-      <DependentUpon>rule.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\ruleBuilder.js">
-      <DependentUpon>ruleBuilder.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="tests\knowledge\knowledgeBase.ts" />
-    <Content Include="rules\ruleBuilder.min.js">
-      <DependentUpon>ruleBuilder.ts</DependentUpon>
-    </Content>
-    <Content Include="tests\knowledge\knowledgeBase.js">
-      <DependentUpon>knowledgeBase.ts</DependentUpon>
-    </Content>
-    <Content Include="tests\rules\ruleBuilding.js">
-      <DependentUpon>ruleBuilding.ts</DependentUpon>
-    </Content>
-    <TypeScriptCompile Include="tests\rules\ruleBuilding.ts" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

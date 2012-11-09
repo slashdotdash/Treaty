@@ -73,7 +73,7 @@ module Treaty {
             public build(expressionParser: Treaty.Compilation.ExpressionParser): ICondition[] {
                 var script = expressionParser.parse(this.expression);
 
-                return this.conditionParser.parse(script);
+                return this.conditionParser.parse(this.instanceType, script);
             }
         }
 

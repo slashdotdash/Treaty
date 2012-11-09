@@ -21,15 +21,15 @@ module Treaty {
             private alphaNodes: ISelectNode[] = new [];
 
             public visit(condition: Rules.Conditions.PropertyEqualCondition): void {
-                this.compile(condition.memberExpression, (next) => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), condition.value)));
+                this.compile(condition.instanceType, condition.memberExpression, (next) => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), condition.value)));
             }
 
-            private compile(memberExpression: TypeScript.AST, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
+            private compile(instanceType: string, memberExpression: TypeScript.AST, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
                 var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(node => this.alphaNodes.push(node)));
                 var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create()));
                 var nodeFactory = selectorFactory(alphaFactory);
 
-                new PropertyExpressionVisitor('TODO', nodeFactory)
+                new PropertyExpressionVisitor(instanceType, nodeFactory)
                     .createSelector(memberExpression)
                     .select();
             }

@@ -7,12 +7,7 @@ module Treaty {
         export module Conditions {
 
             export class PropertyEqualCondition implements Treaty.Rules.ICondition {
-                constructor (public memberExpression: TypeScript.AST, public value: any) {
-                    console.log('memberExpression: ');
-                    console.log(memberExpression);
-                    console.log('value: ');
-                    console.log(value);
-                }
+                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: any) { }
 
                 public accept(visitor: IVisitor): void {
                     visitor.visit(this);

@@ -1,0 +1,1 @@
+c:\Chutzpah\chutzpah.console.exe /path src\tests\compilation\compiling.ts /path src\tests\compilation\conditionVisiting.ts /path src\tests\knowledge\knowledgeBase.ts /path src\tests\rules\ruleBuilding.ts

@@ -30,9 +30,9 @@ module Treaty {
         export class ConditionParser {
             private globalAstWalkerFactory: TypeScript.AstWalkerFactory = new TypeScript.AstWalkerFactory();
 
-            public parse(script: TypeScript.Script): Treaty.Rules.ICondition[] {
+            public parse(instanceType: string, script: TypeScript.Script): Treaty.Rules.ICondition[] {
                 var state: Treaty.Rules.ICondition[] = [];
-                var visitor = new ConditionVisitor();
+                var visitor = new ConditionVisitor(instanceType);
                 var callback = (ast, parent, walker) => visitor.visit(ast, parent, walker);
                 var walker = this.globalAstWalkerFactory.getWalker(callback, null, null, state);
                 
@@ -45,6 +45,8 @@ module Treaty {
         export class ConditionVisitor {
             private startedCollecting: bool = false;
             
+            constructor (private instanceType: string) { }
+
             public visit(ast: TypeScript.AST, parent: TypeScript.AST, walker: TypeScript.IAstWalker): TypeScript.AST {
                 if (this.startedCollecting === true) {
                     if (ast instanceof TypeScript.BinaryExpression) {
@@ -81,7 +83,7 @@ module Treaty {
 
                 // TODO: Convert value to member type?
 
-                return new Treaty.Rules.Conditions.PropertyEqualCondition(memberExpression, value);
+                return new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
             }
         }
 
