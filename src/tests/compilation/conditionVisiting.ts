@@ -15,30 +15,17 @@ module Treaty {
     module Tests {
         module Compilation {
             describe("compiling", () => {
-                var parseErrorMessage: string = null;
-                var subject: TypeScript.Parser;
-                var sourceText: Treaty.Compilation.ExpressionSource;
-                var filename = 'tmp.ts';
+                var subject: Treaty.Compilation.ExpressionParser;
                 var script: TypeScript.Script;
 
-                var globalAstWalkerFactory: TypeScript.AstWalkerFactory = new TypeScript.AstWalkerFactory();
-
                 beforeEach(() => {
-                    subject = new TypeScript.Parser();
-
-                    subject.errorCallback = (minChar: number, charLen: number, message: string, unit: number) => {
-                        console.log('Parsing failed: ' + message);
-                        parseErrorMessage = message;
-                    };
-
-                    sourceText = new Treaty.Compilation.ExpressionSource((s: string) => s.length == 1);
-
-                    script = subject.parse(sourceText, filename, 0, TypeScript.AllowedElements.Global);
+                    subject = new Treaty.Compilation.ExpressionParser();
+                    script = subject.parse((s: string) => s.length == 1);
                 });
 
                 it("should compile simple function", () => {
                     expect(script).toNotBe(null);
-                    expect(parseErrorMessage).toBeNull();
+                    expect(subject.parseErrorMessage).toBeNull();
                 });
 
                 it("should compile as Script", () => {

@@ -35,6 +35,12 @@
   <ItemGroup>
     <Content Include="rules\ruleEngine.ts" />
     <Content Include="tests\compilation\compiling.ts" />
+    <Content Include="tests\compilation\conditionVisiting.js">
+      <DependentUpon>conditionVisiting.ts</DependentUpon>
+    </Content>
+    <Content Include="tests\compilation\conditionVisiting.min.js">
+      <DependentUpon>conditionVisiting.ts</DependentUpon>
+    </Content>
     <Content Include="tests\compilation\conditionVisiting.ts" />
     <Content Include="tests\knowledge\knowledgeBase.js">
       <DependentUpon>knowledgeBase.ts</DependentUpon>

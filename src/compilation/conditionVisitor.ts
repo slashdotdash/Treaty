@@ -7,7 +7,7 @@
 module Treaty {
     export module Compilation {
         export class ExpressionParser {
-            private parseErrorMessage: string = null;
+            public parseErrorMessage: string = null;
             private parser: TypeScript.Parser;
             private filename = 'tmp.ts';
 
