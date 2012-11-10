@@ -19,6 +19,7 @@ module Treaty {
 
         export class KnowledgeBuilder {
             private rules: Rules.Rule[] = [];
+            private rulesEngine = new Rules.RulesEngine();
 
             public add(rule: Rules.Rule): void {
                 this.rules.push(rule);
@@ -33,7 +34,7 @@ module Treaty {
             }
 
             private compileRules(knowledgeBase: KnowledgeBase): void {
-                var compiler = new Treaty.Compilation.RuleCompiler();
+                var compiler = new Treaty.Compilation.RuleCompiler(this.rulesEngine);
 
                 this.rules.forEach(rule => {
                     compiler.compile(rule);
