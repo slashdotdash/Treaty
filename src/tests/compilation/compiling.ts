@@ -43,20 +43,15 @@ module Treaty {
                 var selector: Treaty.Compilation.ISelectNode;
 
                 beforeEach(() => {
-                    console.log('xxx');
                     runtime = new Treaty.Rules.RulesEngine();
-                    console.log('runtime: ');console.log(runtime);
                     subject = new Treaty.Compilation.PropertyExpressionVisitor('Example', new NullNodeSelectorFactory(), runtime);
-                    console.log('subject: ');console.log(subject);
                     expressionParser = new Treaty.Compilation.ExpressionParser();
                 });                
 
                 describe("no level property", () => {
                     beforeEach(() => {
                         var script = expressionParser.parse((example: Example) => example);
-                    console.log('script: ');console.log(script);
                         var expression = new Treaty.Compilation.ExpressionAdapter().parse(script);
-                    console.log('expression: ');console.log(expression);
 
                         selector = subject.createSelector(expression);
                     });

@@ -10,7 +10,7 @@ module Treaty {
         }
 
         export interface IActivation {
-
+            accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool;
         }
 
         export class AlphaNode implements INode {
@@ -19,6 +19,7 @@ module Treaty {
             constructor (public id: number, private instanceType: string) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): void {
+                this.memoryNode.accept(visitor);
             }
 
             public addActivation(activation: IActivation): void {
@@ -26,14 +27,15 @@ module Treaty {
             }
         }
 
-        export class PropertyNode implements INode {
+        export class PropertyNode implements INode, IActivation {
             private memoryNode = new MemoryNode();
             
-            constructor (public id: number, private instanceType: string, private memberName: string) { }
+            constructor (public id: number, public instanceType: string, public memberName: string) { }
 
-            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): void {
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visitPropertyNode(this, visitor => this.memoryNode.visitAll(visitor));
             }
-
+            
             public addActivation(activation: IActivation): void {
                 this.memoryNode.addActivation(activation);
             }
@@ -47,6 +49,16 @@ module Treaty {
 
             public addActivation(activation: IActivation): void {
                 this.successors.push(activation);
+            }
+
+            public visitAll(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                var satisfied = true;
+
+                this.successors.forEach(activation => {
+                    satisfied = satisfied && activation.accept(visitor);
+                });
+
+                return satisfied;
             }
         }
     }

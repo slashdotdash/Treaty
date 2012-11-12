@@ -35,16 +35,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="compilation\selectors.ts" />
     <TypeScriptCompile Include="rules\nodes.ts" />
-    <Content Include="rules\rulesEngine.js">
-      <DependentUpon>rulesEngine.ts</DependentUpon>
-    </Content>
     <Content Include="rules\rulesEngine.ts" />
-    <Content Include="tests\compilation\compiling.js">
-      <DependentUpon>compiling.ts</DependentUpon>
-    </Content>
-    <Content Include="tests\compilation\compiling.min.js">
-      <DependentUpon>compiling.ts</DependentUpon>
-    </Content>
     <Content Include="tests\compilation\compiling.ts" />
     <Content Include="tests\compilation\conditionVisiting.ts" />
   </ItemGroup>

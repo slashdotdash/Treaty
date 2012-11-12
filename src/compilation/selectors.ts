@@ -19,6 +19,8 @@ module Treaty {
 
         export interface IRuntimeVisitor {
             visit(runtime: Treaty.Rules.IRuntimeConfiguration, next: (visitor: IRuntimeVisitor) => bool): bool;
+
+            visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool;
         }
 
         export class NodeSelectorFactory implements INodeSelectorFactory {
@@ -86,10 +88,22 @@ module Treaty {
             }
         }
 
-        export class PropertyNodeSelector implements ISelectNode, IRuntimeVisitor {
+        export class RuntimeVisitor implements IRuntimeVisitor {
+            public visit(runtime: Treaty.Rules.IRuntimeConfiguration, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+        }
+
+        export class PropertyNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private propertyNode: Rules.PropertyNode;
 
-            constructor (public next: ISelectNode, public instanceType: string, public memberName: string, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+            constructor (public next: ISelectNode, public instanceType: string, public memberName: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+                super();
+            }
 
             public select(): void { 
                 throw 'not implemented';
@@ -107,8 +121,13 @@ module Treaty {
                 this.next.selectNode(this.propertyNode);
             }
 
-            public visit(runtime: Treaty.Rules.IRuntimeConfiguration, next: (visitor: IRuntimeVisitor) => bool): bool {
-                return true;
+            public visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                if (this.memberName == node.memberName) {
+                    this.propertyNode = node;
+                    return false;
+                }
+
+                return super.visitPropertyNode(node, next);
             }
         }
     }
