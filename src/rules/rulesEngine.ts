@@ -12,15 +12,15 @@ module Treaty {
         }
 
         export class RulesEngine implements IRuntimeConfiguration {
-            private nextNodeId: number = 1;
-            private alphaNodes = new Cache();
+            private nextNodeId = 1;
+            private alphaNodes = new NodeCache();
 
             public createNode(factory: (id: number) => INode): INode {
                 return factory(this.nextNodeId++);
             }
 
             public getAlphaNode(instanceType: string): AlphaNode {
-                return <AlphaNode>this.alphaNodes.get(instanceType, this.createAlphaNode);
+                return <AlphaNode>this.alphaNodes.getItem(instanceType, x => this.createAlphaNode(instanceType));
             }
 
             private createAlphaNode(instanceType: string): INode {
@@ -32,10 +32,10 @@ module Treaty {
             }
         }
 
-        class Cache {
-            private items = new [];
+        class NodeCache {
+            private items = new any[];
 
-            public get(key: string, createWhenMissing: (k: string) => any): any {
+            public getItem(key: string, createWhenMissing: (k: string) => any): any {
                 var item = this.items[key];
 
                 if (item == null) {
