@@ -33,6 +33,8 @@
     <TypeScriptCompile Include="tests\rules\ruleBuilding.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="rules\rulesEngineBuilder.ts" />
+    <Content Include="tests\conditions\equals.ts" />
     <TypeScriptCompile Include="compilation\selectors.ts" />
     <TypeScriptCompile Include="rules\nodes.ts" />
     <Content Include="rules\rulesEngine.ts" />

@@ -10,7 +10,7 @@ module Treaty {
 
             public compile(rule: Treaty.Rules.Rule): void {
                 var conditionCompiler = new ConditionCompiler(this.runtime);
-
+                
                 rule.conditions.forEach(condition => {
                     condition.accept(conditionCompiler);
                 });
@@ -22,7 +22,7 @@ module Treaty {
         }
 
         export class ConditionCompiler implements Rules.IVisitor {
-            private alphaNodes: ISelectNode[] = new [];
+            private alphaNodes = new ISelectNode[];
 
             constructor (private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 

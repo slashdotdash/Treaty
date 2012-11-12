@@ -13,7 +13,7 @@ module Treaty {
 
         export class RulesEngine implements IRuntimeConfiguration {
             private nextNodeId = 1;
-            private alphaNodes = new NodeCache();
+            public alphaNodes = new NodeCache();
 
             public createNode(factory: (id: number) => INode): INode {
                 return factory(this.nextNodeId++);
@@ -33,15 +33,17 @@ module Treaty {
         }
 
         class NodeCache {
-            private items = new any[];
+            private items = {};
+            public count: number = 0;
 
             public getItem(key: string, createWhenMissing: (k: string) => any): any {
-                var item = this.items[key];
-
-                if (item == null) {
-                    item = createWhenMissing(key);
-                    this.items[key] = item;
+                if (this.items.hasOwnProperty(key)) {
+                    return this.items[key];
                 }
+                
+                var item = createWhenMissing(key);
+                this.count++;
+                this.items[key] = item;
 
                 return item;
             }
