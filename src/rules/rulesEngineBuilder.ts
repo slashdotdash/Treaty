@@ -15,11 +15,16 @@ module Treaty {
 
             public build(): RulesEngine {
                 var engine = new RulesEngine();
-                var ruleCompiler = new Treaty.Compilation.RuleCompiler(engine);
-
-                this.rules.forEach(rule => ruleCompiler.compile(rule));
+                
+                this.compileRules(engine);
 
                 return engine;
+            }
+
+            private compileRules(engine: RulesEngine): void {
+                var compiler = new Treaty.Compilation.RuleCompiler(engine);
+
+                this.rules.forEach(rule => compiler.compile(rule));
             }
         }
     }

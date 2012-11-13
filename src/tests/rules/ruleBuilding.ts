@@ -15,8 +15,8 @@ module Treaty {
             }
             
             describe("ruleBuilder", function () {
-                var subject = new Treaty.Rules.RuleFactory();
-                
+                var subject = new Treaty.Rules.RuleFactory();               
+
                 it("should build named rule", function () {
                     var rule = subject.rule().named("name").build();
 

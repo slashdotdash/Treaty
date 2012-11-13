@@ -18,7 +18,7 @@ module Treaty {
     module Tests {
         module Conditions {
             class Person {
-                public name: string;
+                constructor (public name: string) { }
             }
 
             describe("equals condition", () => {
@@ -26,7 +26,7 @@ module Treaty {
                 var rulesEngineBuilder = new Treaty.Rules.RulesEngineBuilder();
                 var ruleFactory = new Treaty.Rules.RuleFactory();
                 var wasCalled = false;
-                
+
                 beforeEach(() => {
                     var rule = ruleFactory.rule()
                         .named('Rule')
@@ -40,9 +40,19 @@ module Treaty {
                 });
 
                 it("should compile rule", () => {
-                    console.log('subject: ');
-                    console.log(subject);
                     expect(subject.alphaNodes.count).toBe(1);
+                });
+
+                describe("runtime session", () => {
+                    var session: Treaty.Rules.ISession;
+                    
+                    beforeEach(() => {
+                        session = subject.createSession();
+                    });
+
+                    it("should assert fact", () => {
+                        session.assert(new Person('Bob'));
+                    });
                 });
             });
         }

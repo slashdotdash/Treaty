@@ -25,15 +25,24 @@
     <TypeScriptCompile Include="rules\conditions\condition.ts" />
     <TypeScriptCompile Include="rules\consequences\consequence.ts" />
     <TypeScriptCompile Include="rules\ruleBuilder.ts" />
-    <TypeScriptCompile Include="knowledge\knowledgeBase.ts" />
     <TypeScriptCompile Include="facts\fact.ts" />
-    <TypeScriptCompile Include="knowledge\workingMemory.ts" />
     <TypeScriptCompile Include="rules\rule.ts" />
-    <TypeScriptCompile Include="tests\knowledge\knowledgeBase.ts" />
     <TypeScriptCompile Include="tests\rules\ruleBuilding.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="tests\rules\rulesEngineBuilding.ts" />
+    <TypeScriptCompile Include="collections\cache.ts" />
+    <Content Include="collections\cache.js">
+      <DependentUpon>cache.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\runtimeSession.js">
+      <DependentUpon>runtimeSession.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\runtimeSession.ts" />
     <Content Include="rules\rulesEngineBuilder.ts" />
+    <Content Include="tests\conditions\equals.js">
+      <DependentUpon>equals.ts</DependentUpon>
+    </Content>
     <Content Include="tests\conditions\equals.ts" />
     <TypeScriptCompile Include="compilation\selectors.ts" />
     <TypeScriptCompile Include="rules\nodes.ts" />
