@@ -17,10 +17,16 @@ module Treaty {
             selectNode(node: Treaty.Rules.INode): void;
         }
 
+        export interface ISelectRuleNode {
+            select(callback: (node: Treaty.Rules.INode) => void);
+        }
+
         export interface IRuntimeVisitor {
             visit(runtime: Treaty.Rules.IRuntimeConfiguration, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
+            visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool;
         }
 
         export class NodeSelectorFactory implements INodeSelectorFactory {
@@ -40,24 +46,36 @@ module Treaty {
             }
         }
 
+        export class RuleNodeSelector implements ISelectRuleNode {
+            constructor (private node: Treaty.Rules.INode) { }
+
+            public select(callback: (node: Treaty.Rules.INode) => void) { }
+        }
+
         export class NullNodeSelector implements ISelectNode {
             public next: ISelectNode = null;
 
             public select(): void { }
 
             public selectNode(node: Treaty.Rules.INode): void { }
+
+            public selectCallback(callback: (node: Treaty.Rules.INode) => void) { }
         }        
 
         export class ConditionAlphaNodeSelector implements ISelectNode {
             public next: ISelectNode = null;
-
-            constructor (private nodeCallback: (node: ISelectNode) => void) { }
+            
+            constructor (private nodeCallback: (node: ISelectRuleNode) => void) { }
 
             public select(): void { }
 
-            public selectNode(node: Treaty.Rules.INode): void { }
-        }
+            public selectNode(node: Treaty.Rules.INode): void {
+                var alphaNode = <Treaty.Rules.AlphaNode>node;
 
+                this.nodeCallback(new RuleNodeSelector(alphaNode));
+            }
+        }
+                
         export class AlphaNodeSelector implements ISelectNode {
             constructor (public next: ISelectNode) { }
 
@@ -94,6 +112,10 @@ module Treaty {
             }
 
             public visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 return next(this);
             }
         }

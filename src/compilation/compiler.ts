@@ -1,5 +1,6 @@
 ///<reference path='.\selectors.ts' />
 ///<reference path='..\rules\rule.ts' />
+///<reference path='..\rules\nodes.ts' />
 ///<reference path='..\rules\rulesEngine.ts' />
 ///<reference path='..\rules\conditions\condition.ts' />
 ///<reference path='..\rules\consequences\consequence.ts' />
@@ -17,15 +18,17 @@ module Treaty {
                 rule.conditions.forEach(condition => {
                     condition.accept(conditionCompiler);
                 });
+                
+                var consequenceCompiler = new ConsequenceCompiler(this.runtime, conditionCompiler);
 
                 rule.consequences.forEach(consequence => {
-
+                    consequence.accept(consequenceCompiler);
                 });
             }
         }
 
         export class ConditionCompiler implements Rules.IVisitor {
-            private alphaNodes = new ISelectNode[];
+            private alphaNodes = new ISelectRuleNode[];
 
             constructor (private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
@@ -38,6 +41,17 @@ module Treaty {
             }
 
             public visitConsequence(consequence: Rules.Consequences.DelegateConsequence): bool { return true; }
+
+            public matchJoinNode(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool {
+                if (this.alphaNodes.length == 0) 
+                    return false;
+
+                this.alphaNodes.forEach(alphaNode => {
+                    //alphaNode.selectNode(
+                });
+
+                return true;
+            }
 
             private compile(instanceType: string, memberExpression: TypeScript.AST, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
                 var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(node => this.alphaNodes.push(node)));
@@ -81,12 +95,20 @@ module Treaty {
             }
         }
 
-       export class ConsequenceCompiler implements Rules.IVisitor {
+        export class ConsequenceCompiler implements Rules.IVisitor {
+            constructor(private runtime: Treaty.Rules.IRuntimeConfiguration, private conditionCompiler: ConditionCompiler) { }
+
             public visitRule(rule: Rules.Rule, next: (visitor: Rules.IVisitor) => bool): bool { return true; }
 
             public visitCondition(condition: Rules.Conditions.PropertyEqualCondition): bool { return true; }
 
             public visitConsequence(consequence: Rules.Consequences.DelegateConsequence): bool {
+                this.conditionCompiler.matchJoinNode(consequence.instanceType, joinNode => {
+                    var node = <Treaty.Rules.DelegateProductionNode>this.runtime.createNode(id => new Treaty.Rules.DelegateProductionNode(id, consequence.callback));
+
+                    joinNode.addActivation(node);
+                });
+                
                 return true;
             }
         }

@@ -3,14 +3,14 @@
 
 module Treaty {
     export module Rules {
+        export interface IActivation {
+            accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool;
+        }
+
         export interface INode {
             accept(visitor: Treaty.Compilation.IRuntimeVisitor): void;
 
-            addActivation(activation: IActivation): void;
-        }
-
-        export interface IActivation {
-            accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool;
+            addActivation(activation: Treaty.Rules.IActivation): void;
         }
 
         export class AlphaNode implements INode {
@@ -22,7 +22,7 @@ module Treaty {
                 this.memoryNode.accept(visitor);
             }
 
-            public addActivation(activation: IActivation): void {
+            public addActivation(activation: Treaty.Rules.IActivation): void {
                 this.memoryNode.addActivation(activation);
             }
         }
@@ -33,11 +33,19 @@ module Treaty {
             constructor (public id: number, public instanceType: string, public memberName: string) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
-                return visitor.visitPropertyNode(this, visitor => this.memoryNode.visitAll(visitor));
+                return visitor.visitPropertyNode(this, next => this.memoryNode.visitAll(next));
             }
             
-            public addActivation(activation: IActivation): void {
+            public addActivation(activation: Treaty.Rules.IActivation): void {
                 this.memoryNode.addActivation(activation);
+            }
+        }
+
+        export class DelegateProductionNode implements IActivation {
+            constructor (public id: number, private callback: (instance) => void) { }
+
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visitDelegateNode(this, next => true);
             }
         }
 

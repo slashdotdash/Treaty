@@ -12,13 +12,17 @@ module Treaty {
             activate(context: IActivationContext): void;
         }
 
+        export interface IRulesEngine {
+            createSession(): Treaty.Rules.ISession;
+        }
+
         export interface IRuntimeConfiguration {
-            createNode(factory: (id: number) => INode): INode;
+            createNode(factory: (id: number) => any): any;
 
             getAlphaNode(instanceType: string): AlphaNode;
         }
 
-        export class RulesEngine implements IRuntimeConfiguration, IActivate {
+        export class RulesEngine implements IRulesEngine, IRuntimeConfiguration, IActivate {
             private nextNodeId = 1;
             public alphaNodes = new Treaty.Collections.Cache();
             public objectCache = new Treaty.Collections.Cache();
@@ -32,7 +36,7 @@ module Treaty {
                 return new Treaty.Rules.RuntimeSession(this, this.objectCache);
             }
 
-            public createNode(factory: (id: number) => INode): INode {
+            public createNode(factory: (id: number) => any): any {
                 return factory(this.nextNodeId++);
             }
 
@@ -41,7 +45,7 @@ module Treaty {
             }
 
             private createAlphaNode(instanceType: string): INode {
-                var alphaNode = this.createNode(id => new AlphaNode(id, instanceType));
+                var alphaNode = <AlphaNode>this.createNode(id => new AlphaNode(id, instanceType));
                 
                 // TODO: Add activations for each implemented interface of the given instance type
 

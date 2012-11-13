@@ -38,11 +38,17 @@
     <Content Include="compilation\compiler.js">
       <DependentUpon>compiler.ts</DependentUpon>
     </Content>
+    <Content Include="compilation\selectors.js">
+      <DependentUpon>selectors.ts</DependentUpon>
+    </Content>
     <Content Include="rules\conditions\condition.js">
       <DependentUpon>condition.ts</DependentUpon>
     </Content>
     <Content Include="rules\consequences\consequence.js">
       <DependentUpon>consequence.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\nodes.js">
+      <DependentUpon>nodes.ts</DependentUpon>
     </Content>
     <Content Include="rules\rule.js">
       <DependentUpon>rule.ts</DependentUpon>
