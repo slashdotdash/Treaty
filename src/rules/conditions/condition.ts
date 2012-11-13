@@ -9,8 +9,8 @@ module Treaty {
             export class PropertyEqualCondition implements Treaty.Rules.ICondition {
                 constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: any) { }
 
-                public accept(visitor: IVisitor): void {
-                    visitor.visit(this);
+                public accept(visitor: IVisitor): bool {
+                    return visitor.visitCondition(this);
                 }
             }
         }

@@ -8,6 +8,8 @@ module Treaty {
     export module Rules {
         export interface ISession {
             assert(fact: any): void;
+
+            run(): void;
         }
 
         export interface IActivationContext {
@@ -30,6 +32,10 @@ module Treaty {
                 this.runtime.activate(context);
 
                 this.facts.push(context);
+            }
+
+            public run(): void {
+
             }
         }
     }

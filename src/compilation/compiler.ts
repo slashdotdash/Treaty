@@ -2,11 +2,14 @@
 ///<reference path='..\rules\rule.ts' />
 ///<reference path='..\rules\rulesEngine.ts' />
 ///<reference path='..\rules\conditions\condition.ts' />
+///<reference path='..\rules\consequences\consequence.ts' />
 
 module Treaty {
     export module Compilation {
         export class RuleCompiler {
             constructor (private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+
+            public visitRule(rule: Rules.Rule, next: (visitor: Rules.IVisitor) => bool): bool { return true; }
 
             public compile(rule: Treaty.Rules.Rule): void {
                 var conditionCompiler = new ConditionCompiler(this.runtime);
@@ -26,9 +29,15 @@ module Treaty {
 
             constructor (private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
-            public visit(condition: Rules.Conditions.PropertyEqualCondition): void {
+            public visitRule(rule: Rules.Rule, next: (visitor: Rules.IVisitor) => bool): bool { return true; }
+
+            public visitCondition(condition: Rules.Conditions.PropertyEqualCondition): bool {
                 this.compile(condition.instanceType, condition.memberExpression, (next) => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), condition.value)));
+
+                return true;
             }
+
+            public visitConsequence(consequence: Rules.Consequences.DelegateConsequence): bool { return true; }
 
             private compile(instanceType: string, memberExpression: TypeScript.AST, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
                 var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(node => this.alphaNodes.push(node)));
@@ -72,7 +81,14 @@ module Treaty {
             }
         }
 
-        export class ConsequenceCompiler {
+       export class ConsequenceCompiler implements Rules.IVisitor {
+            public visitRule(rule: Rules.Rule, next: (visitor: Rules.IVisitor) => bool): bool { return true; }
+
+            public visitCondition(condition: Rules.Conditions.PropertyEqualCondition): bool { return true; }
+
+            public visitConsequence(consequence: Rules.Consequences.DelegateConsequence): bool {
+                return true;
+            }
         }
     }
 }

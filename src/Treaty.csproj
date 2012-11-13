@@ -35,6 +35,18 @@
     <Content Include="collections\cache.js">
       <DependentUpon>cache.ts</DependentUpon>
     </Content>
+    <Content Include="compilation\compiler.js">
+      <DependentUpon>compiler.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\conditions\condition.js">
+      <DependentUpon>condition.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\consequences\consequence.js">
+      <DependentUpon>consequence.ts</DependentUpon>
+    </Content>
+    <Content Include="rules\rule.js">
+      <DependentUpon>rule.ts</DependentUpon>
+    </Content>
     <Content Include="rules\runtimeSession.js">
       <DependentUpon>runtimeSession.ts</DependentUpon>
     </Content>

@@ -1,19 +1,41 @@
+///<reference path='.\conditions\condition.ts' />
+///<reference path='.\consequences\consequence.ts' />
+
 module Treaty {
    export module Rules {
-        export class Rule {
-            constructor (public name: string, public conditions: ICondition[], public consequences: IConsequence[]) {                
+
+        export class Rule implements IAcceptVisitor {
+            constructor (public name: string, public conditions: ICondition[], public consequences: IConsequence[]) { }
+
+            public accept(visitor: IVisitor): bool {
+                return visitor.visitRule(this, next => this.forAll(this.conditions, next) && this.forAll(this.consequences, next));
+            }
+
+            private forAll(list: IAcceptVisitor[], visitor: IVisitor): bool {
+                var accepted = true;
+
+                list.forEach(item => accepted = accepted && item.accept(visitor));
+
+                return accepted;
             }
         }
         
-        export interface ICondition {
-            accept(visitor: IVisitor): void;
+        export interface IAcceptVisitor {
+            accept(visitor: IVisitor): bool;
         }
 
-        export interface IConsequence {
+        export interface ICondition extends IAcceptVisitor {
+        }
+
+        export interface IConsequence extends IAcceptVisitor {
         }
 
         export interface IVisitor {
-            visit(condition: Conditions.PropertyEqualCondition): void;
+            visitRule(rule: Rule, next: (visitor: IVisitor) => bool): bool;
+
+            visitCondition(condition: Conditions.PropertyEqualCondition): bool;
+
+            visitConsequence(consequence: Consequences.DelegateConsequence): bool;
         }
     }
 }
