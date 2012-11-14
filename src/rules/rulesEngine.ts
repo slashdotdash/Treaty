@@ -20,6 +20,8 @@ module Treaty {
             createNode(factory: (id: number) => any): any;
 
             getAlphaNode(instanceType: string): AlphaNode;
+
+            matchJoinNode(left: Rules.INode, right: Rules.INode, callback: (joinNode: Rules.INode) => void);
         }
 
         export class RulesEngine implements IRulesEngine, IRuntimeConfiguration, IActivate {
@@ -42,6 +44,19 @@ module Treaty {
 
             public getAlphaNode(instanceType: string): AlphaNode {
                 return <AlphaNode>this.alphaNodes.getItem(instanceType, x => this.createAlphaNode(instanceType));
+            }
+
+            public matchJoinNode(left: Rules.INode, right: Rules.INode, callback: (joinNode: Rules.INode) => void ) {
+                var joinNode: JoinNode = null;
+
+                // TODO: Find existing join node if one exists
+
+                var rightActivation = <IActivation>right.getSuccessors[0];
+
+                joinNode = <JoinNode>this.createNode(id => new JoinNode(id, rightActivation));
+
+                if (joinNode != null)
+                    callback(joinNode);
             }
 
             private createAlphaNode(instanceType: string): INode {

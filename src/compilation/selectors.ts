@@ -18,13 +18,15 @@ module Treaty {
         }
 
         export interface ISelectRuleNode {
-            select(callback: (node: Treaty.Rules.INode) => void);
+            select(callback: (node: Treaty.Rules.INode) => void): bool;
         }
 
         export interface IRuntimeVisitor {
             visit(runtime: Treaty.Rules.IRuntimeConfiguration, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
+            visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool;
         }
@@ -49,7 +51,10 @@ module Treaty {
         export class RuleNodeSelector implements ISelectRuleNode {
             constructor (private node: Treaty.Rules.INode) { }
 
-            public select(callback: (node: Treaty.Rules.INode) => void) { }
+            public select(callback: (node: Treaty.Rules.INode) => void): bool {
+                callback(this.node);
+                return true;
+            }
         }
 
         export class NullNodeSelector implements ISelectNode {
@@ -115,9 +120,13 @@ module Treaty {
                 return next(this);
             }
 
-            public visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+            public visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 return next(this);
             }
+
+            public visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }            
         }
 
         export class PropertyNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {

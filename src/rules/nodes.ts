@@ -11,6 +11,8 @@ module Treaty {
             accept(visitor: Treaty.Compilation.IRuntimeVisitor): void;
 
             addActivation(activation: Treaty.Rules.IActivation): void;
+
+            getSuccessors(): Rules.IActivation[];
         }
 
         export class AlphaNode implements INode {
@@ -25,6 +27,8 @@ module Treaty {
             public addActivation(activation: Treaty.Rules.IActivation): void {
                 this.memoryNode.addActivation(activation);
             }
+
+            public getSuccessors(): Rules.IActivation[] { return this.memoryNode.successors; }
         }
 
         export class PropertyNode implements INode, IActivation {
@@ -39,6 +43,24 @@ module Treaty {
             public addActivation(activation: Treaty.Rules.IActivation): void {
                 this.memoryNode.addActivation(activation);
             }
+
+            public getSuccessors(): Rules.IActivation[] { return this.memoryNode.successors; }
+        }
+
+        export class JoinNode implements INode {
+            private memoryNode = new MemoryNode();
+            
+            constructor (public id: number, public rightActivation: Rules.IActivation) { }
+
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visitJoinNode(this, next => this.rightActivation.accept(next) && this.memoryNode.visitAll(next));
+            }
+            
+            public addActivation(activation: Treaty.Rules.IActivation): void {
+                this.memoryNode.addActivation(activation);
+            }
+
+            public getSuccessors(): Rules.IActivation[] { return this.memoryNode.successors; }
         }
 
         export class DelegateProductionNode implements IActivation {
@@ -50,7 +72,7 @@ module Treaty {
         }
 
         class MemoryNode implements INode {
-            private successors = new IActivation[];
+            public successors = new IActivation[];
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): void {
             }
@@ -68,6 +90,8 @@ module Treaty {
 
                 return satisfied;
             }
+
+            public getSuccessors(): Rules.IActivation[] { return this.successors; }
         }
     }
 }

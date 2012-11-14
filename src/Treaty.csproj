@@ -53,6 +53,9 @@
     <Content Include="rules\rule.js">
       <DependentUpon>rule.ts</DependentUpon>
     </Content>
+    <Content Include="rules\rulesEngine.js">
+      <DependentUpon>rulesEngine.ts</DependentUpon>
+    </Content>
     <Content Include="rules\runtimeSession.js">
       <DependentUpon>runtimeSession.ts</DependentUpon>
     </Content>

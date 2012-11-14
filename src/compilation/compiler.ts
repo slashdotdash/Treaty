@@ -46,9 +46,23 @@ module Treaty {
                 if (this.alphaNodes.length == 0) 
                     return false;
 
-                this.alphaNodes.forEach(alphaNode => {
-                    //alphaNode.selectNode(
+                var left: Rules.INode = null;
+                var right: Rules.INode = null;
+
+                // TODO: Hack for now
+                this.alphaNodes[0].select(firstNode => {
+                    left = firstNode;
+
+                    this.alphaNodes[1].select(secondNde => {
+                        right = secondNde;
+
+                        this.runtime.matchJoinNode(left, right, join => left = join);
+                    });
                 });
+                
+                if (left != null) {
+                    callback(left);
+                }
 
                 return true;
             }
