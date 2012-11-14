@@ -48,13 +48,13 @@ module Treaty {
                     
                     beforeEach(() => {
                         session = subject.createSession();
+                        session.assert('Person', new Person('Bob'));
 
-                        session.assert(new Person('Bob'));
                         session.run();
                     });
 
                     it("should assert fact creating an alpha node", () => {
-                        expect(subject.alphaNodes.count).toBe(1);
+                        expect(subject.alphaNodes.count).toBeGreaterThan(0);
                     });
 
                     it("should execute consequence", () => {

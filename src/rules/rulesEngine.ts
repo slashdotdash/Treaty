@@ -9,7 +9,7 @@
 module Treaty {
     export module Rules {
         export interface IActivate {
-            activate(context: IActivationContext): void;
+            activate(context: Treaty.Rules.IActivationContext): void;
         }
 
         export interface IRulesEngine {
@@ -30,8 +30,9 @@ module Treaty {
             public objectCache = new Treaty.Collections.Cache();
 
             public activate(context: IActivationContext): void {
-                var instanceType = typeof (context.fact);
-                var alphaNode = this.alphaNodes.getItem(instanceType, x => this.createAlphaNode(instanceType));
+                var alphaNode = <Treaty.Rules.IActivation>this.getAlphaNode(context.instanceType);
+                
+                alphaNode.activate(context);
             }
 
             public createSession(): Treaty.Rules.ISession {
