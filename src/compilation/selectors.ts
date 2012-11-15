@@ -24,6 +24,8 @@ module Treaty {
         export interface IRuntimeVisitor {
             visit(runtime: Treaty.Rules.IRuntimeConfiguration, next: (visitor: IRuntimeVisitor) => bool): bool;
 
+            visitAlphaNode(node: Treaty.Rules.AlphaNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
             visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool;
@@ -82,9 +84,14 @@ module Treaty {
         }
                 
         export class AlphaNodeSelector implements ISelectNode {
-            constructor (public next: ISelectNode) { }
+            private alphaNode: Rules.AlphaNode;
 
-            public select(): void { }
+            constructor (public next: ISelectNode, private instanceType: string, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+
+            public select(): void {
+                this.alphaNode = this.runtime.getAlphaNode(this.instanceType);
+                this.next.selectNode(this.alphaNode);
+            }
 
             public selectNode(node: Treaty.Rules.INode): void { }
         }
@@ -116,6 +123,10 @@ module Treaty {
                 return next(this);
             }
 
+            public visitAlphaNode(node: Treaty.Rules.AlphaNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
             public visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 return next(this);
             }
@@ -141,6 +152,7 @@ module Treaty {
             }
 
             public selectNode(node: Treaty.Rules.INode): void { 
+                debugger;
                 node.accept(this);
                 
                 if (this.propertyNode == null) {

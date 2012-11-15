@@ -69,7 +69,7 @@ module Treaty {
 
             private compile(instanceType: string, memberExpression: TypeScript.AST, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
                 var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(node => this.alphaNodes.push(node)));
-                var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create()));
+                var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
                 var nodeFactory = selectorFactory(alphaFactory);
 
                 new PropertyExpressionVisitor(instanceType, nodeFactory, this.runtime)

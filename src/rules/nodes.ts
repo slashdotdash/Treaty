@@ -1,6 +1,9 @@
 ///<reference path='.\rulesEngine.ts' />
 ///<reference path='..\compilation\compiler.ts' />
 
+///<reference path='..\..\typings\underscore-typed-1.4.d.ts' />
+///<reference path='..\..\lib\Underscore.js\underscore.js' />
+
 module Treaty {
     export module Rules {
         export interface IActivation extends IActivate {
@@ -8,72 +11,69 @@ module Treaty {
         }
 
         export interface INode {
+            successors: Rules.IActivation[];
+
             accept(visitor: Treaty.Compilation.IRuntimeVisitor): void;
 
             addActivation(activation: Treaty.Rules.IActivation): void;
-
-            getSuccessors(): Rules.IActivation[];
         }
 
         export class AlphaNode implements INode, IActivation {
-            private memoryNode: MemoryNode;
+            public successors = new IActivation[];
             
-            constructor (public id: number, private instanceType: string) {
-                this.memoryNode = new MemoryNode(id);
-            }
+            constructor (public id: number, private instanceType: string) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
-                this.memoryNode.accept(visitor);
-                return true;
+                return visitor.visitAlphaNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
             }
 
             public addActivation(activation: Treaty.Rules.IActivation): void {
-                this.memoryNode.addActivation(activation);
+                this.successors.push(activation);
             }
 
             public activate(context: Treaty.Rules.IActivationContext): void {
-                this.memoryNode.activate(context);
+                context.access(this.id, memory => memory.activate(context));
+                context.schedule(session => this.successors.forEach(successor => successor.activate(context)));
             }
-
-            public getSuccessors(): Rules.IActivation[] { return this.memoryNode.successors; }
         }
 
         export class PropertyNode implements INode, IActivation {
-            private memoryNode: MemoryNode;
+            public successors = new IActivation[];
             
-            constructor (public id: number, public instanceType: string, public memberName: string) {
-                this.memoryNode = new MemoryNode(id);
-            }
+            constructor (public id: number, public instanceType: string, public memberName: string) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
-                return visitor.visitPropertyNode(this, next => this.memoryNode.visitAll(next));
+                return visitor.visitPropertyNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
             }
             
             public addActivation(activation: Treaty.Rules.IActivation): void {
-                this.memoryNode.addActivation(activation);
+                this.successors.push(activation);
             }
 
-            public activate(context: Treaty.Rules.IActivationContext): void { }
+            public activate(context: Treaty.Rules.IActivationContext): void {
+                if (context.fact.hasOwnProperty(this.memberName)) {
+                    var value = context.fact[this.memberName];
+                    var activationToken = new Rules.ActivationToken(this.instanceType, typeof (value));
 
-            public getSuccessors(): Rules.IActivation[] { return this.memoryNode.successors; }
+                    var propertyContext = context.createContext('ActivationToken', activationToken);
+
+                    _.each(this.successors, (activation: IActivation) => activation.activate(propertyContext));
+                }
+            }
         }
 
         export class JoinNode implements INode {
-            private memoryNode: MemoryNode;            
+            public successors = new IActivation[];
             
-            constructor (public id: number, public rightActivation: Rules.IActivation) {
-                this.memoryNode = new MemoryNode(id);
-            }
+            constructor (public id: number, public rightActivation: Rules.IActivation) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
-                return visitor.visitJoinNode(this, next => this.rightActivation.accept(next) && this.memoryNode.visitAll(next));
+                return visitor.visitJoinNode(this, next => this.rightActivation.accept(next) && _.all(this.successors, (activation: IActivation) => activation.accept(next)));
             }
             
             public addActivation(activation: Treaty.Rules.IActivation): void {
-                this.memoryNode.addActivation(activation);
+                this.successors.push(activation);
             }
-
-            public getSuccessors(): Rules.IActivation[] { return this.memoryNode.successors; }
         }
 
         export class DelegateProductionNode implements IActivation {
@@ -86,39 +86,6 @@ module Treaty {
             public activate(context: Treaty.Rules.IActivationContext): void {
                 context.schedule(session => this.callback(context.fact));
             }
-        }
-
-        export class MemoryNode implements INode {
-            public successors = new IActivation[];
-
-            constructor (private id: number) { }
-
-            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): void {
-            }
-
-            public addActivation(activation: IActivation): void {
-                this.successors.push(activation);
-            }
-
-            public visitAll(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
-                var satisfied = true;
-
-                this.successors.forEach(activation => {
-                    satisfied = satisfied && activation.accept(visitor);
-                });
-
-                return satisfied;
-            }
-
-            public activate(context: Treaty.Rules.IActivationContext): void {
-                context.access(this.id, memory => memory.activate(context));
-
-                context.schedule(session => {
-                    this.successors.forEach(successor => successor.activate(context));
-                });
-            }
-
-            public getSuccessors(): Rules.IActivation[] { return this.successors; }
         }
     }
 }

@@ -52,7 +52,7 @@ module Treaty {
 
                 // TODO: Find existing join node if one exists
 
-                var rightActivation = <IActivation>right.getSuccessors[0];
+                var rightActivation = <IActivation>right.successors[0];
 
                 joinNode = <JoinNode>this.createNode(id => new JoinNode(id, rightActivation));
 

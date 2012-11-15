@@ -17,13 +17,23 @@ module Treaty {
 
             fact: any;
             
+            createContext(instanceType: string, fact: any): IActivationContext;
+
             access(id: number, callback: (memory: ContextMemory) => void): void;
 
             schedule(action: (session: ISession) => void ): void;
         }
 
+        export class ActivationToken {
+            constructor (private sourceType: string, private valueType: string) { }
+        }
+
         class ActivationContext implements IActivationContext {
             constructor (private context: IActivationContext, public instanceType: string, public fact: any) { }
+
+            public createContext(instanceType: string, fact: any): IActivationContext {
+                return this.context.createContext(instanceType, fact);
+            }
 
             public access(id: number, callback: (memory: any) => void ): void {
                 this.context.access(id, callback);
@@ -56,13 +66,17 @@ module Treaty {
                 this.agenda.run();
             }
 
+            public createContext(instanceType: string, fact: any): IActivationContext {
+                return new ActivationContext(this, instanceType, fact);
+            }
+
             public access(id: number, callback: (memory: ContextMemory) => void): void {
                 var contextMemory = <ContextMemory>this.memory.getItem(id.toString(), key => new ContextMemory());
 
                 contextMemory.access(callback);
             }
 
-            public schedule(action: (session: ISession) => void ): void {
+            public schedule(action: (session: ISession) => void): void {
                 this.agenda.schedule(() => action(this));
             }
         }
@@ -101,10 +115,7 @@ module Treaty {
             }
 
             public run(): void {
-                this.operations.forEach(operation => {
-                    var action = <() => void >operation;
-                    action();
-                });
+                this.operations.forEach((operation: () => void) => operation());
             }
         }
     }
