@@ -28,6 +28,10 @@ module Treaty {
 
             visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
+            visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
+            visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
             visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool;
@@ -48,6 +52,36 @@ module Treaty {
             private createNullSelector(): ISelectNode {
                 return new NullNodeSelector();
             }
+        }
+
+        export class RuntimeVisitor implements IRuntimeVisitor {
+            public visit(runtime: Treaty.Rules.IRuntimeConfiguration, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitAlphaNode(node: Treaty.Rules.AlphaNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }            
         }
 
         export class RuleNodeSelector implements ISelectRuleNode {
@@ -82,26 +116,63 @@ module Treaty {
                 this.nodeCallback(new RuleNodeSelector(alphaNode));
             }
         }
-                
-        export class AlphaNodeSelector implements ISelectNode {
-            private alphaNode: Rules.AlphaNode;
 
-            constructor (public next: ISelectNode, private instanceType: string, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+        export class AlphaNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+            private alphaNode: Treaty.Rules.AlphaNode;
+
+            constructor (public next: ISelectNode, private instanceType: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+                super();
+            }
 
             public select(): void {
                 this.alphaNode = this.runtime.getAlphaNode(this.instanceType);
                 this.next.selectNode(this.alphaNode);
             }
 
-            public selectNode(node: Treaty.Rules.INode): void { }
+            public selectNode(node: Treaty.Rules.INode): void {
+                this.alphaNode = null;
+                node.accept(this);
+                
+                if (this.alphaNode == null) {
+                    debugger;
+                    this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, this.instanceType));
+
+                    node.addActivation(this.alphaNode);
+                }
+
+                this.next.selectNode(this.alphaNode);
+            }
         }
 
-        export class EqualNodeSelector implements ISelectNode {
-            constructor (public next: ISelectNode, private value: any) { }
+        export class EqualNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+            private equalNode: Rules.EqualNode;
 
-            public select(): void { }
+            constructor (public next: ISelectNode, private value: any, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+                super();
+            }
 
-            public selectNode(node: Treaty.Rules.INode): void { }
+            public select(): void {
+                throw 'not implemented';            
+            }
+
+            public selectNode(node: Treaty.Rules.INode): void {
+                this.equalNode = null;
+                                
+                node.accept(this);
+
+                if (this.equalNode == null) {
+                    this.equalNode = <Rules.EqualNode>this.runtime.createNode(id => new Rules.EqualNode(id, typeof(this.value)));
+
+                    node.addActivation(this.equalNode);
+                }
+
+                this.next.selectNode(this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, typeof(this.value), this.value))));
+            }
+
+            public visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                this.equalNode = node;
+                return false;
+            }
         }
 
         export class TypeNodeSelector implements ISelectNode {
@@ -118,28 +189,6 @@ module Treaty {
             }
         }
 
-        export class RuntimeVisitor implements IRuntimeVisitor {
-            public visit(runtime: Treaty.Rules.IRuntimeConfiguration, next: (visitor: IRuntimeVisitor) => bool): bool {
-                return next(this);
-            }
-
-            public visitAlphaNode(node: Treaty.Rules.AlphaNode, next: (visitor: IRuntimeVisitor) => bool): bool {
-                return next(this);
-            }
-
-            public visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: IRuntimeVisitor) => bool): bool {
-                return next(this);
-            }
-
-            public visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool {
-                return next(this);
-            }
-
-            public visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool {
-                return next(this);
-            }            
-        }
-
         export class PropertyNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private propertyNode: Rules.PropertyNode;
 
@@ -151,8 +200,7 @@ module Treaty {
                 throw 'not implemented';
             }
 
-            public selectNode(node: Treaty.Rules.INode): void { 
-                debugger;
+            public selectNode(node: Treaty.Rules.INode): void {
                 node.accept(this);
                 
                 if (this.propertyNode == null) {

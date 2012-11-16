@@ -1,6 +1,6 @@
 ///<reference path='.\selectors.ts' />
-///<reference path='..\rules\rule.ts' />
 ///<reference path='..\rules\nodes.ts' />
+///<reference path='..\rules\rule.ts' />
 ///<reference path='..\rules\rulesEngine.ts' />
 ///<reference path='..\rules\conditions\condition.ts' />
 ///<reference path='..\rules\consequences\consequence.ts' />
@@ -35,7 +35,7 @@ module Treaty {
             public visitRule(rule: Rules.Rule, next: (visitor: Rules.IVisitor) => bool): bool { return true; }
 
             public visitCondition(condition: Rules.Conditions.PropertyEqualCondition): bool {
-                this.compile(condition.instanceType, condition.memberExpression, (next) => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), condition.value)));
+                this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), condition.value, this.runtime)));
 
                 return true;
             }

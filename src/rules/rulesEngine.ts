@@ -19,7 +19,7 @@ module Treaty {
         export interface IRuntimeConfiguration {
             createNode(factory: (id: number) => any): any;
 
-            getAlphaNode(instanceType: string): AlphaNode;
+            getAlphaNode(instanceType: string): Treaty.Rules.AlphaNode;
 
             matchJoinNode(left: Rules.INode, right: Rules.INode, callback: (joinNode: Rules.INode) => void);
         }
@@ -43,8 +43,8 @@ module Treaty {
                 return factory(this.nextNodeId++);
             }
 
-            public getAlphaNode(instanceType: string): AlphaNode {
-                return <AlphaNode>this.alphaNodes.getItem(instanceType, x => this.createAlphaNode(instanceType));
+            public getAlphaNode(instanceType: string): Treaty.Rules.AlphaNode {
+                return <Treaty.Rules.AlphaNode>this.alphaNodes.getItem(instanceType, x => this.createAlphaNode(instanceType));
             }
 
             public matchJoinNode(left: Rules.INode, right: Rules.INode, callback: (joinNode: Rules.INode) => void ) {
@@ -60,8 +60,8 @@ module Treaty {
                     callback(joinNode);
             }
 
-            private createAlphaNode(instanceType: string): INode {
-                var alphaNode = <AlphaNode>this.createNode(id => new AlphaNode(id, instanceType));
+            private createAlphaNode(instanceType: string): Treaty.Rules.AlphaNode {
+                var alphaNode = <Treaty.Rules.AlphaNode>this.createNode(id => new Treaty.Rules.AlphaNode(id, instanceType));
                 
                 // TODO: Add activations for each implemented interface of the given instance type
 

@@ -2,6 +2,7 @@ module Treaty {
     export module Collections {
         export class Cache {
             private items = {};
+
             public count: number = 0;
 
             public getItem(key: string, createWhenMissing: (k: string) => any): any {
@@ -14,6 +15,15 @@ module Treaty {
                 }
 
                 return item;
+            }
+
+            public withMatching(key: string, callback: (found: any) => void ): bool {
+                var item = this.items[key];
+
+                if (item == undefined) return false;
+
+                callback(item);
+                return true;
             }
         }
     }
