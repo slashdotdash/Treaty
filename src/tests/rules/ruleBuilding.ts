@@ -24,7 +24,7 @@ module Treaty {
                     expect(rule.name).toEqual("name");
                 });
                 
-                xdescribe("with condition", function () { 
+                describe("with condition", function () { 
                     it("should support basic conditions", function () {
                         var rule = subject.rule().named("rule")
                             .when('Person', (person: Person) => person.name == "Bob")
@@ -34,7 +34,7 @@ module Treaty {
                     });
                 });
                 
-                xdescribe("with consequence", () => {
+                describe("with consequence", () => {
                     it("should support simple consequences", function () {
                         var rule = subject.rule().named("rule")
                             .when("Person", (person: Person) => true)
