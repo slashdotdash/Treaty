@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <ProjectGuid>{71EED5A6-82E8-4D48-8C2E-2A02CF80D3DE}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
@@ -38,26 +39,8 @@
     <Content Include="compilation\compiler.js">
       <DependentUpon>compiler.ts</DependentUpon>
     </Content>
-    <Content Include="compilation\selectors.js">
-      <DependentUpon>selectors.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\conditions\condition.js">
-      <DependentUpon>condition.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\consequences\consequence.js">
-      <DependentUpon>consequence.ts</DependentUpon>
-    </Content>
     <Content Include="rules\nodes.js">
       <DependentUpon>nodes.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\rule.js">
-      <DependentUpon>rule.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\rulesEngine.js">
-      <DependentUpon>rulesEngine.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\runtimeSession.js">
-      <DependentUpon>runtimeSession.ts</DependentUpon>
     </Content>
     <Content Include="rules\runtimeSession.ts" />
     <Content Include="rules\rulesEngineBuilder.ts" />
@@ -99,7 +82,12 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptSourceMap> --sourcemap</TypeScriptSourceMap>
+  </PropertyGroup>
   <Target Name="BeforeBuild">
-    <Exec Command="&quot;$(PROGRAMFILES)\Microsoft SDKs\TypeScript\0.8.0.0\tsc&quot; @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
+    <Message Text="Compiling TypeScript files" />
+    <Message Text="Executing tsc$(TypeScriptSourceMap) @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
+    <Exec Command="tsc$(TypeScriptSourceMap) @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
   </Target>
 </Project>
