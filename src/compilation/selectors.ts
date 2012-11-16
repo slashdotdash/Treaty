@@ -108,7 +108,9 @@ module Treaty {
             
             constructor (private nodeCallback: (node: ISelectRuleNode) => void) { }
 
-            public select(): void { }
+            public select(): void {
+                throw 'not implemented';
+            }
 
             public selectNode(node: Treaty.Rules.INode): void {
                 var alphaNode = <Treaty.Rules.AlphaNode>node;

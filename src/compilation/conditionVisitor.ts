@@ -101,11 +101,21 @@ module Treaty {
             public visitConstant(operand: TypeScript.AST): void {
                 if (operand instanceof TypeScript.NumberLiteral) {
                     this.visitNumberLiteral(<TypeScript.NumberLiteral>operand);
+                } else if (operand instanceof TypeScript.StringLiteral) {
+                    this.visitStringLiteral(<TypeScript.StringLiteral>operand);
                 }
             }
 
             private visitNumberLiteral(operand: TypeScript.NumberLiteral): void {
                 this.value = operand.value;
+            }
+
+            private visitStringLiteral(operand: TypeScript.StringLiteral): void {
+                this.value = this.stripQuotes(operand.text);
+            }
+
+            private stripQuotes(source: string): string {
+                return source.substr(1, source.length - 2);
             }
         }
 

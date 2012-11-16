@@ -35,6 +35,9 @@ module Treaty {
                 return this;
             }
 
+            // TODO: overload when instanceType not a string, use obj.toType() function below.
+            // Object.toType = function(obj) { return ({}).toString.call(obj).match(/\s([a-z|A-Z]+)/)[1].toLowerCase(); }
+
             public when(instanceType: string, expression: (instance) => bool): IConfigureRule {
                 this.conditionBuilders.push(new ConditionBuilder(instanceType, expression));
                 return this;
