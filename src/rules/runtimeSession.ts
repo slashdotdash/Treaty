@@ -94,8 +94,18 @@ module Treaty {
                 this.filterPendingJoins(context);
             }
 
+            public all(callback: (next: Treaty.Rules.IActivationContext) => bool): void {
+                this.join(callback);
+            }
+
             private filterPendingJoins(context: IActivationContext): void {
                 this.joins = this.joins.filter(join => join.isApplicable(context));
+            }
+
+            private join(callback: (next: Treaty.Rules.IActivationContext) => bool): void {                
+                if (_.all(this.contexts, (context: IActivationContext) => callback(context))) {
+                    this.joins.push(new PendingJoin(callback));
+                }
             }
         }
 
@@ -115,7 +125,9 @@ module Treaty {
             }
 
             public run(): void {
-                this.operations.forEach((operation: () => void) => operation());
+                while (this.operations.length == 1) {
+                    this.operations.forEach((operation: () => void ) => operation());
+                }
             }
         }
     }

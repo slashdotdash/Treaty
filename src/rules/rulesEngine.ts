@@ -21,7 +21,11 @@ module Treaty {
 
             getAlphaNode(instanceType: string): Treaty.Rules.AlphaNode;
 
-            matchJoinNode(left: Rules.INode, right: Rules.INode, callback: (joinNode: Rules.INode) => void);
+            matchJoinNodeOne(left: Rules.INode, callback: (joinNode: Rules.INode) => void): void;
+
+            matchJoinNodeTwo(left: Rules.INode, right: Rules.INode, callback: (joinNode: Rules.INode) => void): void;
+
+            matchLeftJoinNode(left: Rules.INode, callback: (joinNode: Rules.LeftJoinNode) => void): void;
         }
 
         export class RulesEngine implements IRulesEngine, IRuntimeConfiguration, IActivate {
@@ -47,18 +51,61 @@ module Treaty {
                 return <Treaty.Rules.AlphaNode>this.alphaNodes.getItem(instanceType, x => this.createAlphaNode(instanceType));
             }
 
-            public matchJoinNode(left: Rules.INode, right: Rules.INode, callback: (joinNode: Rules.INode) => void ) {
-                var joinNode: JoinNode = null;
+            public matchJoinNodeOne(left: Rules.INode, callback: (joinNode: Rules.INode) => void ): void {
+                var node: JoinNode = _.find(left.successors, (node: JoinNode) => node.rightActivation instanceof ConstantNode);
 
-                // TODO: Find existing join node if one exists
+                if (node == undefined) {
+                    var rightActivation = <ConstantNode>this.createNode(id => new ConstantNode(id));
 
-                var rightActivation = <IActivation>right.successors[0];
+                    node = <JoinNode>this.createNode(id => new JoinNode(id, rightActivation));
 
-                joinNode = <JoinNode>this.createNode(id => new JoinNode(id, rightActivation));
+                    left.addActivation(node);
+                }
 
-                if (joinNode != null)
-                    callback(joinNode);
+                if (node != null)
+                    callback(node);
             }
+
+            public matchJoinNodeTwo(left: Rules.INode, right: Rules.INode, callback: (joinNode: Rules.INode) => void ) {
+                var node: JoinNode = _.find(left.successors, (node: JoinNode) => node.rightActivation.id == right.id);
+
+                if (node == undefined) {
+                    var rightActivation = <any>right;
+
+                    node = <JoinNode>this.createNode(id => new JoinNode(id, rightActivation));
+
+                    left.addActivation(node);
+                }
+
+                if (node != null)
+                    callback(node);
+
+                //var joinNode: JoinNode = null;
+
+                //// TODO: Find existing join node if one exists
+
+                //var rightActivation = <IActivation>right.successors[0];
+
+                //joinNode = <JoinNode>this.createNode(id => new JoinNode(id, rightActivation));
+
+                //if (joinNode != null)
+                //    callback(joinNode);
+            }
+
+            public matchLeftJoinNode(left: Rules.INode, callback: (joinNode: Rules.LeftJoinNode) => void ): void {
+                var node: LeftJoinNode = _.find(left.successors, (node: LeftJoinNode) => node.rightActivation instanceof ConstantNode);
+
+                if (node == undefined) {
+                    var rightActivation = <ConstantNode>this.createNode(id => new ConstantNode(id));
+
+                    node = <LeftJoinNode>this.createNode(id => new LeftJoinNode(id, rightActivation));
+
+                    left.addActivation(node);
+                }
+
+                if (node != null)
+                    callback(node);
+            }            
 
             private createAlphaNode(instanceType: string): Treaty.Rules.AlphaNode {
                 var alphaNode = <Treaty.Rules.AlphaNode>this.createNode(id => new Treaty.Rules.AlphaNode(id, instanceType));

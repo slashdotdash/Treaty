@@ -49,18 +49,34 @@ module Treaty {
                 var left: Rules.INode = null;
                 var right: Rules.INode = null;
 
-                // TODO: Hack for now
-                this.alphaNodes[0].select(firstNode => {
-                    left = firstNode;
+                var visited = new ISelectRuleNode[];
 
-                    this.alphaNodes[1].select(secondNde => {
-                        right = secondNde;
+                _.each(this.alphaNodes, (alpha: ISelectRuleNode) => {
+                    if (_.contains(visited, alpha)) return;
+                    
+                    alpha.select(node => {
+                        left = node;
+                        visited.push(alpha);
 
-                        this.runtime.matchJoinNode(left, right, join => left = join);
+                        var remaining = _.reject(this.alphaNodes, (beta: ISelectRuleNode) => _.contains(visited, beta));
+
+                        _.each(remaining, (beta: ISelectRuleNode) => {
+                            if (_.contains(visited, beta)) return;
+
+                            beta.select(right => {
+                                visited.push(beta);
+
+                                this.runtime.matchJoinNodeTwo(left, right, join => left = join);
+                            });
+                        });
                     });
                 });
                 
                 if (left != null) {
+                    if (left instanceof Treaty.Rules.AlphaNode) {
+                        this.runtime.matchJoinNodeOne(left, join => left = join);
+                    }
+
                     callback(left);
                 }
 
@@ -68,9 +84,10 @@ module Treaty {
             }
 
             private compile(instanceType: string, memberExpression: TypeScript.AST, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
-                var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(node => this.alphaNodes.push(node)));
+                var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(node => this.alphaNodes.push(node), this.runtime));
                 var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
                 var nodeFactory = selectorFactory(alphaFactory);
+                debugger;
 
                 new PropertyExpressionVisitor(instanceType, nodeFactory, this.runtime)
                     .createSelector(memberExpression)
@@ -89,6 +106,7 @@ module Treaty {
                 } else if (expression instanceof TypeScript.BinaryExpression) {
                     this.visitBinary(<TypeScript.BinaryExpression>expression);
                 } else {
+                    debugger;
                     console.log('Expression type "' + typeof (expression) + '" not yet supported.');
                 }
 

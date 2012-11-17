@@ -21,6 +21,10 @@ module Treaty {
             select(callback: (node: Treaty.Rules.INode) => void): bool;
         }
 
+        export interface ISelectLeftJoinRuleNode {
+            match(callback: (node: Treaty.Rules.LeftJoinNode) => void): void;
+        }
+
         export interface IRuntimeVisitor {
             visit(runtime: Treaty.Rules.IRuntimeConfiguration, next: (visitor: IRuntimeVisitor) => bool): bool;
 
@@ -33,6 +37,10 @@ module Treaty {
             visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
+            visitLeftJoinNode(node: Treaty.Rules.LeftJoinNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
+            visitConstantNode(node: Treaty.Rules.ConstantNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool;
         }
@@ -79,17 +87,71 @@ module Treaty {
                 return next(this);
             }
 
+            public visitLeftJoinNode(node: Treaty.Rules.LeftJoinNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitConstantNode(node: Treaty.Rules.ConstantNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
             public visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 return next(this);
             }            
         }
 
-        export class RuleNodeSelector implements ISelectRuleNode {
-            constructor (private node: Treaty.Rules.INode) { }
+        export class RuleNodeSelector implements ISelectRuleNode, ISelectLeftJoinRuleNode {
+            private parent: ISelectRuleNode;
+
+            constructor (private node: Treaty.Rules.INode, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
             public select(callback: (node: Treaty.Rules.INode) => void): bool {
-                callback(this.node);
-                return true;
+                //if (this.node instanceof Treaty.Rules.AlphaNode) {
+                //    callback(this.node);
+                //    return true;
+                //}
+
+                if (this.parent == undefined) {
+                    this.parent = new DiscardRuleNodeSelector(this, this.runtime);
+                }
+
+                return this.parent.select(callback);
+            }
+
+            public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
+                this.runtime.matchLeftJoinNode(this.node, callback);
+            }
+        }
+
+        export class DiscardRuleNodeSelector implements ISelectRuleNode, ISelectLeftJoinRuleNode {
+            private parent: ISelectRuleNode;
+            private leftJoinNode: Treaty.Rules.LeftJoinNode;
+
+            constructor (private left: ISelectLeftJoinRuleNode, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+
+            public select(callback: (node: Treaty.Rules.INode) => void ): bool {
+                if (this.leftJoinNode == undefined) {
+                    this.left.match(node => this.leftJoinNode = node);
+                }
+
+                if (this.leftJoinNode != null) {
+                    callback(this.leftJoinNode);
+                    return true;
+                }
+
+                if (parent == undefined) {
+                    this.parent = new DiscardRuleNodeSelector(this, this.runtime);
+                }
+
+                return this.parent.select(callback);
+            }
+
+            public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
+                if (this.leftJoinNode == undefined) {
+                    this.left.match(node => this.leftJoinNode = node);
+                }
+
+                this.runtime.matchLeftJoinNode(this.leftJoinNode, callback);
             }
         }
 
@@ -106,7 +168,7 @@ module Treaty {
         export class ConditionAlphaNodeSelector implements ISelectNode {
             public next: ISelectNode = null;
             
-            constructor (private nodeCallback: (node: ISelectRuleNode) => void) { }
+            constructor (private nodeCallback: (node: ISelectRuleNode) => void, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
             public select(): void {
                 throw 'not implemented';
@@ -115,7 +177,7 @@ module Treaty {
             public selectNode(node: Treaty.Rules.INode): void {
                 var alphaNode = <Treaty.Rules.AlphaNode>node;
 
-                this.nodeCallback(new RuleNodeSelector(alphaNode));
+                this.nodeCallback(new RuleNodeSelector(alphaNode, this.runtime));
             }
         }
 

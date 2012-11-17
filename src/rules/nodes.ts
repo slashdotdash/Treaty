@@ -11,7 +11,17 @@ module Treaty {
             accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool;
         }
 
+        export interface IRightActivation {
+            id: number;
+
+            rightActivate(context: Treaty.Rules.IActivationContext, callback: (next: Treaty.Rules.IActivationContext) => bool): void;
+
+            accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool;
+        }
+
         export interface INode {
+            id: number;
+
             successors: IActivation[];
             
             accept(visitor: Treaty.Compilation.IRuntimeVisitor): void;
@@ -122,7 +132,7 @@ module Treaty {
         export class JoinNode implements INode {
             public successors = new IActivation[];
 
-            constructor (public id: number, public rightActivation: Rules.IActivation) { }
+            constructor (public id: number, public rightActivation: Rules.IRightActivation) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitJoinNode(this, next => this.rightActivation.accept(next) && _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -130,6 +140,64 @@ module Treaty {
 
             public addActivation(activation: Treaty.Rules.IActivation): void {
                 this.successors.push(activation);
+            }
+
+            public activate(context: Treaty.Rules.IActivationContext): void {
+                var activationToken = <Treaty.Rules.ActivationToken>context.fact;
+
+                this.rightActivation.rightActivate(activationToken.value, match => this.activateMatch(context));
+            }
+
+            public rightActivate(context: Treaty.Rules.IActivationContext, callback: (next: Treaty.Rules.IActivationContext) => bool): void {
+                context.access(this.id, memory => memory.all(callback));
+            }
+
+            // TODO: Refactor this with AlphaNode impl.
+            private activateMatch(context: Treaty.Rules.IActivationContext): void {
+                context.access(this.id, memory => memory.activate(context));
+                context.schedule(session => this.successors.forEach(successor => successor.activate(context)));
+            }
+        }
+
+        export class LeftJoinNode implements INode, IActivation, IRightActivation {
+            public successors = new IActivation[];
+
+            constructor (public id: number, public rightActivation: Rules.IRightActivation) { }
+
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visitLeftJoinNode(this, next => this.rightActivation.accept(next) && _.all(this.successors, (activation: IActivation) => activation.accept(next)));
+            }
+
+            public addActivation(activation: Treaty.Rules.IActivation): void {
+                this.successors.push(activation);
+            }
+            
+            public activate(context: Treaty.Rules.IActivationContext): void {
+                var activationToken = <Treaty.Rules.ActivationToken>context.fact;
+
+                this.rightActivation.rightActivate(activationToken.value, match => this.activateMatch(context));
+            }
+
+            public rightActivate(context: Treaty.Rules.IActivationContext, callback: (next: Treaty.Rules.IActivationContext) => bool): void {
+                context.access(this.id, memory => memory.all(callback));
+            }
+
+            // TODO: Refactor this with AlphaNode impl.
+            private activateMatch(context: Treaty.Rules.IActivationContext): void {
+                context.access(this.id, memory => memory.activate(context));
+                context.schedule(session => this.successors.forEach(successor => successor.activate(context)));
+            }
+        }
+
+        export class ConstantNode implements IRightActivation {
+            constructor (public id: number) { }
+
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visitConstantNode(this, visitor => true);
+            }
+
+            public rightActivate(context: Treaty.Rules.IActivationContext, callback: (next: Treaty.Rules.IActivationContext) => bool): void {
+                callback(context);
             }
         }
 
