@@ -198,7 +198,6 @@ module Treaty {
                 node.accept(this);
                 
                 if (this.alphaNode == null) {
-                    debugger;
                     this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, this.instanceType));
 
                     node.addActivation(this.alphaNode);
@@ -230,7 +229,9 @@ module Treaty {
                     node.addActivation(this.equalNode);
                 }
 
-                this.next.selectNode(this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, typeof(this.value), this.value))));
+                var valueNode = this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, typeof (this.value), this.value)));
+
+                this.next.selectNode(valueNode);
             }
 
             public visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: IRuntimeVisitor) => bool): bool {

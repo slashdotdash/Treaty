@@ -125,8 +125,10 @@ module Treaty {
             }
 
             public run(): void {
-                while (this.operations.length == 1) {
-                    this.operations.forEach((operation: () => void ) => operation());
+                while (this.operations.length > 0) {
+                    // execute the first pending operation from the list
+                    var operation = this.operations.shift();
+                    operation();
                 }
             }
         }

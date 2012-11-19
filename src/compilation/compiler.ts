@@ -87,7 +87,6 @@ module Treaty {
                 var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(node => this.alphaNodes.push(node), this.runtime));
                 var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
                 var nodeFactory = selectorFactory(alphaFactory);
-                debugger;
 
                 new PropertyExpressionVisitor(instanceType, nodeFactory, this.runtime)
                     .createSelector(memberExpression)
@@ -106,7 +105,6 @@ module Treaty {
                 } else if (expression instanceof TypeScript.BinaryExpression) {
                     this.visitBinary(<TypeScript.BinaryExpression>expression);
                 } else {
-                    debugger;
                     console.log('Expression type "' + typeof (expression) + '" not yet supported.');
                 }
 

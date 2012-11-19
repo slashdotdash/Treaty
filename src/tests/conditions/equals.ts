@@ -40,7 +40,7 @@ module Treaty {
 
                     subject = rulesEngineBuilder.build();
                 });
-
+                
                 it("should compile rule", () => {
                     expect(subject.alphaNodes.count).toBe(1);
                 });
@@ -50,9 +50,8 @@ module Treaty {
                     
                     beforeEach(() => {
                         session = subject.createSession();
-                        debugger;
                         session.assert('Person', new Person('Bob'));
-
+                        
                         session.run();
                     });
 
