@@ -12,9 +12,10 @@ module Treaty {
             // Condition building convenience methods
             export class Condition {
                 private static expressionParser: Treaty.Compilation.ExpressionParser = new Treaty.Compilation.ExpressionParser();
+                private static expressionAdapter: Treaty.Compilation.ExpressionAdapter = new Treaty.Compilation.ExpressionAdapter();
 
                 public static equal(instanceType: string, property: Function, value: any): PropertyEqualCondition {
-                    var memberExpression = expressionParser.parse(property);
+                    var memberExpression = expressionAdapter.parse(expressionParser.parse(property));
 
                     return new PropertyEqualCondition(instanceType, memberExpression, value);
                 }

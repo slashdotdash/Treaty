@@ -46,10 +46,6 @@ module Treaty {
                 }; 
 
                 beforeEach(() => {
-                    //this.addMatchers(() => {
-                            
-                    //});
-                    
                     rulesEngineWithCondition(Treaty.Rules.Conditions.Condition.equal('Person', (p: Person) => p.name, 'Bob'));
                 });
                 

@@ -1,1 +1,1 @@
-c:\Chutzpah\chutzpah.console.exe /path src\tests\compilation\compiling.ts /path src\tests\compilation\conditionVisiting.ts /path src\tests\knowledge\knowledgeBase.ts /path src\tests\rules\ruleBuilding.ts
+c:\Chutzpah\chutzpah.console.exe /path src\tests\compilation\compiling.ts /path src\tests\compilation\conditionVisiting.ts /path src\tests\conditions\equals.ts /path src\tests\conditions\exists.ts /path src\tests\parsing\expression.ts /path src\tests\rules\ruleBuilding.ts /path src\tests\rules\rulesEngineBuilding.ts /path src\tests\runtime\session.ts
