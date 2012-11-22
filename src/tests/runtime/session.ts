@@ -9,7 +9,6 @@
 ///<reference path='..\..\rules\rulesEngineBuilder.ts' />
 ///<reference path='..\..\rules\ruleBuilder.ts' />
 ///<reference path='..\..\rules\conditions\condition.ts' />
-///<reference path='..\..\rules\consequences\consequence.ts' />
 
 ///<reference path='..\..\..\lib\TypeScript\compiler\' />
 ///<reference path='..\..\rules\' />
@@ -19,38 +18,27 @@
 
 module Treaty {
     module Tests {
-        module Conditions {
+        module Runtime {
             class Person {
                 constructor (public name: string) { }
             }
 
-            describe("equals condition", () => {
+            describe("exists condition", () => {
                 var subject: Treaty.Rules.RulesEngine;
                 var rulesEngineBuilder = new Treaty.Rules.RulesEngineBuilder();
                 var ruleFactory = new Treaty.Rules.RuleFactory();
                 var wasCalled = false;
 
-                var rulesEngineWithCondition = (condition: Treaty.Rules.ICondition) => {
-                    var conditions: Treaty.Rules.ICondition[] = [];
-                    var consequences: Treaty.Rules.IConsequence[] = [];
-                    var consequence = Treaty.Rules.Consequences.Consequence.delegate('Person', (p: Person) => wasCalled = true)
-
-                    conditions.push(condition);
-                    consequences.push(consequence);
-
-                    var rule = new Treaty.Rules.Rule('Rules', conditions, consequences);
+                beforeEach(() => {
+                    var rule = ruleFactory.rule()
+                        .named('Rule')
+                        .when('Person', (p: Person) => p.name == 'Bob')
+                        .then('Person', (p: Person) => wasCalled = true)
+                        .build();
 
                     rulesEngineBuilder.addRule(rule);
 
                     subject = rulesEngineBuilder.build();
-                }; 
-
-                beforeEach(() => {
-                    //this.addMatchers(() => {
-                            
-                    //});
-                    
-                    rulesEngineWithCondition(Treaty.Rules.Conditions.Condition.equal('Person', (p: Person) => p.name, 'Bob'));
                 });
                 
                 it("should compile rule", () => {
@@ -60,17 +48,13 @@ module Treaty {
                 describe("runtime session", () => {
                     var session: Treaty.Rules.ISession;
                     
-                    var createSessionWithFact = (instanceType: string, fact: any) => {
-                        wasCalled = false;
-
-                        session = subject.createSession();
-                        session.assert(instanceType, fact);
-                        session.run();
-                    };
-
                     describe("matching equal value", () => {
-                        beforeEach(() => {                            
-                            createSessionWithFact('Person', new Person('Bob'));
+                        beforeEach(() => {
+                            wasCalled = false;
+                            
+                            session = subject.createSession();
+                            session.assert('Person', new Person('Bob'));
+                            session.run();
                         });
 
                         it("should assert fact creating an alpha node", () => {
@@ -84,7 +68,11 @@ module Treaty {
                     
                     describe("not matching inequal value", () => {
                         beforeEach(() => {
-                            createSessionWithFact('Person', new Person('Joe'));
+                            wasCalled = false;
+
+                            session = subject.createSession();
+                            session.assert('Person', new Person('Joe'));
+                            session.run();
                         });
 
                         it("should not execute consequence", () => {

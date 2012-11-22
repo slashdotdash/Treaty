@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <ProjectGuid>{71EED5A6-82E8-4D48-8C2E-2A02CF80D3DE}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
@@ -31,22 +31,13 @@
     <TypeScriptCompile Include="tests\rules\ruleBuilding.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="tests\parsing\expression.ts" />
+    <Content Include="tests\runtime\session.ts" />
     <TypeScriptCompile Include="tests\rules\rulesEngineBuilding.ts" />
     <TypeScriptCompile Include="collections\cache.ts" />
-    <Content Include="collections\cache.js">
-      <DependentUpon>cache.ts</DependentUpon>
-    </Content>
-    <Content Include="compilation\compiler.js">
-      <DependentUpon>compiler.ts</DependentUpon>
-    </Content>
-    <Content Include="rules\nodes.js">
-      <DependentUpon>nodes.ts</DependentUpon>
-    </Content>
     <Content Include="rules\runtimeSession.ts" />
     <Content Include="rules\rulesEngineBuilder.ts" />
-    <Content Include="tests\conditions\equals.js">
-      <DependentUpon>equals.ts</DependentUpon>
-    </Content>
+    <Content Include="tests\conditions\exists.ts" />
     <Content Include="tests\conditions\equals.ts" />
     <TypeScriptCompile Include="compilation\selectors.ts" />
     <TypeScriptCompile Include="rules\nodes.ts" />

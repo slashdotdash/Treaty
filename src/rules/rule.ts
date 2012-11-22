@@ -2,7 +2,25 @@
 ///<reference path='.\consequences\consequence.ts' />
 
 module Treaty {
-   export module Rules {
+    export module Rules {
+        
+        export interface ICondition extends IAcceptVisitor {
+        }
+
+        export interface IConsequence extends IAcceptVisitor {
+        }
+
+        export interface IVisitor {
+            visitRule(rule: Rule, next: (visitor: IVisitor) => bool): bool;
+
+            visitCondition(condition: Conditions.PropertyEqualCondition): bool;
+
+            visitConsequence(consequence: Consequences.DelegateConsequence): bool;
+        }
+        
+        export interface IAcceptVisitor {
+            accept(visitor: IVisitor): bool;
+        }
 
         export class Rule implements IAcceptVisitor {
             constructor (public name: string, public conditions: ICondition[], public consequences: IConsequence[]) { }
@@ -18,24 +36,6 @@ module Treaty {
 
                 return accepted;
             }
-        }
-        
-        export interface IAcceptVisitor {
-            accept(visitor: IVisitor): bool;
-        }
-
-        export interface ICondition extends IAcceptVisitor {
-        }
-
-        export interface IConsequence extends IAcceptVisitor {
-        }
-
-        export interface IVisitor {
-            visitRule(rule: Rule, next: (visitor: IVisitor) => bool): bool;
-
-            visitCondition(condition: Conditions.PropertyEqualCondition): bool;
-
-            visitConsequence(consequence: Consequences.DelegateConsequence): bool;
         }
     }
 }
