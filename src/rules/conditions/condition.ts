@@ -19,6 +19,12 @@ module Treaty {
 
                     return new PropertyEqualCondition(instanceType, memberExpression, value);
                 }
+
+                public static exists(instanceType: string, property: Function): PropertyExistsCondition {
+                    var memberExpression = expressionAdapter.parse(expressionParser.parse(property));
+
+                    return new PropertyExistsCondition(instanceType, memberExpression);
+                }
             }
 
             export class PropertyEqualCondition implements Treaty.Rules.ICondition {
@@ -26,6 +32,15 @@ module Treaty {
 
                 public accept(visitor: IVisitor): bool {
                     return visitor.visitCondition(this);
+                }
+            }
+
+            export class PropertyExistsCondition implements Treaty.Rules.ICondition {
+                constructor (public instanceType: string, public memberExpression: TypeScript.AST) { }
+
+                public accept(visitor: IVisitor): bool {
+                    return true;
+                   // return visitor.visitCondition(this);
                 }
             }
         }

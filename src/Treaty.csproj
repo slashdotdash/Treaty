@@ -31,6 +31,7 @@
     <TypeScriptCompile Include="tests\rules\ruleBuilding.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="tests\factory.ts" />
     <Content Include="tests\parsing\expression.ts" />
     <Content Include="tests\runtime\session.ts" />
     <TypeScriptCompile Include="tests\rules\rulesEngineBuilding.ts" />
