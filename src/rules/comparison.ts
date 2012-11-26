@@ -16,5 +16,11 @@ module Treaty {
                 return left > right;
             }
         }
+
+        export class LessThanValueComparator implements IComparator {
+            public compare(left: any, right: any): bool {
+                return left < right;
+            }
+        }
     }
 }

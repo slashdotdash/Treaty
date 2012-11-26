@@ -52,6 +52,12 @@ module Treaty {
                     this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
                 }
 
+                if (condition instanceof Treaty.Rules.Conditions.PropertyLessThanCondition) {
+                    var greaterThanCondition = <Treaty.Rules.Conditions.PropertyGreaterThanCondition>condition;
+                    var comparator = new Treaty.Rules.LessThanValueComparator();
+                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
+                }
+
                 return true;
             }
 

@@ -35,6 +35,7 @@
     <Content Include="rules\comparison.js">
       <DependentUpon>comparison.ts</DependentUpon>
     </Content>
+    <Content Include="tests\conditions\lessThan.ts" />
     <Content Include="tests\conditions\greaterThan.ts" />
     <Content Include="tests\factory.ts" />
     <Content Include="tests\parsing\expression.ts" />
