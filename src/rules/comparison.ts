@@ -17,9 +17,21 @@ module Treaty {
             }
         }
 
+        export class GreaterThanOrEqualValueComparator implements IComparator {
+            public compare(left: any, right: any): bool {
+                return left >= right;
+            }
+        }
+
         export class LessThanValueComparator implements IComparator {
             public compare(left: any, right: any): bool {
                 return left < right;
+            }
+        }
+
+        export class LessThanOrEqualValueComparator implements IComparator {
+            public compare(left: any, right: any): bool {
+                return left <= right;
             }
         }
     }

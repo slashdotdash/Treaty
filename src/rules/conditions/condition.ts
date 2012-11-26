@@ -26,8 +26,16 @@ module Treaty {
                     return new PropertyGreaterThanCondition(instanceType, parseExpression(property), value);
                 }
 
+                public static greaterThanOrEqual(instanceType: string, property: Function, value: number): PropertyGreaterThanOrEqualCondition {
+                    return new PropertyGreaterThanOrEqualCondition(instanceType, parseExpression(property), value);
+                }
+
                 public static lessThan(instanceType: string, property: Function, value: number): PropertyLessThanCondition {
                     return new PropertyLessThanCondition(instanceType, parseExpression(property), value);
+                }
+
+                public static lessThanOrEqual(instanceType: string, property: Function, value: number): PropertyLessThanOrEqualCondition {
+                    return new PropertyLessThanOrEqualCondition(instanceType, parseExpression(property), value);
                 }
 
                 private static parseExpression(property: Function): TypeScript.AST {
@@ -64,7 +72,23 @@ module Treaty {
                 }
             }
 
+            export class PropertyGreaterThanOrEqualCondition implements IPropertyCondition {
+                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: number) { }
+
+                public accept(visitor: IVisitor): bool {
+                    return visitor.visitCondition(this);
+                }
+            }
+
             export class PropertyLessThanCondition implements IPropertyCondition {
+                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: number) { }
+
+                public accept(visitor: IVisitor): bool {
+                    return visitor.visitCondition(this);
+                }
+            }
+
+            export class PropertyLessThanOrEqualCondition implements IPropertyCondition {
                 constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: number) { }
 
                 public accept(visitor: IVisitor): bool {

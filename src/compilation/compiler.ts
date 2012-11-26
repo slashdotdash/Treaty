@@ -52,9 +52,21 @@ module Treaty {
                     this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
                 }
 
+                if (condition instanceof Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition) {
+                    var greaterThanCondition = <Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition>condition;
+                    var comparator = new Treaty.Rules.GreaterThanOrEqualValueComparator();
+                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
+                }
+
                 if (condition instanceof Treaty.Rules.Conditions.PropertyLessThanCondition) {
-                    var greaterThanCondition = <Treaty.Rules.Conditions.PropertyGreaterThanCondition>condition;
+                    var greaterThanCondition = <Treaty.Rules.Conditions.PropertyLessThanCondition>condition;
                     var comparator = new Treaty.Rules.LessThanValueComparator();
+                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
+                }
+
+                if (condition instanceof Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition) {
+                    var greaterThanCondition = <Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition>condition;
+                    var comparator = new Treaty.Rules.LessThanOrEqualValueComparator();
                     this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
                 }
 
