@@ -7,14 +7,14 @@
 module Treaty {
     export module Rules {
         export class RulesEngineBuilder {
-            private rules = new Rule[];
+            private rules: Rule[] = [];
 
             public addRule(rule: Rule): void {
                 this.rules.push(rule);
             }
 
             public build(): RulesEngine {
-                var engine = new RulesEngine();
+                var engine = new Treaty.Rules.RulesEngine();
                 
                 this.compileRules(engine);
 

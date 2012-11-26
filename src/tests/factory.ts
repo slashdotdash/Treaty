@@ -29,7 +29,7 @@ module Treaty {
                 return this;
             }
 
-            public buildRulesEngine(): Factory§ {
+            public buildRulesEngine(): Factory {
                 var rulesEngineBuilder = new Treaty.Rules.RulesEngineBuilder();
 
                 rulesEngineBuilder.addRule(new Treaty.Rules.Rule('Rules', this.conditions, this.consequences));
@@ -49,7 +49,6 @@ module Treaty {
             }
 
             public run(): void {
-                debugger;
                 this.session.run();
             }
         }

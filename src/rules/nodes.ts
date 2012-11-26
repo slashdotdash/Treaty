@@ -64,7 +64,7 @@ module Treaty {
             public activate(context: Treaty.Rules.IActivationContext): void {
                 if (context.fact.hasOwnProperty(this.memberName)) {
                     var value = context.fact[this.memberName];
-                    var activationToken = new Rules.ActivationToken(this.instanceType, typeof (value), value);
+                    var activationToken = new Rules.ActivationToken(this.instanceType, typeof (value), context, value);
 
                     var propertyContext = context.createContext('ActivationToken', activationToken);
 
@@ -129,6 +129,31 @@ module Treaty {
             }
         }
 
+        export class ExistsNode implements INode, IActivation {
+            public successors = new IActivation[];
+            
+            constructor (public id: number) { }
+
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visitExistsNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
+            }
+
+            public addActivation(activation: Treaty.Rules.IActivation): void {
+                this.successors.push(activation);
+            }
+
+            public activate(context: Treaty.Rules.IActivationContext): void {
+                var token = <Treaty.Rules.ActivationToken>context.fact;
+                
+                if (token.value.hasOwnProperty('length')) {
+                    var length = token.value['length'];
+                    if (length > 0) {
+                        _.each(this.successors, (activation: IActivation) => activation.activate(context));
+                    }
+                }
+            }
+        }
+
         export class JoinNode implements INode {
             public successors = new IActivation[];
 
@@ -175,7 +200,7 @@ module Treaty {
             public activate(context: Treaty.Rules.IActivationContext): void {
                 var activationToken = <Treaty.Rules.ActivationToken>context.fact;
 
-                this.rightActivation.rightActivate(activationToken.value, match => this.activateMatch(context));
+                this.rightActivation.rightActivate(activationToken.context, match => this.activateMatch(activationToken.context));
             }
 
             public rightActivate(context: Treaty.Rules.IActivationContext, callback: (next: Treaty.Rules.IActivationContext) => bool): void {

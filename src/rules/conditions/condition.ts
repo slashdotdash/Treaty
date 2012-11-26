@@ -27,7 +27,12 @@ module Treaty {
                 }
             }
 
-            export class PropertyEqualCondition implements Treaty.Rules.ICondition {
+            export interface IPropertyCondition extends Treaty.Rules.ICondition {
+                instanceType: string; 
+                memberExpression: TypeScript.AST;
+            }
+
+            export class PropertyEqualCondition implements IPropertyCondition {
                 constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: any) { }
 
                 public accept(visitor: IVisitor): bool {
@@ -35,12 +40,11 @@ module Treaty {
                 }
             }
 
-            export class PropertyExistsCondition implements Treaty.Rules.ICondition {
+            export class PropertyExistsCondition implements IPropertyCondition {
                 constructor (public instanceType: string, public memberExpression: TypeScript.AST) { }
 
                 public accept(visitor: IVisitor): bool {
-                    return true;
-                   // return visitor.visitCondition(this);
+                    return visitor.visitCondition(this);
                 }
             }
         }

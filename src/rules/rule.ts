@@ -13,7 +13,7 @@ module Treaty {
         export interface IVisitor {
             visitRule(rule: Rule, next: (visitor: IVisitor) => bool): bool;
 
-            visitCondition(condition: Conditions.PropertyEqualCondition): bool;
+            visitCondition(condition: Treaty.Rules.Conditions.IPropertyCondition): bool;
 
             visitConsequence(consequence: Consequences.DelegateConsequence): bool;
         }

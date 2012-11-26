@@ -25,7 +25,7 @@ module Treaty {
         }
 
         export class ActivationToken {
-            constructor (private sourceType: string, private valueType: string, public value: any) { }
+            constructor (private sourceType: string, private valueType: string, public context: IActivationContext, public value: any) { }
         }
 
         class ActivationContext implements IActivationContext {

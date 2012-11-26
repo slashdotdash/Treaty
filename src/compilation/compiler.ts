@@ -10,7 +10,7 @@ module Treaty {
         export class RuleCompiler {
             constructor (private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
-            public visitRule(rule: Rules.Rule, next: (visitor: Rules.IVisitor) => bool): bool { return true; }
+            public visitRule(rule: Treaty.Rules.Rule, next: (visitor: Rules.IVisitor) => bool): bool { return true; }
 
             public compile(rule: Treaty.Rules.Rule): void {
                 var conditionCompiler = new ConditionCompiler(this.runtime);
@@ -27,20 +27,28 @@ module Treaty {
             }
         }
 
-        export class ConditionCompiler implements Rules.IVisitor {
+        export class ConditionCompiler implements Treaty.Rules.IVisitor {
             private alphaNodes = new ISelectRuleNode[];
 
             constructor (private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
-            public visitRule(rule: Rules.Rule, next: (visitor: Rules.IVisitor) => bool): bool { return true; }
+            public visitRule(rule: Treaty.Rules.Rule, next: (visitor: Treaty.Rules.IVisitor) => bool): bool { return true; }
+            
+            public visitCondition(condition: Treaty.Rules.Conditions.IPropertyCondition): bool {
+                if (condition instanceof Treaty.Rules.Conditions.PropertyEqualCondition) {
+                    var equalCondition = <Treaty.Rules.Conditions.PropertyEqualCondition>condition;
+                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), equalCondition.value, this.runtime)));
+                }
 
-            public visitCondition(condition: Rules.Conditions.PropertyEqualCondition): bool {
-                this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), condition.value, this.runtime)));
+                if (condition instanceof Treaty.Rules.Conditions.PropertyExistsCondition) {
+                    var existsCondition = <Treaty.Rules.Conditions.PropertyExistsCondition>condition;
+                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new ExistsNodeSelector(next.create(), this.runtime)));
+                }
 
                 return true;
             }
 
-            public visitConsequence(consequence: Rules.Consequences.DelegateConsequence): bool { return true; }
+            public visitConsequence(consequence: Treaty.Rules.Consequences.DelegateConsequence): bool { return true; }
 
             public matchJoinNode(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool {
                 if (this.alphaNodes.length == 0) 

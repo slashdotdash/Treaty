@@ -34,6 +34,8 @@ module Treaty {
 
             visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
+            visitExistsNode(node: Treaty.Rules.ExistsNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
             visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool;
@@ -76,6 +78,10 @@ module Treaty {
             }
 
             public visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitExistsNode(node: Treaty.Rules.ExistsNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 return next(this);
             }
 
@@ -236,6 +242,37 @@ module Treaty {
 
             public visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 this.equalNode = node;
+                return false;
+            }
+        }
+
+        export class ExistsNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+            private existsNode: Rules.ExistsNode;
+
+            constructor (public next: ISelectNode, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+                super();
+            }
+
+            public select(): void {
+                throw 'not implemented';            
+            }
+
+            public selectNode(node: Treaty.Rules.INode): void {
+                this.existsNode = null;
+                                
+                node.accept(this);
+
+                if (this.existsNode == null) {
+                    this.existsNode = <Rules.ExistsNode>this.runtime.createNode(id => new Rules.ExistsNode(id));
+
+                    node.addActivation(this.existsNode);
+                }
+
+                this.next.selectNode(this.existsNode);
+            }
+
+            public visitExistsNode(node: Treaty.Rules.ExistsNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                this.existsNode = node;
                 return false;
             }
         }

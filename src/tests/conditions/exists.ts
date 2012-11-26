@@ -4,6 +4,11 @@
 ///<reference path='..\..\rules\rule.ts' />
 ///<reference path='..\..\rules\conditions\condition.ts' />
 
+///<reference path='..\..\..\lib\TypeScript\compiler\' />
+///<reference path='..\..\rules\' />
+///<reference path='..\..\rules\conditions\' />
+///<reference path='..\..\compilation\' />
+
 module Treaty {
     module Tests {
         module Conditions {
@@ -36,14 +41,20 @@ module Treaty {
                 describe("runtime session", () => {
 
                     describe("matching list with one item", () => {
+                        var order: Order;
+                        
                         beforeEach(() => {
-                            var order = new Order([new OrderLine('1')]);
+                            order = new Order([new OrderLine('1')]);
                             factory.createSession().assertFact('Order', order).run();
                         });
 
                         it("should execute consequence", () => {
                             expect(matchedOrders.length).toBe(1);
-                        })
+                        });
+
+                        it("should add matched order to list", () => {
+                            expect(matchedOrders[0]).toEqual(order);
+                        });
                     });
 
                     xdescribe("matching list with two items", () => {
@@ -54,7 +65,7 @@ module Treaty {
 
                         it("should execute consequence", () => {
                             expect(matchedOrders.length).toBe(1);
-                        })
+                        });
                     });
 
                     xdescribe("not matching an empty list", () => {
@@ -64,7 +75,7 @@ module Treaty {
 
                         it("should not execute consequence", () => {
                             expect(matchedOrders.length).toBe(0);
-                        })
+                        });
                     });
                 });
             });
