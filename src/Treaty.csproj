@@ -31,6 +31,11 @@
     <TypeScriptCompile Include="tests\rules\ruleBuilding.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="rules\comparison.ts" />
+    <Content Include="rules\comparison.js">
+      <DependentUpon>comparison.ts</DependentUpon>
+    </Content>
+    <Content Include="tests\conditions\greaterThan.ts" />
     <Content Include="tests\factory.ts" />
     <Content Include="tests\parsing\expression.ts" />
     <Content Include="tests\runtime\session.ts" />

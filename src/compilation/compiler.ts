@@ -2,6 +2,7 @@
 ///<reference path='..\rules\nodes.ts' />
 ///<reference path='..\rules\rule.ts' />
 ///<reference path='..\rules\rulesEngine.ts' />
+///<reference path='..\rules\comparison.ts' />
 ///<reference path='..\rules\conditions\condition.ts' />
 ///<reference path='..\rules\consequences\consequence.ts' />
 
@@ -43,6 +44,12 @@ module Treaty {
                 if (condition instanceof Treaty.Rules.Conditions.PropertyExistsCondition) {
                     var existsCondition = <Treaty.Rules.Conditions.PropertyExistsCondition>condition;
                     this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new ExistsNodeSelector(next.create(), this.runtime)));
+                }
+
+                if (condition instanceof Treaty.Rules.Conditions.PropertyGreaterThanCondition) {
+                    var greaterThanCondition = <Treaty.Rules.Conditions.PropertyGreaterThanCondition>condition;
+                    var comparator = new Treaty.Rules.GreaterThanValueComparator();
+                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
                 }
 
                 return true;

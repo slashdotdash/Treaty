@@ -1,4 +1,5 @@
 ///<reference path='.\rulesEngine.ts' />
+///<reference path='.\comparison.ts' />
 ///<reference path='..\compilation\compiler.ts' />
 
 ///<reference path='..\..\typings\underscore-typed-1.4.d.ts' />
@@ -150,6 +151,28 @@ module Treaty {
                     if (length > 0) {
                         _.each(this.successors, (activation: IActivation) => activation.activate(context));
                     }
+                }
+            }
+        }
+
+        export class CompareNode implements INode, IActivation {
+            public successors = new IActivation[];
+            
+            constructor (public id: number, private comparator: IComparator, private value: any) { }
+            
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visitCompareNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
+            }
+
+            public addActivation(activation: Treaty.Rules.IActivation): void {
+                this.successors.push(activation);
+            }
+
+            public activate(context: Treaty.Rules.IActivationContext): void {
+                var token = <Treaty.Rules.ActivationToken>context.fact;
+
+                if (this.comparator.compare(token.value, this.value)) {
+                    _.each(this.successors, (activation: IActivation) => activation.activate(context));
                 }
             }
         }

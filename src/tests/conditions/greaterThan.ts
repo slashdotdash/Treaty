@@ -12,20 +12,20 @@
 module Treaty {
     module Tests {
         module Conditions {
-            class Person {
-                constructor (public name: string) { }
+            class Order {
+                constructor (public amount: number) { }
             }
 
-            describe("equals condition", () => {
+            describe("greater than condition", () => {
                 var factory: Treaty.Tests.Factory;
                 var wasCalled = false;
 
                 beforeEach(() => {
-                    var condition = Treaty.Rules.Conditions.Condition.equal('Person', (p: Person) => p.name, 'Bob');
+                    var condition = Treaty.Rules.Conditions.Condition.greaterThan('Order', (o: Order) => o.amount, 100);
 
                     factory = new Treaty.Tests.Factory()
                         .withCondition(condition)
-                        .withConsequence('Person', (p: Person) => wasCalled = true)
+                        .withConsequence('Order', (o: Order) => wasCalled = true)
                         .buildRulesEngine();
                 });
                 
@@ -33,21 +33,32 @@ module Treaty {
                     expect(factory.rulesEngine.alphaNodes.count).toBe(1);
                 });
 
-                describe("matching equal value", () => {
+                describe("matching greater than value", () => {
                     beforeEach(() => {
                         wasCalled = false;
-                        factory.createSession().assertFact('Person', new Person('Bob')).run();
+                        factory.createSession().assertFact('Order', new Order(101)).run();
                     });
 
                     it("should execute consequence", () => {
                         expect(wasCalled).toBeTruthy();
                     })
                 });
-                    
-                describe("not matching inequal value", () => {
+
+                describe("not matching equal value", () => {
                     beforeEach(() => {
                         wasCalled = false;
-                        factory.createSession().assertFact('Person', new Person('Joe')).run();
+                        factory.createSession().assertFact('Order', new Order(100)).run();
+                    });
+
+                    it("should not execute consequence", () => {
+                        expect(wasCalled).toBeFalsy();
+                    })
+                });
+
+                describe("not matching less than value", () => {
+                    beforeEach(() => {
+                        wasCalled = false;
+                        factory.createSession().assertFact('Order', new Order(99)).run();
                     });
 
                     it("should not execute consequence", () => {

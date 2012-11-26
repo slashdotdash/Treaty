@@ -25,6 +25,12 @@ module Treaty {
 
                     return new PropertyExistsCondition(instanceType, memberExpression);
                 }
+
+                public static greaterThan(instanceType: string, property: Function, value: number): PropertyGreaterThanCondition {
+                    var memberExpression = expressionAdapter.parse(expressionParser.parse(property));
+
+                    return new PropertyGreaterThanCondition(instanceType, memberExpression, value);
+                }
             }
 
             export interface IPropertyCondition extends Treaty.Rules.ICondition {
@@ -42,6 +48,14 @@ module Treaty {
 
             export class PropertyExistsCondition implements IPropertyCondition {
                 constructor (public instanceType: string, public memberExpression: TypeScript.AST) { }
+
+                public accept(visitor: IVisitor): bool {
+                    return visitor.visitCondition(this);
+                }
+            }
+
+            export class PropertyGreaterThanCondition implements IPropertyCondition {
+                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: number) { }
 
                 public accept(visitor: IVisitor): bool {
                     return visitor.visitCondition(this);

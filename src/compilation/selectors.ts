@@ -1,6 +1,7 @@
 ///<reference path='.\compiler.ts' />
 ///<reference path='..\rules\rule.ts' />
 ///<reference path='..\rules\rulesEngine.ts' />
+///<reference path='..\rules\comparison.ts' />
 ///<reference path='..\rules\conditions\condition.ts' />
 
 module Treaty {
@@ -37,6 +38,8 @@ module Treaty {
             visitExistsNode(node: Treaty.Rules.ExistsNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
+            visitCompareNode(node: Treaty.Rules.CompareNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
@@ -86,6 +89,10 @@ module Treaty {
             }
 
             public visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitCompareNode(node: Treaty.Rules.CompareNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 return next(this);
             }
 
@@ -273,6 +280,37 @@ module Treaty {
 
             public visitExistsNode(node: Treaty.Rules.ExistsNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 this.existsNode = node;
+                return false;
+            }
+        }
+
+        export class CompareNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+            private compareNode: Treaty.Rules.CompareNode;
+
+            constructor (public next: ISelectNode, private comparator: Treaty.Rules.IComparator, private value: number, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+                super();
+            }
+
+            public select(): void {
+                throw 'not implemented';            
+            }
+
+            public selectNode(node: Treaty.Rules.INode): void {
+                this.compareNode = null;
+                                
+                node.accept(this);
+
+                if (this.compareNode == null) {
+                    this.compareNode = <Treaty.Rules.CompareNode>this.runtime.createNode(id => new Treaty.Rules.CompareNode(id, this.comparator, this.value));
+
+                    node.addActivation(this.compareNode);
+                }
+
+                this.next.selectNode(this.compareNode);
+            }
+
+            public visitCompareNode(node: Treaty.Rules.CompareNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                this.compareNode = node;
                 return false;
             }
         }
