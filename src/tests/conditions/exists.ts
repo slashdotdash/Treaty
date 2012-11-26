@@ -44,6 +44,7 @@ module Treaty {
                         var order: Order;
                         
                         beforeEach(() => {
+                            matchedOrders = [];
                             order = new Order([new OrderLine('1')]);
                             factory.createSession().assertFact('Order', order).run();
                         });
@@ -57,19 +58,27 @@ module Treaty {
                         });
                     });
 
-                    xdescribe("matching list with two items", () => {
+                    describe("matching list with two items", () => {
+                        var order: Order;
+
                         beforeEach(() => {
-                            var order = new Order([ new OrderLine('1'), new OrderLine('2') ]);
+                            matchedOrders = [];
+                            order = new Order([ new OrderLine('1'), new OrderLine('2') ]);
                             factory.createSession().assertFact('Order', order).run();                            
                         });
 
                         it("should execute consequence", () => {
                             expect(matchedOrders.length).toBe(1);
                         });
+
+                        it("should add matched order to list", () => {
+                            expect(matchedOrders[0]).toEqual(order);
+                        });
                     });
 
-                    xdescribe("not matching an empty list", () => {
+                    describe("not matching an empty list", () => {
                         beforeEach(() => {
+                            matchedOrders = [];
                             factory.createSession().assertFact('Order', new Order([ ])).run();
                         });
 
