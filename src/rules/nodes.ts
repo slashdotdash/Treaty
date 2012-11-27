@@ -130,6 +130,43 @@ module Treaty {
             }
         }
 
+        export class NotEqualNode implements IActivation {
+            private values: ValueNode[] = new ValueNode[];
+
+            constructor (public id: number, public instanceType: string) { }
+
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visitNotEqualNode(this, next => _.all(this.values, (activation: IActivation) => activation.accept(next)));
+            }
+
+            public activate(context: Treaty.Rules.IActivationContext): void {
+                var token = <Treaty.Rules.ActivationToken>context.fact;
+
+                this.withoutValue(token.value, node => node.activate(context));
+            }
+
+            public findOrCreate(value: any, create: () => Rules.ValueNode): Rules.ValueNode {
+                var node = this.find(value);
+
+                if (node == undefined) {
+                    node = create();
+                    this.values.push(node);
+                }
+
+                return node;
+            }
+
+            private find(value: any): ValueNode {
+                return <ValueNode>_.find(this.values, (valueNode: ValueNode) => valueNode.value == value);
+            }
+
+            private withoutValue(value: any, callback: (found: ValueNode) => void ): void {
+                var notEqual = <ValueNode[]>_.reject(this.values, (valueNode: ValueNode) => valueNode.value == value);
+
+                _.each(notEqual, (valueNode: ValueNode) => callback(valueNode));
+            }
+        }
+
         export class ExistsNode implements INode, IActivation {
             public successors = new IActivation[];
             

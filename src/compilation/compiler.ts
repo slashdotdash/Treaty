@@ -41,6 +41,11 @@ module Treaty {
                     this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), equalCondition.value, this.runtime)));
                 }
 
+                if (condition instanceof Treaty.Rules.Conditions.PropertyNotEqualCondition) {
+                    var notEqualCondition = <Treaty.Rules.Conditions.PropertyNotEqualCondition>condition;
+                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new NotEqualNodeSelector(next.create(), notEqualCondition.value, this.runtime)));
+                }
+
                 if (condition instanceof Treaty.Rules.Conditions.PropertyExistsCondition) {
                     var existsCondition = <Treaty.Rules.Conditions.PropertyExistsCondition>condition;
                     this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new ExistsNodeSelector(next.create(), this.runtime)));

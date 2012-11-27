@@ -3,8 +3,6 @@
 ///<reference path='..\rule.ts' />
 ///<reference path='..\..\compilation\conditionVisitor.ts' />
 
-///<reference path='..\..\..\lib\TypeScript\compiler\' />
-
 module Treaty {
     export module Rules {
         export module Conditions {
@@ -16,6 +14,10 @@ module Treaty {
 
                 public static equal(instanceType: string, property: Function, value: any): PropertyEqualCondition {
                     return new PropertyEqualCondition(instanceType, parseExpression(property), value);
+                }
+
+                public static notEqual(instanceType: string, property: Function, value: any): PropertyNotEqualCondition {
+                    return new PropertyNotEqualCondition(instanceType, parseExpression(property), value);
                 }
 
                 public static exists(instanceType: string, property: Function): PropertyExistsCondition {
@@ -49,6 +51,14 @@ module Treaty {
             }
 
             export class PropertyEqualCondition implements IPropertyCondition {
+                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: any) { }
+
+                public accept(visitor: IVisitor): bool {
+                    return visitor.visitCondition(this);
+                }
+            }
+
+            export class PropertyNotEqualCondition implements IPropertyCondition {
                 constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: any) { }
 
                 public accept(visitor: IVisitor): bool {

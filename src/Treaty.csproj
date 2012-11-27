@@ -35,6 +35,7 @@
     <Content Include="rules\comparison.js">
       <DependentUpon>comparison.ts</DependentUpon>
     </Content>
+    <Content Include="tests\conditions\notEqual.ts" />
     <Content Include="tests\conditions\lessThanOrEqual.ts" />
     <Content Include="tests\conditions\greaterThanOrEqual.ts" />
     <Content Include="tests\conditions\lessThan.ts" />
@@ -47,7 +48,7 @@
     <Content Include="rules\runtimeSession.ts" />
     <Content Include="rules\rulesEngineBuilder.ts" />
     <Content Include="tests\conditions\exists.ts" />
-    <Content Include="tests\conditions\equals.ts" />
+    <Content Include="tests\conditions\equal.ts" />
     <TypeScriptCompile Include="compilation\selectors.ts" />
     <TypeScriptCompile Include="rules\nodes.ts" />
     <Content Include="rules\rulesEngine.ts" />

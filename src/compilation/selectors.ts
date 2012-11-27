@@ -35,6 +35,8 @@ module Treaty {
 
             visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
+            visitNotEqualNode(node: Treaty.Rules.NotEqualNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
             visitExistsNode(node: Treaty.Rules.ExistsNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: IRuntimeVisitor) => bool): bool;
@@ -81,6 +83,10 @@ module Treaty {
             }
 
             public visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitNotEqualNode(node: Treaty.Rules.NotEqualNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 return next(this);
             }
 
@@ -249,6 +255,39 @@ module Treaty {
 
             public visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 this.equalNode = node;
+                return false;
+            }
+        }
+
+        export class NotEqualNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+            private notEqualNode: Rules.NotEqualNode;
+
+            constructor (public next: ISelectNode, private value: any, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+                super();
+            }
+
+            public select(): void {
+                throw 'not implemented';            
+            }
+
+            public selectNode(node: Treaty.Rules.INode): void {
+                this.notEqualNode = null;
+                                
+                node.accept(this);
+
+                if (this.notEqualNode == null) {
+                    this.notEqualNode = <Rules.NotEqualNode>this.runtime.createNode(id => new Treaty.Rules.NotEqualNode(id, typeof(this.value)));
+
+                    node.addActivation(this.notEqualNode);
+                }
+
+                var valueNode = this.notEqualNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, typeof (this.value), this.value)));
+
+                this.next.selectNode(valueNode);
+            }
+
+            public visitNotEqualNode(node: Treaty.Rules.NotEqualNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                this.notEqualNode = node;
                 return false;
             }
         }
