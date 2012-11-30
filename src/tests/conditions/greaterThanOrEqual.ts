@@ -16,7 +16,7 @@ module Treaty {
                 constructor (public amount: number) { }
             }
 
-            describe("greater than condition", () => {
+            describe("greater than or equal condition", () => {
                 var factory: Treaty.Tests.Factory;
                 var wasCalled = false;
 

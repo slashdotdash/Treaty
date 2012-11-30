@@ -102,7 +102,7 @@ module Treaty {
                 this.joins = this.joins.filter(join => join.isApplicable(context));
             }
 
-            private join(callback: (next: Treaty.Rules.IActivationContext) => bool): void {                
+            private join(callback: (next: Treaty.Rules.IActivationContext) => bool): void {
                 if (_.all(this.contexts, (context: IActivationContext) => callback(context))) {
                     this.joins.push(new PendingJoin(callback));
                 }

@@ -75,6 +75,11 @@ module Treaty {
                     this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
                 }
 
+                if (condition instanceof Treaty.Rules.Conditions.PropertyEachCondition) {
+                    var existsCondition = <Treaty.Rules.Conditions.PropertyEachCondition>condition;
+                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new EachNodeSelector(next.create(), this.runtime)));
+                }
+
                 return true;
             }
 
@@ -92,7 +97,7 @@ module Treaty {
                 _.each(this.alphaNodes, (alpha: ISelectRuleNode) => {
                     if (_.contains(visited, alpha)) return;
                     
-                    alpha.select(node => {
+                    alpha.select(instanceType, node => {
                         left = node;
                         visited.push(alpha);
 
@@ -101,7 +106,7 @@ module Treaty {
                         _.each(remaining, (beta: ISelectRuleNode) => {
                             if (_.contains(visited, beta)) return;
 
-                            beta.select(right => {
+                            beta.select(instanceType, right => {
                                 visited.push(beta);
 
                                 this.runtime.matchJoinNodeTwo(left, right, join => left = join);
@@ -143,7 +148,7 @@ module Treaty {
                 } else if (expression instanceof TypeScript.BinaryExpression) {
                     this.visitBinary(<TypeScript.BinaryExpression>expression);
                 } else {
-                    console.log('Expression type "' + typeof (expression) + '" not yet supported.');
+                    console.log('Expression type "' + TypeDescriptor.toType(expression) + '" not yet supported.');
                 }
 
                 return this.nodeSelector;

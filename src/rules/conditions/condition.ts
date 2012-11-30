@@ -43,6 +43,10 @@ module Treaty {
                 private static parseExpression(property: Function): TypeScript.AST {
                     return expressionAdapter.parse(expressionParser.parse(property));
                 }
+
+                public static each(instanceType: string, property: Function): PropertyEachCondition {
+                    return new PropertyEachCondition(instanceType, parseExpression(property));
+                }
             }
 
             export interface IPropertyCondition extends Treaty.Rules.ICondition {
@@ -100,6 +104,14 @@ module Treaty {
 
             export class PropertyLessThanOrEqualCondition implements IPropertyCondition {
                 constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: number) { }
+
+                public accept(visitor: IVisitor): bool {
+                    return visitor.visitCondition(this);
+                }
+            }
+
+            export class PropertyEachCondition implements IPropertyCondition {
+                constructor (public instanceType: string, public memberExpression: TypeScript.AST) { }
 
                 public accept(visitor: IVisitor): bool {
                     return visitor.visitCondition(this);

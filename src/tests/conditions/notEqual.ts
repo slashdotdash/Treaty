@@ -16,7 +16,7 @@ module Treaty {
                 constructor (public name: string) { }
             }
 
-            describe("equals condition", () => {
+            describe("not equal condition", () => {
                 var factory: Treaty.Tests.Factory;
                 var wasCalled = false;
 

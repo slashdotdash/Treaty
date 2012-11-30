@@ -57,7 +57,7 @@ module Treaty {
                 if (node == undefined) {
                     var rightActivation = <ConstantNode>this.createNode(id => new ConstantNode(id));
 
-                    node = <JoinNode>this.createNode(id => new JoinNode(id, rightActivation));
+                    node = <JoinNode>this.createNode(id => new JoinNode(id, left.instanceType, rightActivation));
 
                     left.addActivation(node);
                 }
@@ -72,24 +72,13 @@ module Treaty {
                 if (node == undefined) {
                     var rightActivation = <any>right;
 
-                    node = <JoinNode>this.createNode(id => new JoinNode(id, rightActivation));
+                    node = <JoinNode>this.createNode(id => new JoinNode(id, left.instanceType, rightActivation));
 
                     left.addActivation(node);
                 }
 
                 if (node != null)
                     callback(node);
-
-                //var joinNode: JoinNode = null;
-
-                //// TODO: Find existing join node if one exists
-
-                //var rightActivation = <IActivation>right.successors[0];
-
-                //joinNode = <JoinNode>this.createNode(id => new JoinNode(id, rightActivation));
-
-                //if (joinNode != null)
-                //    callback(joinNode);
             }
 
             public matchLeftJoinNode(left: Rules.INode, callback: (joinNode: Rules.LeftJoinNode) => void ): void {
@@ -98,7 +87,7 @@ module Treaty {
                 if (node == undefined) {
                     var rightActivation = <ConstantNode>this.createNode(id => new ConstantNode(id));
 
-                    node = <LeftJoinNode>this.createNode(id => new LeftJoinNode(id, rightActivation));
+                    node = <LeftJoinNode>this.createNode(id => new LeftJoinNode(id, left.instanceType, rightActivation));
 
                     left.addActivation(node);
                 }

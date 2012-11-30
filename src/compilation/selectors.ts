@@ -19,7 +19,7 @@ module Treaty {
         }
 
         export interface ISelectRuleNode {
-            select(callback: (node: Treaty.Rules.INode) => void): bool;
+            select(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool;
         }
 
         export interface ISelectLeftJoinRuleNode {
@@ -42,6 +42,8 @@ module Treaty {
             visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitCompareNode(node: Treaty.Rules.CompareNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
+            visitEachNode(node: Treaty.Rules.EachNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
@@ -102,6 +104,10 @@ module Treaty {
                 return next(this);
             }
 
+            public visitEachNode(node: Treaty.Rules.EachNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
             public visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 return next(this);
             }
@@ -124,17 +130,21 @@ module Treaty {
 
             constructor (private node: Treaty.Rules.INode, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
-            public select(callback: (node: Treaty.Rules.INode) => void): bool {
-                //if (this.node instanceof Treaty.Rules.AlphaNode) {
-                //    callback(this.node);
-                //    return true;
-                //}
+            public select(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool {
+                if (this.node instanceof Treaty.Rules.AlphaNode) {
+                    var alphaNode = <Treaty.Rules.AlphaNode>this.node;
+                    
+                    if (alphaNode.instanceType == instanceType || alphaNode.instanceType == 'Array') {
+                        callback(this.node);
+                        return true;
+                    }
+                }
 
                 if (this.parent == undefined) {
                     this.parent = new DiscardRuleNodeSelector(this, this.runtime);
                 }
 
-                return this.parent.select(callback);
+                return this.parent.select(instanceType, callback);
             }
 
             public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
@@ -148,7 +158,7 @@ module Treaty {
 
             constructor (private left: ISelectLeftJoinRuleNode, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
-            public select(callback: (node: Treaty.Rules.INode) => void ): bool {
+            public select(instanceType: string, callback: (node: Treaty.Rules.INode) => void ): bool {
                 if (this.leftJoinNode == undefined) {
                     this.left.match(node => this.leftJoinNode = node);
                 }
@@ -162,7 +172,7 @@ module Treaty {
                     this.parent = new DiscardRuleNodeSelector(this, this.runtime);
                 }
 
-                return this.parent.select(callback);
+                return this.parent.select(instanceType, callback);
             }
 
             public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
@@ -217,7 +227,7 @@ module Treaty {
                 node.accept(this);
                 
                 if (this.alphaNode == null) {
-                    this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, this.instanceType));
+                    this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, node.instanceType));
 
                     node.addActivation(this.alphaNode);
                 }
@@ -243,12 +253,12 @@ module Treaty {
                 node.accept(this);
 
                 if (this.equalNode == null) {
-                    this.equalNode = <Rules.EqualNode>this.runtime.createNode(id => new Rules.EqualNode(id, typeof(this.value)));
+                    this.equalNode = <Rules.EqualNode>this.runtime.createNode(id => new Rules.EqualNode(id, TypeDescriptor.toType(this.value)));
 
                     node.addActivation(this.equalNode);
                 }
 
-                var valueNode = this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, typeof (this.value), this.value)));
+                var valueNode = this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, TypeDescriptor.toType(this.value), this.value)));
 
                 this.next.selectNode(valueNode);
             }
@@ -276,12 +286,12 @@ module Treaty {
                 node.accept(this);
 
                 if (this.notEqualNode == null) {
-                    this.notEqualNode = <Rules.NotEqualNode>this.runtime.createNode(id => new Treaty.Rules.NotEqualNode(id, typeof(this.value)));
+                    this.notEqualNode = <Rules.NotEqualNode>this.runtime.createNode(id => new Treaty.Rules.NotEqualNode(id, TypeDescriptor.toType(this.value)));
 
                     node.addActivation(this.notEqualNode);
                 }
 
-                var valueNode = this.notEqualNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, typeof (this.value), this.value)));
+                var valueNode = this.notEqualNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, TypeDescriptor.toType(this.value), this.value)));
 
                 this.next.selectNode(valueNode);
             }
@@ -309,7 +319,7 @@ module Treaty {
                 node.accept(this);
 
                 if (this.existsNode == null) {
-                    this.existsNode = <Rules.ExistsNode>this.runtime.createNode(id => new Rules.ExistsNode(id));
+                    this.existsNode = <Rules.ExistsNode>this.runtime.createNode(id => new Rules.ExistsNode(id, 'Exists'));
 
                     node.addActivation(this.existsNode);
                 }
@@ -340,7 +350,7 @@ module Treaty {
                 node.accept(this);
 
                 if (this.compareNode == null) {
-                    this.compareNode = <Treaty.Rules.CompareNode>this.runtime.createNode(id => new Treaty.Rules.CompareNode(id, this.comparator, this.value));
+                    this.compareNode = <Treaty.Rules.CompareNode>this.runtime.createNode(id => new Treaty.Rules.CompareNode(id, TypeDescriptor.toType(this.value), this.comparator, this.value));
 
                     node.addActivation(this.compareNode);
                 }
@@ -351,6 +361,41 @@ module Treaty {
             public visitCompareNode(node: Treaty.Rules.CompareNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 this.compareNode = node;
                 return false;
+            }
+        }
+
+        export class EachNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+            private eachNode: Rules.EachNode;
+
+            constructor (public next: ISelectNode, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+                super();
+            }
+
+            public select(): void {
+                throw 'not implemented';            
+            }
+
+            public selectNode(node: Treaty.Rules.INode): void {
+                this.eachNode = null;
+
+                node.accept(this);
+
+                if (this.eachNode == null) {
+                    this.eachNode = <Rules.EachNode>this.runtime.createNode(id => new Rules.EachNode(id, 'Array', this.forEach));
+
+                    node.addActivation(this.eachNode);
+                }
+                
+                this.next.selectNode(this.eachNode);
+            }
+
+            public visitEachNode(node: Treaty.Rules.EachNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                this.eachNode = node;
+                return false;
+            }
+
+            private forEach(list: any[], callback: (item: any) => void ) {
+                _.each(list, item => callback(item));
             }
         }
 

@@ -21,7 +21,7 @@ module Treaty {
                 constructor (public lines: OrderLine[]) { }
             }
 
-            describe("equals condition", () => {
+            describe("exists condition", () => {
                 var factory = new Treaty.Tests.Factory();                
                 var matchedOrders: Order[] = [];
 
