@@ -16,7 +16,7 @@ module Treaty {
     module Tests {
         module Conditions {
             class Person {
-                constructor (public name: string) { }
+                constructor (public name: string, public age: number) { }
             }
 
             describe("dot notation", () => {
@@ -25,10 +25,17 @@ module Treaty {
 
                 beforeEach(() => {
                     var condition = Treaty.Rules.Conditions.Condition.equal('Person', (p: Person) => p.name, 'Bob');
+                    var consequence = (p: Person) => console.log('consequence');
 
                     var factory = new Treaty.Tests.Factory()
                         .withCondition(condition)
-                        .withConsequence('Person', (p: Person) => console.log('consequence'))
+                        .withConsequence('Person', consequence)
+                        .buildRule()
+                        .withCondition(Treaty.Rules.Conditions.Condition.notEqual('Person', (p: Person) => p.name, 'Bob'))
+                        .withConsequence('Person', consequence)
+                        .buildRule()
+                        .withCondition(Treaty.Rules.Conditions.Condition.lessThanOrEqual('Person', (p: Person) => p.age, 21))
+                        .withConsequence('Person', consequence)
                         .buildRulesEngine();
 
                     subject = new Treaty.Graphing.GraphingVisitor();                    

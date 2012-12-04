@@ -25,14 +25,14 @@ module Treaty {
             }
 
             public visitAlphaNode(node: Treaty.Rules.AlphaNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.AlphaNode, node.instanceType, 'Alpha Node'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.AlphaNode, node.instanceType, 'Alpha Node\\n' + node.instanceType));
                 this.createEdge();
 
                 return this.next(() => next(this));
             }
 
             public visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.PropertyNode, node.instanceType, node.memberName));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.PropertyNode, node.instanceType, node.instanceType + '\\n' + node.memberName));
                 this.createEdge();
 
                 return this.next(() => next(this));                
@@ -53,7 +53,7 @@ module Treaty {
             }
 
             public visitExistsNode(node: Treaty.Rules.ExistsNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ExistsNode, node.instanceType, 'Exists'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ExistsNode, node.instanceType, 'exists'));
                 this.createEdge();
 
                 return this.next(() => next(this));
@@ -105,7 +105,7 @@ module Treaty {
             }
 
             public visitConstantNode(node: Treaty.Rules.ConstantNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ConstantNode, 'Constant', ''));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ConstantNode, 'Constant', 'const.'));
                 
                 if (this.stack.length > 0 && this.rightActivationEquals(node.id)) {
                     this.edges.push(new Edge(this.current, this.stack[this.stack.length - 1], this.current.targetType));

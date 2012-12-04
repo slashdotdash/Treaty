@@ -25,16 +25,36 @@ module Treaty {
                 this.output = [];                 
 
                 this.header(title);
-                this.nodes('ellipse', _.select(this.vertices, (vertex: DotVertex) => vertex.is(Shape.Ellipse)));
-                this.nodes('circle', _.select(this.vertices, (vertex: DotVertex) => vertex.is(Shape.Circle)));
+                this.nodes();
                 this.edges();
                 this.footer();
                 
                 return this.output.join('\n');
             }
 
-            private nodes(shape: string, vertices: Vertex[]): void {
-                this.append('node [shape=' + shape + '];' + _.map(vertices, (vertex: DotVertex) => ' ' + vertex.identifier + ';').join(''));
+            private nodes(): void {
+                _.each(this.vertices, (vertex: DotVertex) => {
+                    this.node(vertex);
+                });
+            }
+
+            private node(vertex: DotVertex): void {
+                var attrs: string[] = [];
+
+                attrs.push('shape=' + this.shape(vertex.shape()));
+                attrs.push('style=filled');
+                attrs.push('color=gainsboro');
+                attrs.push('label="' + vertex.title + '"');
+                //attrs.push('comment="' + vertex.targetType + '"');
+                    
+                this.append(vertex.identifier + ' [' + attrs.join(',') + '];')
+            }
+
+            private shape(shape: Shape): string {
+                if (shape == Shape.Circle) return 'circle';
+                if (shape == Shape.Ellipse) return 'ellipse';
+                if (shape == Shape.DoubleCircle) return 'doublecircle';
+                return '';
             }
 
             private edges(): void {
@@ -62,9 +82,13 @@ module Treaty {
 
         export class DotVertex {
             public identifier: string;
+            public title: string;
+            public targetType: string;
 
             constructor (private vertex: Vertex) {
                 this.identifier = 'n' + vertex.vertexType.toString() + vertex.id.toString();
+                this.title = vertex.title;
+                this.targetType = vertex.targetType;
             }
 
             public shape(): Shape {
@@ -73,11 +97,13 @@ module Treaty {
                     case VertexType.AlphaNode:
                     case VertexType.JoinNode:
                     case VertexType.LeftJoinNode:
-                    case VertexType.DelegateProductionNode:
                         return Shape.Ellipse;
 
                     case VertexType.ConstantNode:
                         return Shape.Circle;
+
+                    case VertexType.DelegateProductionNode:
+                        return Shape.DoubleCircle;
 
                     default:
                         return Shape.Circle;

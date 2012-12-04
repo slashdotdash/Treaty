@@ -13,6 +13,7 @@ module Treaty {
         export class Factory {
             private conditions: Treaty.Rules.ICondition[] = [];
             private consequences: Treaty.Rules.IConsequence[] = [];
+            private rules: Treaty.Rules.Rule[] = [];
 
             public rulesEngine: Treaty.Rules.RulesEngine;
 
@@ -29,10 +30,22 @@ module Treaty {
                 return this;
             }
 
+            public buildRule(): Factory {
+                this.rules.push(new Treaty.Rules.Rule('Rules', this.conditions, this.consequences));
+
+                this.conditions = [];
+                this.consequences = [];
+                return this;
+            }
+            
             public buildRulesEngine(): Factory {
                 var rulesEngineBuilder = new Treaty.Rules.RulesEngineBuilder();
 
-                rulesEngineBuilder.addRule(new Treaty.Rules.Rule('Rules', this.conditions, this.consequences));
+                if (this.conditions.length > 0 || this.consequences.length > 0) {
+                    this.buildRule();
+                }
+
+                _.each(this.rules, (rule: Treaty.Rules.Rule) => rulesEngineBuilder.addRule(rule));
 
                 this.rulesEngine = rulesEngineBuilder.build();
                 return this;
