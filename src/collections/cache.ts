@@ -25,6 +25,14 @@ module Treaty {
                 callback(item);
                 return true;
             }
+
+            public forEach(callback: (item: any) => void ): void {
+                for (var key in this.items) {
+                    if (this.items.hasOwnProperty(key)) {
+                        callback(this.items[key]);
+                    }
+                }
+            }
         }
     }
 }

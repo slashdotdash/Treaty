@@ -197,7 +197,7 @@ module Treaty {
         export class CompareNode implements INode, IActivation {
             public successors = new IActivation[];
             
-            constructor (public id: number, public instanceType: string, private comparator: IComparator, private value: any) { }
+            constructor (public id: number, public instanceType: string, public comparator: IComparator, public value: any) { }
             
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitCompareNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -315,7 +315,7 @@ module Treaty {
         }
 
         export class DelegateProductionNode implements IActivation {
-            constructor (public id: number, private callback: (instance) => void ) { }
+            constructor (public id: number, public instanceType: string, private callback: (instance) => void ) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitDelegateNode(this, next => true);

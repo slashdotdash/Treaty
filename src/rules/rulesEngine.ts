@@ -33,6 +33,10 @@ module Treaty {
             public alphaNodes = new Treaty.Collections.Cache();
             public objectCache = new Treaty.Collections.Cache();
 
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visit(this, next => this.alphaNodes.forEach((activation: IActivation) => activation.accept(next)));
+            }
+
             public activate(context: IActivationContext): void {
                 var alphaNode = <Treaty.Rules.IActivation>this.getAlphaNode(context.instanceType);
                 

@@ -177,7 +177,7 @@ module Treaty {
 
             public visitConsequence(consequence: Rules.Consequences.DelegateConsequence): bool {
                 this.conditionCompiler.matchJoinNode(consequence.instanceType, joinNode => {
-                    var node = <Treaty.Rules.DelegateProductionNode>this.runtime.createNode(id => new Treaty.Rules.DelegateProductionNode(id, consequence.callback));
+                    var node = <Treaty.Rules.DelegateProductionNode>this.runtime.createNode(id => new Treaty.Rules.DelegateProductionNode(id, consequence.instanceType, consequence.callback));
 
                     joinNode.addActivation(node);
                 });
