@@ -4,6 +4,7 @@
 ///<reference path='..\..\rules\rule.ts' />
 ///<reference path='..\..\rules\conditions\condition.ts' />
 ///<reference path='..\..\graphing\graphingVisitor.ts' />
+///<reference path='..\..\graphing\exporter.ts' />
 
 ///<reference path='..\..\..\lib\TypeScript\compiler\' />
 ///<reference path='..\..\rules\' />
@@ -42,6 +43,19 @@ module Treaty {
 
                 it("should generate graph with vertices", () => {
                     expect(graph.vertices.length).toBeGreaterThan(0);
+                });
+
+                describe("exporting", () => {
+                    var dotNotation: string;
+                    
+                    beforeEach(() => {
+                        dotNotation = new Treaty.Graphing.Exporter(graph).toDotNotation('Test');
+                        console.log(dotNotation);
+                    });
+
+                    it("should generate dot notation file", () => {
+                        expect(dotNotation).toNotBe('');
+                    });
                 });
             });
         }

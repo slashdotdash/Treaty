@@ -19,69 +19,69 @@ module Treaty {
             }
 
             public visit(runtime: Treaty.Rules.IRuntimeConfiguration, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(0, id => new Vertex(id, 'RulesEngine', 'Object', 'Rules Engine'));
+                this.current = this.getVertex(0, id => new Vertex(id, VertexType.RulesEngine, 'Object', 'Rules Engine'));
 
                 return this.next(() => next(this));
             }
 
             public visitAlphaNode(node: Treaty.Rules.AlphaNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'AlphaNode', node.instanceType, 'Alpha Node'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.AlphaNode, node.instanceType, 'Alpha Node'));
                 this.createEdge();
 
                 return this.next(() => next(this));
             }
 
             public visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'PropertyNode', node.instanceType, node.memberName));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.PropertyNode, node.instanceType, node.memberName));
                 this.createEdge();
 
                 return this.next(() => next(this));                
             }
 
             public visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'EqualNode', node.instanceType, '=='));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.EqualNode, node.instanceType, '=='));
                 this.createEdge();
 
                 return this.next(() => next(this));
             }
 
             public visitNotEqualNode(node: Treaty.Rules.NotEqualNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'NotEqualNode', node.instanceType, '!='));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.NotEqualNode, node.instanceType, '!='));
                 this.createEdge();
 
                 return this.next(() => next(this));
             }
 
             public visitExistsNode(node: Treaty.Rules.ExistsNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'ExistsNode', node.instanceType, 'Exists'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ExistsNode, node.instanceType, 'Exists'));
                 this.createEdge();
 
                 return this.next(() => next(this));
             }
 
             public visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'ValueNode', node.instanceType, node.value));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ValueNode, node.instanceType, node.value));
                 this.createEdge();
 
                 return this.next(() => next(this));
             }
 
             public visitCompareNode(node: Treaty.Rules.CompareNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'CompareNode', node.instanceType, node.comparator.toString() + ' ' + node.value));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.CompareNode, node.instanceType, node.comparator.toString() + ' ' + node.value));
                 this.createEdge();
 
                 return this.next(() => next(this));
             }
 
             public visitEachNode(node: Treaty.Rules.EachNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'EachNode', node.instanceType, '[n]'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.EachNode, node.instanceType, '[n]'));
                 this.createEdge();
 
                 return this.next(() => next(this));
             }
 
             public visitJoinNode(node: Treaty.Rules.JoinNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'JoinNode', node.instanceType, 'Join Node'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.JoinNode, node.instanceType, 'Join Node'));
                 
                 if (this.rightActivationEquals(node.id)) {
                     this.edges.push(new Edge(this.current, this.stack[this.stack.length - 1], this.current.targetType));
@@ -93,7 +93,7 @@ module Treaty {
             }
 
             public visitLeftJoinNode(node: Treaty.Rules.LeftJoinNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'LeftJoinNode', node.instanceType, 'Left Join Node'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.LeftJoinNode, node.instanceType, 'Left Join Node'));
                 
                 if (this.rightActivationEquals(node.id)) {
                     this.edges.push(new Edge(this.current, this.stack[this.stack.length - 1], this.current.targetType));
@@ -105,7 +105,7 @@ module Treaty {
             }
 
             public visitConstantNode(node: Treaty.Rules.ConstantNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'ConstantNode', 'Constant', ''));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ConstantNode, 'Constant', ''));
                 
                 if (this.stack.length > 0 && this.rightActivationEquals(node.id)) {
                     this.edges.push(new Edge(this.current, this.stack[this.stack.length - 1], this.current.targetType));
@@ -115,7 +115,7 @@ module Treaty {
             }
 
             public visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, 'DelegateProductionNode', node.instanceType, 'Delegate'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.DelegateProductionNode, node.instanceType, 'Delegate'));
                 this.createEdge();
 
                 return this.next(() => next(this));

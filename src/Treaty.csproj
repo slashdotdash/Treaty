@@ -41,6 +41,10 @@
     <TypeScriptCompile Include="graphing\vertex.ts" />
     <TypeScriptCompile Include="graphing\edge.ts" />
     <TypeScriptCompile Include="graphing\rulesEngineGraph.ts" />
+    <TypeScriptCompile Include="graphing\exporter.ts" />
+    <Content Include="graphing\exporter.js">
+      <DependentUpon>exporter.ts</DependentUpon>
+    </Content>
     <Content Include="tests\conditions\each.ts" />
     <Content Include="tests\conditions\notEqual.ts" />
     <Content Include="tests\conditions\lessThanOrEqual.ts" />
