@@ -103,6 +103,7 @@ module Treaty {
                         return Shape.Circle;
 
                     case VertexType.DelegateProductionNode:
+                    case VertexType.AddFactNode:
                         return Shape.DoubleCircle;
 
                     default:

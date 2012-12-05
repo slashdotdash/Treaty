@@ -33,6 +33,8 @@ module Treaty {
             visitConstantNode(node: Treaty.Rules.ConstantNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
+            visitAddFactNode(node: Treaty.Rules.AddFactNode, next: (visitor: IRuntimeVisitor) => bool): bool;
         }
 
         export class RuntimeVisitor implements IRuntimeVisitor {
@@ -86,7 +88,11 @@ module Treaty {
 
             public visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 return next(this);
-            }            
+            }
+
+            public visitAddFactNode(node: Treaty.Rules.AddFactNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
         }
     }
 }

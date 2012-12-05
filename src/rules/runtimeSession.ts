@@ -10,6 +10,8 @@ module Treaty {
             assert(instanceType: string, fact: any): void;
 
             run(): void;
+
+            factsOfType(instanceType: string): any[];
         }
 
         export interface IActivationContext {
@@ -64,6 +66,20 @@ module Treaty {
 
             public run(): void {
                 this.agenda.run();
+            }
+
+            public factsOfType(instanceType: string): any[] {
+                var matching = _.filter(this.facts, (context: IActivationContext) => context.instanceType == instanceType)
+
+                return _.map(matching, (context: IActivationContext) => {
+                    var fact = context.fact;
+
+                    while (fact instanceof ActivationToken) {
+                        fact = (<ActivationToken>fact).value;
+                    }
+
+                    return fact;
+                });
             }
 
             public createContext(instanceType: string, fact: any): IActivationContext {

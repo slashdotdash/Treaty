@@ -333,5 +333,27 @@ module Treaty {
                 });
             }
         }
+
+        export class AddFactNode implements IActivation {
+            constructor (public id: number, public instanceType: string, private fact: (instance) => any ) { }
+
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visitAddFactNode(this, next => true);
+            }
+
+            public activate(context: Treaty.Rules.IActivationContext): void {
+                context.schedule(session => {
+                    var fact = context.fact;
+
+                    while (fact instanceof ActivationToken) {
+                        fact = (<ActivationToken>fact).value;
+                    }
+
+                    var newFact = this.fact(fact);
+
+                    session.assert(this.instanceType, newFact);
+                });
+            }
+        }
     }
 }

@@ -83,7 +83,7 @@ module Treaty {
                 return true;
             }
 
-            public visitConsequence(consequence: Treaty.Rules.Consequences.DelegateConsequence): bool { return true; }
+            public visitConsequence(consequence: Treaty.Rules.IConsequence): bool { return true; }
 
             public matchJoinNode(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool {
                 if (this.alphaNodes.length == 0) 
@@ -175,13 +175,35 @@ module Treaty {
 
             public visitCondition(condition: Rules.Conditions.PropertyEqualCondition): bool { return true; }
 
-            public visitConsequence(consequence: Rules.Consequences.DelegateConsequence): bool {
+            public visitConsequence(consequence: Treaty.Rules.IConsequence): bool {
+                if (consequence instanceof Treaty.Rules.Consequences.DelegateConsequence) {
+                    this.visitDelegateConsequence(<Treaty.Rules.Consequences.DelegateConsequence>consequence);
+                }
+
+                if (consequence instanceof Treaty.Rules.Consequences.AddFactConsequence) {
+                    this.visitAddFactConsequence(<Treaty.Rules.Consequences.AddFactConsequence>consequence);
+                } 
+
+                return true;
+            }
+
+            private visitDelegateConsequence(consequence: Treaty.Rules.Consequences.DelegateConsequence): bool {
                 this.conditionCompiler.matchJoinNode(consequence.instanceType, joinNode => {
                     var node = <Treaty.Rules.DelegateProductionNode>this.runtime.createNode(id => new Treaty.Rules.DelegateProductionNode(id, consequence.instanceType, consequence.callback));
 
                     joinNode.addActivation(node);
                 });
                 
+                return true;
+            }
+
+            private visitAddFactConsequence(consequence: Treaty.Rules.Consequences.AddFactConsequence): bool {
+                this.conditionCompiler.matchJoinNode(consequence.instanceType, joinNode => {
+                    var node = <Treaty.Rules.AddFactNode>this.runtime.createNode(id => new Treaty.Rules.AddFactNode(id, consequence.instanceType, consequence.fact));
+
+                    joinNode.addActivation(node);
+                });
+
                 return true;
             }
         }

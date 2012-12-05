@@ -121,6 +121,13 @@ module Treaty {
                 return this.next(() => next(this));
             }
             
+            public visitAddFactNode(node: Treaty.Rules.AddFactNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.AddFactNode, node.instanceType, 'AddFact'));
+                this.createEdge();
+
+                return this.next(() => next(this));
+            }
+
             private getVertex(id: number, factory: (newId: number) => Vertex): Vertex {
                 return _.find(this.vertices, (vertex: Vertex) => vertex.id == id) || this.createVertex(id, factory);
             }

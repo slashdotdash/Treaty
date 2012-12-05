@@ -17,7 +17,7 @@ module Treaty {
 
             public rulesEngine: Treaty.Rules.RulesEngine;
 
-            private session: Treaty.Rules.ISession;
+            public session: Treaty.Rules.ISession;
 
             public withCondition(condition: Treaty.Rules.ICondition): Factory {
                 this.conditions.push(condition);                    
@@ -26,6 +26,12 @@ module Treaty {
 
             public withConsequence(instanceType: string, callback: (instance: any) => void ): Factory {
                 var consequence = Treaty.Rules.Consequences.Consequence.delegate(instanceType, callback);
+                this.consequences.push(consequence);
+                return this;
+            }
+
+            public withConsequenceFact(instanceType: string, fact: (instance: any) => any ): Factory {
+                var consequence = Treaty.Rules.Consequences.Consequence.addFact(instanceType, fact);
                 this.consequences.push(consequence);
                 return this;
             }

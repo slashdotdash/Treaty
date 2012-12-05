@@ -42,15 +42,13 @@
     <TypeScriptCompile Include="graphing\edge.ts" />
     <TypeScriptCompile Include="graphing\rulesEngineGraph.ts" />
     <TypeScriptCompile Include="graphing\exporter.ts" />
-    <Content Include="graphing\exporter.js">
-      <DependentUpon>exporter.ts</DependentUpon>
-    </Content>
     <Content Include="tests\conditions\each.ts" />
     <Content Include="tests\conditions\notEqual.ts" />
     <Content Include="tests\conditions\lessThanOrEqual.ts" />
     <Content Include="tests\conditions\greaterThanOrEqual.ts" />
     <Content Include="tests\conditions\lessThan.ts" />
     <Content Include="tests\conditions\greaterThan.ts" />
+    <Content Include="tests\consequences\addFact.ts" />
     <Content Include="tests\factory.ts" />
     <Content Include="tests\graphing\dotNotation.ts" />
     <Content Include="tests\parsing\expression.ts" />

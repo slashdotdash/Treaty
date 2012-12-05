@@ -16,7 +16,7 @@ module Treaty {
             LeftJoinNode = 11,
             ConstantNode = 12,
             DelegateProductionNode = 13,
-
+            AddFactNode = 14,
         }
 
         export class Vertex {

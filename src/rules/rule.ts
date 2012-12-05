@@ -15,7 +15,7 @@ module Treaty {
 
             visitCondition(condition: Treaty.Rules.Conditions.IPropertyCondition): bool;
 
-            visitConsequence(consequence: Consequences.DelegateConsequence): bool;
+            visitConsequence(consequence: Treaty.Rules.IConsequence): bool;
         }
         
         export interface IAcceptVisitor {
