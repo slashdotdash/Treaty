@@ -28,7 +28,7 @@ module Treaty {
 
                     factory = new Treaty.Tests.Factory()
                         .withCondition(condition)
-                        .withConsequenceFact('Person', (p: Person) => new EligibleToVote(p))
+                        .withAddFactConsequence('Person', (p: Person) => new EligibleToVote(p))
                         .buildRulesEngine();
                 });
 

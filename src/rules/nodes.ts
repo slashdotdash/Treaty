@@ -267,9 +267,7 @@ module Treaty {
             }
 
             public activate(context: Treaty.Rules.IActivationContext): void {
-                var activationToken = <Treaty.Rules.ActivationToken>context.fact;
-
-                this.rightActivation.rightActivate(activationToken.value, match => this.activateMatch(context));
+                this.rightActivation.rightActivate(context, match => this.activateMatch(context));
             }
 
             public rightActivate(context: Treaty.Rules.IActivationContext, callback: (next: Treaty.Rules.IActivationContext) => bool): void {

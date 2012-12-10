@@ -30,7 +30,7 @@ module Treaty {
                 return this;
             }
 
-            public withConsequenceFact(instanceType: string, fact: (instance: any) => any ): Factory {
+            public withAddFactConsequence(instanceType: string, fact: (instance: any) => any ): Factory {
                 var consequence = Treaty.Rules.Consequences.Consequence.addFact(instanceType, fact);
                 this.consequences.push(consequence);
                 return this;
