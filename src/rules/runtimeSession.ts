@@ -26,6 +26,18 @@ module Treaty {
             schedule(action: (session: ISession) => void ): void;
         }
 
+        export class ActivationFact {
+            public static extract(context: IActivationContext): any {
+                var fact = context.fact;
+
+                while (fact instanceof ActivationToken) {
+                    fact = (<ActivationToken>fact).value;
+                }
+
+                return fact;
+            }
+        }
+
         export class ActivationToken {
             constructor (private sourceType: string, private valueType: string, public context: IActivationContext, public value: any) { }
         }

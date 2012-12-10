@@ -129,7 +129,7 @@ module Treaty {
             }
         }
 
-        export class AlphaNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+        export class AlphaNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private alphaNode: Treaty.Rules.AlphaNode;
 
             constructor (public next: ISelectNode, private instanceType: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
@@ -155,7 +155,7 @@ module Treaty {
             }
         }
 
-        export class EqualNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+        export class EqualNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private equalNode: Rules.EqualNode;
 
             constructor (public next: ISelectNode, private value: any, private runtime: Treaty.Rules.IRuntimeConfiguration) {
@@ -188,7 +188,7 @@ module Treaty {
             }
         }
 
-        export class NotEqualNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+        export class NotEqualNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private notEqualNode: Rules.NotEqualNode;
 
             constructor (public next: ISelectNode, private value: any, private runtime: Treaty.Rules.IRuntimeConfiguration) {
@@ -221,7 +221,7 @@ module Treaty {
             }
         }
 
-        export class ExistsNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+        export class ExistsNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private existsNode: Rules.ExistsNode;
 
             constructor (public next: ISelectNode, private runtime: Treaty.Rules.IRuntimeConfiguration) {
@@ -252,7 +252,7 @@ module Treaty {
             }
         }
 
-        export class CompareNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+        export class CompareNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private compareNode: Treaty.Rules.CompareNode;
 
             constructor (public next: ISelectNode, private comparator: Treaty.Rules.IComparator, private value: number, private runtime: Treaty.Rules.IRuntimeConfiguration) {
@@ -283,7 +283,7 @@ module Treaty {
             }
         }
 
-        export class EachNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+        export class EachNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private eachNode: Rules.EachNode;
 
             constructor (public next: ISelectNode, private runtime: Treaty.Rules.IRuntimeConfiguration) {
@@ -332,7 +332,7 @@ module Treaty {
             }
         }
 
-        export class PropertyNodeSelector extends RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
+        export class PropertyNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private propertyNode: Rules.PropertyNode;
 
             constructor (public next: ISelectNode, public instanceType: string, public memberName: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {

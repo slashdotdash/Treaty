@@ -65,13 +65,24 @@ module Treaty {
             }
 
             public activate(context: Treaty.Rules.IActivationContext): void {
-                if (context.fact.hasOwnProperty(this.memberName)) {
-                    var value = context.fact[this.memberName];
+                this.withValue(context, value => {
                     var activationToken = new Rules.ActivationToken(this.instanceType, TypeDescriptor.toType(value), context, value);
 
                     var propertyContext = context.createContext('ActivationToken', activationToken);
 
                     _.each(this.successors, (activation: IActivation) => activation.activate(propertyContext));
+                });
+            }
+
+            private withValue(context: Treaty.Rules.IActivationContext, callback: (value: any) => void ): void {
+                var fact = ActivationFact.extract(context);
+
+                if (fact.hasOwnProperty(this.memberName)) {
+                    var value = fact[this.memberName];
+
+                    if (value != null) {
+                        callback(value);
+                    }
                 }
             }
         }
@@ -323,11 +334,7 @@ module Treaty {
 
             public activate(context: Treaty.Rules.IActivationContext): void {
                 context.schedule(session => {
-                    var fact = context.fact;
-
-                    while (fact instanceof ActivationToken) {
-                        fact = (<ActivationToken>fact).value;
-                    }
+                    var fact = ActivationFact.extract(context);
 
                     this.callback(fact);
                 });
@@ -343,11 +350,7 @@ module Treaty {
 
             public activate(context: Treaty.Rules.IActivationContext): void {
                 context.schedule(session => {
-                    var fact = context.fact;
-
-                    while (fact instanceof ActivationToken) {
-                        fact = (<ActivationToken>fact).value;
-                    }
+                    var fact = ActivationFact.extract(context);
 
                     var newFact = this.fact(fact);
                     
