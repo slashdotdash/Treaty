@@ -84,13 +84,10 @@ module Treaty {
                 var matching = _.filter(this.facts, (context: IActivationContext) => context.instanceType == instanceType)
 
                 return _.map(matching, (context: IActivationContext) => {
+
                     var fact = context.fact;
 
-                    while (fact instanceof ActivationToken) {
-                        fact = (<ActivationToken>fact).value;
-                    }
-
-                    return fact;
+                    return ActivationFact.extract(fact);                    
                 });
             }
 
