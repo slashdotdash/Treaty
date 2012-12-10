@@ -350,8 +350,8 @@ module Treaty {
                     }
 
                     var newFact = this.fact(fact);
-
-                    session.assert(this.instanceType, newFact);
+                    
+                    session.assert(TypeDescriptor.toType(newFact), newFact);
                 });
             }
         }

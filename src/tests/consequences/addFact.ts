@@ -42,7 +42,7 @@ module Treaty {
                     })
                 });
 
-                xdescribe("not matching condition", () => {
+                describe("not matching condition", () => {
                     beforeEach(() => {
                         factory.createSession().assertFact('Person', new Person('Joe', 17)).run();
                     });
