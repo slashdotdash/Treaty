@@ -52,6 +52,52 @@ module Treaty {
                     })
                 });
             });
+
+            describe("add fact consequence matching rule", () => {
+                var factory: Treaty.Tests.Factory;
+                var wasCalled: bool;
+
+                beforeEach(() => {
+                    factory = new Treaty.Tests.Factory()
+                        .withCondition(Treaty.Rules.Conditions.Condition.greaterThanOrEqual('Person', (p: Person) => p.age, 18))
+                        .withAddFactConsequence('Person', (p: Person) => new EligibleToVote(p))
+                        .buildRule()
+                        .withCondition(Treaty.Rules.Conditions.Condition.equal('EligibleToVote', (e: EligibleToVote) => e.person.name, 'Ben'))
+                        .withConsequence('EligibleToVote', (e: EligibleToVote) => wasCalled = true)
+                        .buildRule()
+                        .buildRulesEngine();
+                });
+
+                describe("matching condition", () => {
+                    beforeEach(() => {
+                        wasCalled = false;
+                        factory.createSession().assertFact('Person', new Person('Ben', 30)).run();
+                    });
+
+                    it("should execute consequence asserting new fact", () => {                        
+                        expect(factory.session.factsOfType('EligibleToVote').length).toBe(1);
+                    })
+
+                    it("should execute second consequence activated by new fact", () => {
+                        expect(wasCalled).toBeTruthy();
+                    });
+                });
+
+                describe("not matching condition", () => {
+                    beforeEach(() => {
+                        wasCalled = false;
+                        factory.createSession().assertFact('Person', new Person('Joe', 17)).run();
+                    });
+
+                    it("should not execute consequence", () => {
+                        expect(factory.session.factsOfType('EligibleToVote').length).toBe(0);
+                    });
+
+                    it("should not execute second consequence", () => {
+                        expect(wasCalled).toBeFalsy();
+                    });
+                });
+            });
         }
     }
 }
