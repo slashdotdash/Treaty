@@ -311,6 +311,43 @@ module Treaty {
             }
         }
 
+        export class OuterJoinNode implements Treaty.Rules.INode {
+            public successors = new IActivation[];
+            public instanceType: string = 'Join';
+
+            constructor (public id: number, public leftInstanceType: string, public rightInstanceType: string, public rightActivation: Rules.IRightActivation) { }
+
+            public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
+                return visitor.visitOuterJoinNode(this, next => this.rightActivation.accept(next) && _.all(this.successors, (activation: IActivation) => activation.accept(next)));
+            }
+
+            public addActivation(activation: Treaty.Rules.IActivation): void {
+                this.successors.push(activation);
+            }
+            
+            public activate(context: Treaty.Rules.IActivationContext): void {
+                this.rightActivation.rightActivate(context, right => {                    
+                    var joinValue = new JoinedValue(ActivationFact.extract(context), right.fact);
+
+                    var activationToken = new Rules.ActivationToken(this.instanceType, TypeDescriptor.toType(joinValue), context, joinValue);
+                    
+                    var activationContext = context.createContext('ActivationToken', activationToken);
+
+                    this.activateMatch(activationContext);
+                });
+            }
+
+            // TODO: Refactor this with AlphaNode impl.
+            private activateMatch(context: Treaty.Rules.IActivationContext): void {
+                context.access(this.id, memory => memory.activate(context));
+                context.schedule(session => this.successors.forEach(successor => successor.activate(context)));
+            }
+        }
+
+        export class JoinedValue {
+            constructor(public left: any, public right: any) { }
+        }
+
         export class ConstantNode implements IRightActivation {
             constructor (public id: number) { }
 

@@ -30,6 +30,8 @@ module Treaty {
 
             visitLeftJoinNode(node: Treaty.Rules.LeftJoinNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
+            visitOuterJoinNode(node: Treaty.Rules.OuterJoinNode, next: (visitor: IRuntimeVisitor) => bool): bool;
+
             visitConstantNode(node: Treaty.Rules.ConstantNode, next: (visitor: IRuntimeVisitor) => bool): bool;
 
             visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: IRuntimeVisitor) => bool): bool;
@@ -79,6 +81,10 @@ module Treaty {
             }
 
             public visitLeftJoinNode(node: Treaty.Rules.LeftJoinNode, next: (visitor: IRuntimeVisitor) => bool): bool {
+                return next(this);
+            }
+
+            public visitOuterJoinNode(node: Treaty.Rules.OuterJoinNode, next: (visitor: IRuntimeVisitor) => bool): bool {
                 return next(this);
             }
 

@@ -14,9 +14,10 @@ module Treaty {
             EachNode = 9,
             JoinNode = 10,
             LeftJoinNode = 11,
-            ConstantNode = 12,
-            DelegateProductionNode = 13,
-            AddFactNode = 14,
+            OuterJoinNode = 12,
+            ConstantNode = 13,
+            DelegateProductionNode = 14,
+            AddFactNode = 15,
         }
 
         export class Vertex {

@@ -97,6 +97,7 @@ module Treaty {
                     case VertexType.AlphaNode:
                     case VertexType.JoinNode:
                     case VertexType.LeftJoinNode:
+                    case VertexType.OuterJoinNode:
                         return Shape.Ellipse;
 
                     case VertexType.ConstantNode:

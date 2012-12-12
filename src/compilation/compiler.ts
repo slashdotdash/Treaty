@@ -89,6 +89,13 @@ module Treaty {
                 if (this.alphaNodes.length == 0) 
                     return false;
 
+                var joinType = new GenericType(instanceType);
+                if (joinType.isGeneric) {
+                    var tupleSelector = new TupleNodeSelector(joinType.instanceTypes[1], joinType.instanceTypes[2], this, this.runtime);
+                    
+                    return tupleSelector.select(joinType.instanceTypes[0], callback);
+                }
+
                 var left: Rules.INode = null;
                 var right: Rules.INode = null;
 
@@ -127,13 +134,23 @@ module Treaty {
             }
 
             private compile(instanceType: string, memberExpression: TypeScript.AST, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
-                var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(node => this.alphaNodes.push(node), this.runtime));
+                var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(instanceType, node => this.alphaNodes.push(node), this.runtime));
                 var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
                 var nodeFactory = selectorFactory(alphaFactory);
 
                 new PropertyExpressionVisitor(instanceType, nodeFactory, this.runtime)
                     .createSelector(memberExpression)
                     .select();
+            }
+        }
+
+        export class GenericType {
+            public isGeneric: bool = false;
+            public instanceTypes: string[] = [];
+
+            constructor(private instanceType: string) {
+                this.instanceTypes = instanceType.split('|');
+                this.isGeneric = this.instanceTypes.length > 1;
             }
         }
 

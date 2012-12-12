@@ -21,11 +21,13 @@ module Treaty {
 
             getAlphaNode(instanceType: string): Treaty.Rules.AlphaNode;
 
-            matchJoinNodeOne(left: Rules.INode, callback: (joinNode: Rules.INode) => void): void;
+            matchJoinNodeOne(left: Treaty.Rules.INode, callback: (joinNode: Treaty.Rules.INode) => void): void;
 
-            matchJoinNodeTwo(left: Rules.INode, right: Rules.INode, callback: (joinNode: Rules.INode) => void): void;
+            matchJoinNodeTwo(left: Treaty.Rules.INode, right: Treaty.Rules.INode, callback: (joinNode: Treaty.Rules.INode) => void): void;
 
-            matchLeftJoinNode(left: Rules.INode, callback: (joinNode: Rules.LeftJoinNode) => void): void;
+            matchLeftJoinNode(left: Treaty.Rules.INode, callback: (joinNode: Treaty.Rules.LeftJoinNode) => void): void;
+
+            matchOuterJoinNode(left: Treaty.Rules.INode, right: Treaty.Rules.INode, callback: (outerJoinNode: Treaty.Rules.OuterJoinNode) => void): void;
         }
 
         export class RulesEngine implements IRulesEngine, IRuntimeConfiguration, IActivate {
@@ -98,7 +100,22 @@ module Treaty {
 
                 if (node != null)
                     callback(node);
-            }            
+            }
+
+            public matchOuterJoinNode(left: Treaty.Rules.INode, right: Treaty.Rules.INode, callback: (outerJoinNode: Treaty.Rules.OuterJoinNode) => void ): void {
+                var node: OuterJoinNode = _.find(left.successors, (node: OuterJoinNode) => node instanceof OuterJoinNode && node.rightActivation.id == right.id);
+                
+                if (node == undefined) {
+                    var rightActivation = <any>right;
+
+                    node = <OuterJoinNode>this.createNode(id => new OuterJoinNode(id, left.instanceType, right.instanceType, rightActivation));
+
+                    left.addActivation(node);
+                }
+                
+                if (node != null)
+                    callback(node);
+            }
 
             private createAlphaNode(instanceType: string): Treaty.Rules.AlphaNode {
                 var alphaNode = <Treaty.Rules.AlphaNode>this.createNode(id => new Treaty.Rules.AlphaNode(id, instanceType));

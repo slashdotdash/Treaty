@@ -37,9 +37,9 @@ module Treaty {
                         factory.createSession().assertFact('Person', new Person('Ben', 30)).run();
                     });
 
-                    it("should execute consequence asserting new fact", () => {                        
+                    it("should execute consequence asserting new fact", () => {
                         expect(factory.session.factsOfType('EligibleToVote').length).toBe(1);
-                    })
+                    });
                 });
 
                 describe("not matching condition", () => {
@@ -49,7 +49,7 @@ module Treaty {
 
                     it("should not execute consequence", () => {
                         expect(factory.session.factsOfType('EligibleToVote').length).toBe(0);
-                    })
+                    });
                 });
             });
 
@@ -74,9 +74,9 @@ module Treaty {
                         factory.createSession().assertFact('Person', new Person('Ben', 30)).run();
                     });
 
-                    it("should execute consequence asserting new fact", () => {                        
+                    it("should execute consequence asserting new fact", () => {
                         expect(factory.session.factsOfType('EligibleToVote').length).toBe(1);
-                    })
+                    });
 
                     it("should execute second consequence activated by new fact", () => {
                         expect(wasCalled).toBeTruthy();
@@ -86,11 +86,11 @@ module Treaty {
                 describe("not matching condition", () => {
                     beforeEach(() => {
                         wasCalled = false;
-                        factory.createSession().assertFact('Person', new Person('Joe', 17)).run();
+                        factory.createSession().assertFact('Person', new Person('John', 19)).run();
                     });
 
-                    it("should not execute consequence", () => {
-                        expect(factory.session.factsOfType('EligibleToVote').length).toBe(0);
+                    it("should execute consequence asserting new fact", () => {
+                        expect(factory.session.factsOfType('EligibleToVote').length).toBe(1);
                     });
 
                     it("should not execute second consequence", () => {

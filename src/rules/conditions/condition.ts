@@ -50,7 +50,6 @@ module Treaty {
             }
 
             export interface IPropertyCondition extends Treaty.Rules.ICondition {
-                instanceType: string; 
                 memberExpression: TypeScript.AST;
             }
 

@@ -1,0 +1,1 @@
+dot -Tpng tmp.dot -o tmp.png

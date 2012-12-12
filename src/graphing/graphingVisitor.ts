@@ -104,6 +104,18 @@ module Treaty {
                 return this.nextJoin(node.rightActivation, () => next(this));
             }
 
+            public visitOuterJoinNode(node: Treaty.Rules.OuterJoinNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.OuterJoinNode, node.instanceType, 'Outer Join Node'));
+                
+                if (this.rightActivationEquals(node.id)) {
+                    this.edges.push(new Edge(this.current, this.stack[this.stack.length - 1], this.current.targetType));
+                } else {
+                    this.createEdge();
+                }
+
+                return this.nextJoin(node.rightActivation, () => next(this));
+            }
+
             public visitConstantNode(node: Treaty.Rules.ConstantNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
                 this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ConstantNode, 'Constant', 'const.'));
                 
