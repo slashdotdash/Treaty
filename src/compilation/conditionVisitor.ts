@@ -29,12 +29,14 @@ module Treaty {
 
         export class ConditionParser {
             private globalAstWalkerFactory: TypeScript.AstWalkerFactory = new TypeScript.AstWalkerFactory();
-
+            
             public parse(instanceType: string, script: TypeScript.Script): Treaty.Rules.ICondition[] {
                 var state: Treaty.Rules.ICondition[] = [];
                 var visitor = new ConditionVisitor(instanceType);
+            
                 var callback = (ast, parent, walker) => visitor.visit(ast, parent, walker);
-                var walker = this.globalAstWalkerFactory.getWalker(callback, null, null, state);
+                var options = new TypeScript.AstWalkOptions();
+                var walker = this.globalAstWalkerFactory.getWalker(callback, null, options, state);
                 
                 walker.walk(script.bod, script);
                 
@@ -61,14 +63,32 @@ module Treaty {
 
             private visitBinary(binaryExpr: TypeScript.BinaryExpression, walker: TypeScript.IAstWalker): void {
                 switch (binaryExpr.nodeType) {
+                    case TypeScript.NodeType.Dot: {
+                        var condition = this.parseBoolean(binaryExpr);
+
+                        walker.state.push(condition);
+                        walker.options.stopWalk();
+                    }
                     case TypeScript.NodeType.Eq: {
                         var condition = this.parseEq(binaryExpr);
 
                         walker.state.push(condition);
+                        walker.options.stopWalk();
                     }
                     default:
                         console.log('NodeType "' + binaryExpr.nodeType + '" is not yet supported');
                 }
+            }
+
+            private parseBoolean(binaryExpr: TypeScript.BinaryExpression): Treaty.Rules.ICondition {
+                var lhs = new LeftHandSideExpressionVisitor();                        
+                
+                lhs.visitMember(binaryExpr);
+                
+                var memberExpression = lhs.member;
+                var value = true;
+
+                return new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
             }
 
             private parseEq(binaryExpr: TypeScript.BinaryExpression): Treaty.Rules.ICondition {

@@ -59,6 +59,3 @@ module Treaty {
         }
     }
 }
-
-/*// <reference path='..\..\..\typings\lib.d.ts' />*/
-//var script: Script = this.parser.parse(sourceText, filename, this.units.length, AllowedElements.Global);
