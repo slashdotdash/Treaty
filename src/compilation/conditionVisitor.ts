@@ -65,19 +65,20 @@ module Treaty {
                 switch (binaryExpr.nodeType) {
                     case TypeScript.NodeType.Dot: {
                         var condition = this.parseBoolean(binaryExpr);
-
-                        walker.state.push(condition);
-                        walker.options.stopWalk();
+                        return this.appendCondition(walker, condition);
                     }
                     case TypeScript.NodeType.Eq: {
                         var condition = this.parseEq(binaryExpr);
-
-                        walker.state.push(condition);
-                        walker.options.stopWalk();
+                        return this.appendCondition(walker, condition);
                     }
                     default:
                         console.log('NodeType "' + binaryExpr.nodeType + '" is not yet supported');
                 }
+            }
+
+            private appendCondition(walker: TypeScript.IAstWalker, condition: Treaty.Rules.ICondition): void {
+                walker.state.push(condition);
+                walker.options.stopWalk();
             }
 
             private parseBoolean(binaryExpr: TypeScript.BinaryExpression): Treaty.Rules.ICondition {
