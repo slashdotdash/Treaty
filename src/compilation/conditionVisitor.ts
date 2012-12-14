@@ -126,8 +126,6 @@ module Treaty {
                 // TODO: Convert value to member type?
 
                 return conditionFactory(memberExpression, value);
-
-                //return new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
             }
         }
 
@@ -143,11 +141,53 @@ module Treaty {
             public value: any;
 
             public visitConstant(operand: TypeScript.AST): void {
-                if (operand instanceof TypeScript.NumberLiteral) {
+                if (operand instanceof TypeScript.BinaryExpression) {
+                    this.visitBinaryExpression(<TypeScript.BinaryExpression>operand);
+                } else if (operand instanceof TypeScript.NumberLiteral) {
                     this.visitNumberLiteral(<TypeScript.NumberLiteral>operand);
                 } else if (operand instanceof TypeScript.StringLiteral) {
                     this.visitStringLiteral(<TypeScript.StringLiteral>operand);
                 }
+            }
+
+            private visitBinaryExpression(binaryExpr: TypeScript.BinaryExpression): void {
+                switch (binaryExpr.nodeType) {
+                    case TypeScript.NodeType.Add: {
+                        this.setValueFromBinaryExpression(binaryExpr, (left, right) => left + right);
+                        return;
+                    }
+                    case TypeScript.NodeType.Sub: {
+                        this.setValueFromBinaryExpression(binaryExpr, (left, right) => left - right);
+                        return;
+                    }
+                    case TypeScript.NodeType.Div: {
+                        this.setValueFromBinaryExpression(binaryExpr, (left, right) => left / right);
+                        return;
+                    }
+                    case TypeScript.NodeType.Mul: {
+                        this.setValueFromBinaryExpression(binaryExpr, (left, right) => left * right);
+                        return;
+                    }
+                    case TypeScript.NodeType.Mod: {
+                        this.setValueFromBinaryExpression(binaryExpr, (left, right) => left % right);
+                        return;
+                    }
+                    default: {
+                        var message = 'NodeType "' + binaryExpr.nodeType + '" is not yet supported for right hand side';
+                        console.log(message);
+                        throw message;
+                    }
+                }
+            }
+
+            private setValueFromBinaryExpression(binaryExpr: TypeScript.BinaryExpression, calculateValue: (left: any, right: any) => any): void {
+                var lhs = new RightHandSideExpressionVisitor();
+                var rhs = new RightHandSideExpressionVisitor();
+
+                lhs.visitConstant(binaryExpr.operand1);
+                rhs.visitConstant(binaryExpr.operand2);
+
+                this.value = calculateValue(lhs.value, rhs.value);
             }
 
             private visitNumberLiteral(operand: TypeScript.NumberLiteral): void {
