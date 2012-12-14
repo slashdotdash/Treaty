@@ -68,7 +68,23 @@ module Treaty {
                         return this.appendCondition(walker, condition);
                     }
                     case TypeScript.NodeType.Eq: {
-                        var condition = this.parseEq(binaryExpr);
+                        var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value));
+                        return this.appendCondition(walker, condition);
+                    }
+                    case TypeScript.NodeType.Gt: {
+                        var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyGreaterThanCondition(this.instanceType, memberExpression, value));
+                        return this.appendCondition(walker, condition);
+                    }
+                    case TypeScript.NodeType.Ge: {
+                        var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition(this.instanceType, memberExpression, value));
+                        return this.appendCondition(walker, condition);
+                    }
+                    case TypeScript.NodeType.Lt: {
+                        var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyLessThanCondition(this.instanceType, memberExpression, value));
+                        return this.appendCondition(walker, condition);
+                    }
+                    case TypeScript.NodeType.Le: {
+                        var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition(this.instanceType, memberExpression, value));
                         return this.appendCondition(walker, condition);
                     }
                     default:
@@ -92,7 +108,7 @@ module Treaty {
                 return new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
             }
 
-            private parseEq(binaryExpr: TypeScript.BinaryExpression): Treaty.Rules.ICondition {
+            private parseBinary(binaryExpr: TypeScript.BinaryExpression, conditionFactory: (memberExpression: any, value: any) => Treaty.Rules.ICondition): Treaty.Rules.ICondition {
                 var lhs = new LeftHandSideExpressionVisitor();                        
                 var rhs = new RightHandSideExpressionVisitor()
 
@@ -104,7 +120,9 @@ module Treaty {
 
                 // TODO: Convert value to member type?
 
-                return new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
+                return conditionFactory(memberExpression, value);
+
+                //return new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
             }
         }
 
