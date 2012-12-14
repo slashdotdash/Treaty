@@ -87,14 +87,19 @@ module Treaty {
                         var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition(this.instanceType, memberExpression, value));
                         return this.appendCondition(walker, condition);
                     }
+                    case TypeScript.NodeType.LogAnd: {
+                        // Logical and, joining two conditions, handled by visitor continuing walking tree
+                        return;
+                    }
                     default:
                         console.log('NodeType "' + binaryExpr.nodeType + '" is not yet supported');
                 }
             }
 
+            // Append the condition and prevent walking to children
             private appendCondition(walker: TypeScript.IAstWalker, condition: Treaty.Rules.ICondition): void {
                 walker.state.push(condition);
-                walker.options.stopWalk();
+                walker.options.goChildren = false;
             }
 
             private parseBoolean(binaryExpr: TypeScript.BinaryExpression): Treaty.Rules.ICondition {

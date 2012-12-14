@@ -55,6 +55,7 @@
     <Content Include="tests\consequences\addFact.ts" />
     <Content Include="tests\factory.ts" />
     <Content Include="tests\graphing\dotNotation.ts" />
+    <Content Include="tests\parsing\multiple.ts" />
     <Content Include="tests\parsing\expression.ts" />
     <Content Include="tests\runtime\session.ts" />
     <TypeScriptCompile Include="tests\rules\rulesEngineBuilding.ts" />
