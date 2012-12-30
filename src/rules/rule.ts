@@ -16,6 +16,8 @@ module Treaty {
 
             visitCondition(condition: Treaty.Rules.Conditions.IPropertyCondition): bool;
 
+            visitOrCondition(condition: Treaty.Rules.Conditions.OrCondition): bool;
+
             visitConsequence(consequence: Treaty.Rules.IConsequence): bool;
         }
         

@@ -71,6 +71,18 @@ module Treaty {
             }
         }
 
+        export class OrRuleNodeSelector implements ISelectRuleNode, ISelectLeftJoinRuleNode {
+            constructor (private selector: RuleNodeSelector) { }
+
+            public select(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool {
+                return this.selector.select(instanceType, callback);
+            }
+
+            public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
+                this.selector.match(callback);
+            }
+        }
+
         export class TupleNodeSelector implements ISelectRuleNode {
             private parent: ISelectRuleNode;
             private node: Treaty.Rules.OuterJoinNode;
@@ -186,7 +198,7 @@ module Treaty {
         }
 
         export class EqualNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
-            private equalNode: Rules.EqualNode;
+            private equalNode: Treaty.Rules.EqualNode;
 
             constructor (public next: ISelectNode, private value: any, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();

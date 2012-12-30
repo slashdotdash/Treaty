@@ -40,7 +40,7 @@ module Treaty {
                 });
 
                 it("should output to dot notation", () => {
-                    console.log(factory.toDotNotation('Join'));
+                    console.log(factory.toDotNotation('Or'));
                 });
 
                 describe("matching two joined facts", () => {
@@ -60,7 +60,6 @@ module Treaty {
                 describe("matching only left hand side of or condition", () => {
                     beforeEach(() => {
                         wasCalled = false;
-                        debugger;
                         factory.createSession()
                             .assertFact('Person', new Person('Ben'))
                             .run();

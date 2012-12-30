@@ -34,11 +34,31 @@ module Treaty {
             constructor (private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
             public visitRule(rule: Treaty.Rules.Rule, next: (visitor: Treaty.Rules.IVisitor) => bool): bool { return true; }
-            
+
             public visitCondition(condition: Treaty.Rules.Conditions.IPropertyCondition): bool {
                 var nodeSelectorFactory = this.getNodeSelectorFactory(condition);
 
                 this.compile(condition.instanceType, condition.memberExpression, nodeSelectorFactory);
+
+                return true;
+            }
+
+            public visitOrCondition(condition: Treaty.Rules.Conditions.OrCondition): bool {
+                var instanceType = condition.instanceType;
+
+                var leftNodeSelectorFactory = this.getNodeSelectorFactory(condition.leftCondition);
+                var rightNodeSelectorFactory = this.getNodeSelectorFactory(condition.rightCondition);
+
+                var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(instanceType, node => this.alphaNodes.push(new OrRuleNodeSelector(node)), this.runtime));
+                var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
+
+                new PropertyExpressionVisitor(instanceType, leftNodeSelectorFactory(alphaFactory), this.runtime)
+                    .createSelector(condition.leftCondition.memberExpression)
+                    .select();
+
+                new PropertyExpressionVisitor(instanceType, rightNodeSelectorFactory(alphaFactory), this.runtime)
+                    .createSelector(condition.rightCondition.memberExpression)
+                    .select();
 
                 return true;
             }
@@ -64,6 +84,17 @@ module Treaty {
                 _.each(this.alphaNodes, (alpha: ISelectRuleNode) => {
                     if (_.contains(visited, alpha)) return;
                     
+                    // Or conditions are joined for each occurence 
+                    if (alpha instanceof OrRuleNodeSelector) {
+                        alpha.select(instanceType, node => {
+                            visited.push(alpha);
+
+                            callback(node);
+                        });
+
+                        return;
+                    }
+
                     alpha.select(instanceType, node => {
                         left = node;
                         visited.push(alpha);
@@ -72,7 +103,7 @@ module Treaty {
 
                         _.each(remaining, (beta: ISelectRuleNode) => {
                             if (_.contains(visited, beta)) return;
-
+                            
                             beta.select(instanceType, right => {
                                 visited.push(beta);
 
@@ -198,6 +229,8 @@ module Treaty {
             public visitRule(rule: Rules.Rule, next: (visitor: Treaty.Rules.IVisitor) => bool): bool { return true; }
 
             public visitCondition(condition: Rules.Conditions.PropertyEqualCondition): bool { return true; }
+
+            public visitOrCondition(condition: Treaty.Rules.Conditions.OrCondition): bool { return true; }
 
             public visitConsequence(consequence: Treaty.Rules.IConsequence): bool {
                 if (consequence instanceof Treaty.Rules.Consequences.DelegateConsequence) {

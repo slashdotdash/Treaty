@@ -116,6 +116,14 @@ module Treaty {
                     return visitor.visitCondition(this);
                 }
             }
+
+            export class OrCondition implements Treaty.Rules.ICondition {
+                constructor (public instanceType: string, public leftCondition: IPropertyCondition, public rightCondition: IPropertyCondition) { }
+
+                public accept(visitor: Treaty.Rules.IVisitor): bool {
+                    return visitor.visitOrCondition(this);
+                }
+            }
         }
     }
 }

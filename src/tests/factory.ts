@@ -15,6 +15,12 @@
 module Treaty {
     export module Tests {
 
+        export interface RuleFactory {
+            withCondition(condition: Treaty.Rules.ICondition): RuleFactory;
+
+            withConsequence(instanceType: string, callback: (instance: any) => void ): RuleFactory;
+        }
+
         export class Factory {
             private ruleConfigurer: Treaty.Rules.IConfigureRule = new Treaty.Rules.NullRuleConfigurer();
             private rules: Treaty.Rules.Rule[] = [];
@@ -23,6 +29,12 @@ module Treaty {
 
             public session: Treaty.Rules.ISession;
             
+            public rule(configure: (factory: RuleFactory) => void ): Factory {
+                configure(this);
+                this.buildRule();
+                return this;
+            }
+
             public withCondition(condition: Treaty.Rules.ICondition): Factory {
                 this.createRuleConfigurerIfNull(condition.instanceType);
                 this.ruleConfigurer.withCondition(condition);
@@ -70,19 +82,21 @@ module Treaty {
                 configureLeft: (config: Treaty.Rules.IConfigureCondition) => void,
                 configureRight: (config: Treaty.Rules.IConfigureCondition) => void): Factory {
 
-                this.createRuleConfigurerIfNull(instanceType);
-                var orConfigurer = new Treaty.Rules.OrRuleConfigurer(instanceType, this.ruleConfigurer);
+                var leftConfigurer = new Treaty.Rules.RuleConfigurer(instanceType);
+                var rightConfigurer = new Treaty.Rules.RuleConfigurer(instanceType);
 
-                configureLeft(orConfigurer.leftConfigurer);
-                configureRight(orConfigurer.rightConfigurer);
+                configureLeft(leftConfigurer);
+                configureRight(rightConfigurer);
 
-                this.ruleConfigurer = orConfigurer;
-                return this;
+                var leftCondition = <Treaty.Rules.Conditions.IPropertyCondition>leftConfigurer.firstCondition();
+                var rightCondition = <Treaty.Rules.Conditions.IPropertyCondition>rightConfigurer.firstCondition();
+
+                return this.withCondition(new Treaty.Rules.Conditions.OrCondition(instanceType, leftCondition, rightCondition));
             }
 
             public buildRule(): Factory {
-                _.each(this.ruleConfigurer.buildRules(), (rule: Treaty.Rules.Rule) => this.rules.push(rule));
-                
+                this.ruleConfigurer.appendRuleTo(this.rules);
+
                 this.ruleConfigurer = new Treaty.Rules.NullRuleConfigurer();
                 return this;
             }
