@@ -117,7 +117,7 @@ module Treaty {
             }
 
             public visitConstantNode(node: Treaty.Rules.ConstantNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ConstantNode, 'Constant', 'const.'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ConstantNode, 'Constant', 'Dummy'));
                 
                 if (this.stack.length > 0 && this.rightActivationEquals(node.id)) {
                     this.edges.push(new Edge(this.current, this.stack[this.stack.length - 1], this.current.targetType));

@@ -7,8 +7,9 @@
 ///<reference path='..\..\..\lib\TypeScript\compiler\' />
 ///<reference path='..\..\rules\' />
 ///<reference path='..\..\rules\conditions\' />
-///<reference path='..\..\compilation\' />
- 
+///<reference path='..\..\compilation\' /> 
+///<reference path='..\..\graphing\' />
+
 module Treaty {
     module Tests {
         module Conditions {
@@ -26,6 +27,10 @@ module Treaty {
                         .withCondition(Treaty.Rules.Conditions.Condition.greaterThan('Order', (o: Order) => o.amount, 1000))
                         .withConsequence('Order', (o: Order) => wasCalled = true)
                         .buildRulesEngine();
+                });
+
+                it("should output to dot notation", () => {
+                    console.log(factory.toDotNotation('Join'));
                 });
 
                 it("should compile rule", () => {

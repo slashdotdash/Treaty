@@ -5,42 +5,38 @@
 module Treaty {
     export module Rules {
         export interface IBuildRule {
-            rule(): IConfigureRule;
-        }
-
-        export interface IConfigureRule {
-            named(name: string): IConfigureRule;
-            when(instanceType: string, expression: (instance) => bool): IConfigureRule;
-            then(instanceType: string, expression: (instance) => void): IConfigureRule;
+            named(name: string): IBuildRule;
+            when(instanceType: string, expression: (instance) => bool): IBuildRule;
+            then(instanceType: string, expression: (instance) => void): IBuildRule;
             build(): Rule;
         }
 
-        export class RuleFactory implements IBuildRule {
+        export class RuleFactory {
             private expressionParser: Treaty.Compilation.ExpressionParser = new Treaty.Compilation.ExpressionParser();
             
-            public rule(): IConfigureRule {
+            public rule(): IBuildRule {
                 return new RuleBuilder(this.expressionParser);
             }
         }
         
-        export class RuleBuilder implements IConfigureRule {
+        export class RuleBuilder implements IBuildRule {
             private name: string;
             private conditionBuilders: ConditionBuilder[] = [];
             private consequenceBuilders: ConsequenceBuilder[] = [];
 
             constructor (private expressionParser: Treaty.Compilation.ExpressionParser) { }
             
-            public named(name: string): IConfigureRule {
+            public named(name: string): IBuildRule {
                 this.name = name;
                 return this;
             }
 
-            public when(instanceType: string, expression: (instance) => bool): IConfigureRule {
+            public when(instanceType: string, expression: (instance) => bool): IBuildRule {
                 this.conditionBuilders.push(new ConditionBuilder(instanceType, expression));
                 return this;
             }
 
-            public then(instanceType: string, expression: (instance) => void ): IConfigureRule {
+            public then(instanceType: string, expression: (instance) => void ): IBuildRule {
                 this.consequenceBuilders.push(new ConsequenceBuilder(instanceType, expression));
                 return this;
             }

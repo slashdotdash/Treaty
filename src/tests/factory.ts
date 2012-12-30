@@ -14,31 +14,31 @@
 
 module Treaty {
     export module Tests {
-        
+
         export class Factory {
-            private conditions: Treaty.Rules.ConditionConfiguration;
-            private consequences: Treaty.Rules.ConsequenceConfiguration;
+            private ruleConfigurer: Treaty.Rules.IConfigureRule = new Treaty.Rules.NullRuleConfigurer();
             private rules: Treaty.Rules.Rule[] = [];
 
             public rulesEngine: Treaty.Rules.RulesEngine;
 
             public session: Treaty.Rules.ISession;
-
+            
             public withCondition(condition: Treaty.Rules.ICondition): Factory {
-                this.conditions = this.conditions || new Treaty.Rules.ConditionConfiguration(condition.instanceType);
-                this.conditions.withCondition(condition);
+                this.createRuleConfigurerIfNull(condition.instanceType);
+                this.ruleConfigurer.withCondition(condition);
                 return this;
             }
 
             public withConsequence(instanceType: string, callback: (instance: any) => void ): Factory {
-                this.consequences = this.consequences || new Treaty.Rules.ConsequenceConfiguration();
-                this.consequences.withConsequence(instanceType, callback);
+                if (this.ruleConfigurer instanceof Treaty.Rules.NullRuleConfigurer)
+                    throw 'No Rule Configured';
+
+                this.ruleConfigurer.withConsequence(instanceType, callback);
                 return this;
             }
 
             public withAddFactConsequence(instanceType: string, fact: (instance: any) => any ): Factory {
-                this.consequences = this.consequences || new Treaty.Rules.ConsequenceConfiguration();
-                this.consequences.withAddFactConsequence(instanceType, fact);
+                this.ruleConfigurer.withAddFactConsequence(instanceType, fact);
                 return this;
             }
 
@@ -46,6 +46,7 @@ module Treaty {
                 configureLeft: (config: Treaty.Rules.ConditionConfiguration) => void, 
                 configureRight: (config: Treaty.Rules.ConditionConfiguration) => void,
                 configureConsequence: (config: Treaty.Rules.JoinConsequenceConfiguration) => void): Factory {
+
                 var leftConditions = new Treaty.Rules.ConditionConfiguration(leftType);
                 var rightConditions = new Treaty.Rules.ConditionConfiguration(rightType);
                 var consequence = new Treaty.Rules.JoinConsequenceConfiguration(leftType, rightType);
@@ -63,20 +64,33 @@ module Treaty {
                 return this;
             }
 
+            // A rule with an 'or' conditional disjunctive connective results in subrule
+            // generation for each possible logically branch; thus one rule can have multiple terminal nodes.
+            public or(instanceType: string,
+                configureLeft: (config: Treaty.Rules.IConfigureCondition) => void,
+                configureRight: (config: Treaty.Rules.IConfigureCondition) => void): Factory {
+
+                this.createRuleConfigurerIfNull(instanceType);
+                var orConfigurer = new Treaty.Rules.OrRuleConfigurer(instanceType, this.ruleConfigurer);
+
+                configureLeft(orConfigurer.leftConfigurer);
+                configureRight(orConfigurer.rightConfigurer);
+
+                this.ruleConfigurer = orConfigurer;
+                return this;
+            }
+
             public buildRule(): Factory {
-                this.rules.push(new Treaty.Rules.Rule('Rules', this.conditions.conditions, this.consequences.consequences));
+                _.each(this.ruleConfigurer.buildRules(), (rule: Treaty.Rules.Rule) => this.rules.push(rule));
                 
-                this.conditions = null;
-                this.consequences = null;
+                this.ruleConfigurer = new Treaty.Rules.NullRuleConfigurer();
                 return this;
             }
             
             public buildRulesEngine(): Factory {
                 var rulesEngineBuilder = new Treaty.Rules.RulesEngineBuilder();
 
-                if (this.conditions != null) {
-                    this.buildRule();
-                }
+                this.buildRule();
 
                 _.each(this.rules, (rule: Treaty.Rules.Rule) => rulesEngineBuilder.addRule(rule));
 
@@ -105,6 +119,11 @@ module Treaty {
                 var graph = graphing.rulesEngineGraph();
 
                 return new Treaty.Graphing.Exporter(graph).toDotNotation(name);
+            }
+
+            private createRuleConfigurerIfNull(instanceType: string): void {
+                if (this.ruleConfigurer instanceof Treaty.Rules.NullRuleConfigurer)
+                    this.ruleConfigurer = new Treaty.Rules.RuleConfigurer(instanceType);
             }
         }
     }

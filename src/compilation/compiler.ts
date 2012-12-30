@@ -36,49 +36,9 @@ module Treaty {
             public visitRule(rule: Treaty.Rules.Rule, next: (visitor: Treaty.Rules.IVisitor) => bool): bool { return true; }
             
             public visitCondition(condition: Treaty.Rules.Conditions.IPropertyCondition): bool {
-                if (condition instanceof Treaty.Rules.Conditions.PropertyEqualCondition) {
-                    var equalCondition = <Treaty.Rules.Conditions.PropertyEqualCondition>condition;
-                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), equalCondition.value, this.runtime)));
-                }
+                var nodeSelectorFactory = this.getNodeSelectorFactory(condition);
 
-                if (condition instanceof Treaty.Rules.Conditions.PropertyNotEqualCondition) {
-                    var notEqualCondition = <Treaty.Rules.Conditions.PropertyNotEqualCondition>condition;
-                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new NotEqualNodeSelector(next.create(), notEqualCondition.value, this.runtime)));
-                }
-
-                if (condition instanceof Treaty.Rules.Conditions.PropertyExistsCondition) {
-                    var existsCondition = <Treaty.Rules.Conditions.PropertyExistsCondition>condition;
-                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new ExistsNodeSelector(next.create(), this.runtime)));
-                }
-
-                if (condition instanceof Treaty.Rules.Conditions.PropertyGreaterThanCondition) {
-                    var greaterThanCondition = <Treaty.Rules.Conditions.PropertyGreaterThanCondition>condition;
-                    var comparator = new Treaty.Rules.GreaterThanValueComparator();
-                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
-                }
-
-                if (condition instanceof Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition) {
-                    var greaterThanCondition = <Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition>condition;
-                    var comparator = new Treaty.Rules.GreaterThanOrEqualValueComparator();
-                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
-                }
-
-                if (condition instanceof Treaty.Rules.Conditions.PropertyLessThanCondition) {
-                    var greaterThanCondition = <Treaty.Rules.Conditions.PropertyLessThanCondition>condition;
-                    var comparator = new Treaty.Rules.LessThanValueComparator();
-                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
-                }
-
-                if (condition instanceof Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition) {
-                    var greaterThanCondition = <Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition>condition;
-                    var comparator = new Treaty.Rules.LessThanOrEqualValueComparator();
-                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), comparator, greaterThanCondition.value, this.runtime)));
-                }
-
-                if (condition instanceof Treaty.Rules.Conditions.PropertyEachCondition) {
-                    var existsCondition = <Treaty.Rules.Conditions.PropertyEachCondition>condition;
-                    this.compile(condition.instanceType, condition.memberExpression, next => new NodeSelectorFactory(() => new EachNodeSelector(next.create(), this.runtime)));
-                }
+                this.compile(condition.instanceType, condition.memberExpression, nodeSelectorFactory);
 
                 return true;
             }
@@ -133,6 +93,53 @@ module Treaty {
                 return true;
             }
 
+            private getNodeSelectorFactory(condition: Treaty.Rules.Conditions.IPropertyCondition): (factory: INodeSelectorFactory) => INodeSelectorFactory {
+                if (condition instanceof Treaty.Rules.Conditions.PropertyEqualCondition) {
+                    var equalCondition = <Treaty.Rules.Conditions.PropertyEqualCondition>condition;
+                    return next => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), equalCondition.value, this.runtime));
+                }
+                
+                if (condition instanceof Treaty.Rules.Conditions.PropertyNotEqualCondition) {
+                    var notEqualCondition = <Treaty.Rules.Conditions.PropertyNotEqualCondition>condition;
+                    return next => new NodeSelectorFactory(() => new NotEqualNodeSelector(next.create(), notEqualCondition.value, this.runtime));
+                }
+                
+                if (condition instanceof Treaty.Rules.Conditions.PropertyExistsCondition) {
+                    var existsCondition = <Treaty.Rules.Conditions.PropertyExistsCondition>condition;
+                    return next => new NodeSelectorFactory(() => new ExistsNodeSelector(next.create(), this.runtime));
+                }
+                
+                if (condition instanceof Treaty.Rules.Conditions.PropertyGreaterThanCondition) {
+                    var gtCondition = <Treaty.Rules.Conditions.PropertyGreaterThanCondition>condition;
+                    var gtComparator = new Treaty.Rules.GreaterThanValueComparator();
+                    return next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), gtComparator, gtCondition.value, this.runtime));
+                }
+                
+                if (condition instanceof Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition) {
+                    var geCondition = <Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition>condition;
+                    var geComparator = new Treaty.Rules.GreaterThanOrEqualValueComparator();
+                    return next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), geComparator, geCondition.value, this.runtime));
+                }
+                
+                if (condition instanceof Treaty.Rules.Conditions.PropertyLessThanCondition) {
+                    var ltCondition = <Treaty.Rules.Conditions.PropertyLessThanCondition>condition;
+                    var ltComparator = new Treaty.Rules.LessThanValueComparator();
+                    return next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), ltComparator, ltCondition.value, this.runtime));
+                }
+                
+                if (condition instanceof Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition) {
+                    var leCondition = <Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition>condition;
+                    var leComparator = new Treaty.Rules.LessThanOrEqualValueComparator();
+                    return next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), leComparator, leCondition.value, this.runtime));
+                }
+                
+                if (condition instanceof Treaty.Rules.Conditions.PropertyEachCondition) {
+                    return next => new NodeSelectorFactory(() => new EachNodeSelector(next.create(), this.runtime));
+                }
+
+                throw 'Not Supported';
+            }
+
             private compile(instanceType: string, memberExpression: TypeScript.AST, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
                 var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(instanceType, node => this.alphaNodes.push(node), this.runtime));
                 var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
@@ -185,10 +192,10 @@ module Treaty {
             }
         }
 
-        export class ConsequenceCompiler implements Rules.IVisitor {
+        export class ConsequenceCompiler implements Treaty.Rules.IVisitor {
             constructor(private runtime: Treaty.Rules.IRuntimeConfiguration, private conditionCompiler: ConditionCompiler) { }
 
-            public visitRule(rule: Rules.Rule, next: (visitor: Rules.IVisitor) => bool): bool { return true; }
+            public visitRule(rule: Rules.Rule, next: (visitor: Treaty.Rules.IVisitor) => bool): bool { return true; }
 
             public visitCondition(condition: Rules.Conditions.PropertyEqualCondition): bool { return true; }
 
