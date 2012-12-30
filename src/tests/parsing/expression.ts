@@ -49,6 +49,28 @@ module Treaty {
                     });
                 });
 
+                describe("string member expression not equal", () => {
+                    beforeEach(() => {
+                        subject = new Treaty.Rules.ConditionBuilder('Entity', (entity: Entity) => entity.name != 'Ben');
+                        conditions = subject.build(new Treaty.Compilation.ExpressionParser());
+                    });
+                
+                    it("should parse condition", () => {
+                        expect(conditions.length).toBe(1);
+                    });
+
+                    it("should create property equal condition", () => {
+                        expect(conditions[0] instanceof Treaty.Rules.Conditions.PropertyNotEqualCondition).toBeTruthy();
+                    });
+
+                    it("should extract condition properties", () => {
+                        var propertyEqualCondition = <Treaty.Rules.Conditions.PropertyNotEqualCondition>conditions[0];
+                        expect(propertyEqualCondition.instanceType).toBe('Entity');
+                        expect(propertyEqualCondition.memberExpression).toNotBe(null);
+                        expect(propertyEqualCondition.value).toBe('Ben');
+                    });
+                });
+
                 describe("boolean member expression", () => {
                     beforeEach(() => {
                         subject = new Treaty.Rules.ConditionBuilder('Entity', (entity: Entity) => entity.flag);

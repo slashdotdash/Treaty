@@ -67,32 +67,63 @@ module Treaty {
                         var condition = this.parseBoolean(binaryExpr);
                         return this.appendCondition(walker, condition);
                     }
-                    case TypeScript.NodeType.Eq: {
-                        var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value));
-                        return this.appendCondition(walker, condition);
-                    }
-                    case TypeScript.NodeType.Gt: {
-                        var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyGreaterThanCondition(this.instanceType, memberExpression, value));
-                        return this.appendCondition(walker, condition);
-                    }
-                    case TypeScript.NodeType.Ge: {
-                        var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition(this.instanceType, memberExpression, value));
-                        return this.appendCondition(walker, condition);
-                    }
-                    case TypeScript.NodeType.Lt: {
-                        var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyLessThanCondition(this.instanceType, memberExpression, value));
-                        return this.appendCondition(walker, condition);
-                    }
-                    case TypeScript.NodeType.Le: {
-                        var condition = this.parseBinary(binaryExpr, (memberExpression, value) => new Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition(this.instanceType, memberExpression, value));
+                    case TypeScript.NodeType.Eq:
+                    case TypeScript.NodeType.Ne:
+                    case TypeScript.NodeType.Gt: 
+                    case TypeScript.NodeType.Ge:
+                    case TypeScript.NodeType.Lt:
+                    case TypeScript.NodeType.Le:
+                    {
+                        var condition = this.extractPropertyCondition(binaryExpr);
                         return this.appendCondition(walker, condition);
                     }
                     case TypeScript.NodeType.LogAnd: {
                         // Logical and, joining two conditions, handled by visitor continuing walking tree
                         return;
                     }
+                    case TypeScript.NodeType.LogOr: {
+                        debugger;
+                        var leftCondition = this.extractPropertyCondition(<TypeScript.BinaryExpression>binaryExpr.operand1);
+                        var rightCondition = this.extractPropertyCondition(<TypeScript.BinaryExpression>binaryExpr.operand2);
+
+                        var condition = new Treaty.Rules.Conditions.OrCondition(this.instanceType, leftCondition, rightCondition);
+
+                        return this.appendCondition(walker, condition);
+                    }
                     default:
                         console.log('NodeType "' + binaryExpr.nodeType + '" is not yet supported');
+                }
+            }
+
+            private extractPropertyCondition(binaryExpr: TypeScript.BinaryExpression): Treaty.Rules.Conditions.IPropertyCondition {
+                var condition = this.parseBinary(binaryExpr, this.propertyConditionFactoryFor(binaryExpr));
+
+                return <Treaty.Rules.Conditions.IPropertyCondition>condition;
+            }
+
+            private propertyConditionFactoryFor(binaryExpr: TypeScript.BinaryExpression): (memberExpression: any, value: any) => Treaty.Rules.ICondition {
+                switch (binaryExpr.nodeType) {
+                    case TypeScript.NodeType.Eq: {
+                        return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
+                    }
+                    case TypeScript.NodeType.Ne: {
+                        return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyNotEqualCondition(this.instanceType, memberExpression, value);
+                    }
+                    case TypeScript.NodeType.Gt: {
+                        return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyGreaterThanCondition(this.instanceType, memberExpression, value);
+                    }
+                    case TypeScript.NodeType.Ge: {
+                        return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition(this.instanceType, memberExpression, value);
+                    }
+                    case TypeScript.NodeType.Lt: {
+                        return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyLessThanCondition(this.instanceType, memberExpression, value);
+                    }
+                    case TypeScript.NodeType.Le: {
+                        return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition(this.instanceType, memberExpression, value);
+                    }                    
+                    default: {
+                        throw 'Not Supported';
+                    }
                 }
             }
 
