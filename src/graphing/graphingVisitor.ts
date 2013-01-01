@@ -60,10 +60,20 @@ module Treaty {
             }
 
             public visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ValueNode, node.instanceType, node.value));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ValueNode, node.instanceType, this.getNodeValue(node)));
                 this.createEdge();
 
                 return this.next(() => next(this));
+            }
+
+            private getNodeValue(node: Treaty.Rules.ValueNode): string {
+                var value = node.value;
+
+                if (value instanceof Number) {
+                    return value;
+                }
+
+                return '\\"' + value + '\\"'
             }
 
             public visitCompareNode(node: Treaty.Rules.CompareNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {

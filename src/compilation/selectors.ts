@@ -185,6 +185,7 @@ module Treaty {
 
             public selectNode(node: Treaty.Rules.INode): void {
                 this.alphaNode = null;
+
                 node.accept(this);
                 
                 if (this.alphaNode == null) {
@@ -210,16 +211,18 @@ module Treaty {
 
             public selectNode(node: Treaty.Rules.INode): void {
                 this.equalNode = null;
-                                
+
                 node.accept(this);
+                
+                var valueType = TypeDescriptor.toType(this.value);
 
                 if (this.equalNode == null) {
-                    this.equalNode = <Rules.EqualNode>this.runtime.createNode(id => new Rules.EqualNode(id, TypeDescriptor.toType(this.value)));
+                    this.equalNode = <Rules.EqualNode>this.runtime.createNode(id => new Rules.EqualNode(id, valueType));
 
                     node.addActivation(this.equalNode);
                 }
 
-                var valueNode = this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, TypeDescriptor.toType(this.value), this.value)));
+                var valueNode = this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, valueType, this.value)));
 
                 this.next.selectNode(valueNode);
             }

@@ -67,11 +67,7 @@ module Treaty {
                         var condition = <Treaty.Rules.Conditions.PropertyEqualCondition>rule.conditions[0];
                         expect(condition.value).toEqual("Bob");
                     });
-                });
-                
-                //rule.named("Issue Adult Bus Pass")
-	            //	.when(instanceof(Person), p => IsAdult(p))
-	            //    .then(p => insertLogical(new AdultBusPass(p));
+                });                
             });
         }
     }

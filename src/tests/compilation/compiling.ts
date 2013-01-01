@@ -48,12 +48,30 @@ module Treaty {
                     expressionParser = new Treaty.Compilation.ExpressionParser();
                 });                
 
+                describe("variable naming", () => {
+                    var expression: Treaty.Compilation.Expression;
+
+                    beforeEach(() => {
+                        var script = expressionParser.parse((example: Example) => example);
+                        expression = Treaty.Compilation.Expression.parse(script);
+                    });
+
+                    it("should extract variable name from expression parameter", () => {
+                        expect(expression.parameter).toBe('example');
+                    });
+
+                    it("should extract AST from expression", () => {
+                        expect(expression.body).toNotBe(null);
+                        expect(expression.body instanceof TypeScript.AST).toBeTruthy();
+                    });
+                });
+
                 describe("no level property", () => {
                     beforeEach(() => {
                         var script = expressionParser.parse((example: Example) => example);
-                        var expression = new Treaty.Compilation.ExpressionAdapter().parse(script);
+                        var expression = Treaty.Compilation.Expression.parse(script);
 
-                        selector = subject.createSelector(expression);
+                        selector = subject.createSelector(expression.body);
                     });
 
                     it("should access no level property", () => {
@@ -73,9 +91,9 @@ module Treaty {
                 describe("first level property", () => {
                     beforeEach(() => {
                         var script = expressionParser.parse((example: Example) => example.other);
-                        var expression = new Treaty.Compilation.ExpressionAdapter().parse(script);
-                        
-                        selector = subject.createSelector(expression);
+                        var expression = Treaty.Compilation.Expression.parse(script);
+
+                        selector = subject.createSelector(expression.body);
                     });
 
                     it("should access no level property", () => {
@@ -104,9 +122,9 @@ module Treaty {
                 describe("second level property", () => {
                     beforeEach(() => {
                         var script = expressionParser.parse((example: Example) => example.other.another);
-                        var expression = new Treaty.Compilation.ExpressionAdapter().parse(script);
-                        
-                        selector = subject.createSelector(expression);
+                        var expression = Treaty.Compilation.Expression.parse(script);
+
+                        selector = subject.createSelector(expression.body);
                     });
 
                     it("should access no level property", () => {
@@ -134,9 +152,9 @@ module Treaty {
                 describe("third level property", () => {
                     beforeEach(() => {
                         var script = expressionParser.parse((example: Example) => example.other.another.andOneMore);
-                        var expression = new Treaty.Compilation.ExpressionAdapter().parse(script);
-                        
-                        selector = subject.createSelector(expression);
+                        var expression = Treaty.Compilation.Expression.parse(script);
+
+                        selector = subject.createSelector(expression.body);
                     });
 
                     it("should access no level property", () => {

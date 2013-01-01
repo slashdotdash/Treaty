@@ -82,7 +82,6 @@ module Treaty {
                         return;
                     }
                     case TypeScript.NodeType.LogOr: {
-                        debugger;
                         var leftCondition = this.extractPropertyCondition(<TypeScript.BinaryExpression>binaryExpr.operand1);
                         var rightCondition = this.extractPropertyCondition(<TypeScript.BinaryExpression>binaryExpr.operand2);
 
@@ -250,33 +249,49 @@ module Treaty {
             }
         }
 
-        export class ExpressionAdapter {
+        class ExpressionAdapter {
             private globalAstWalkerFactory: TypeScript.AstWalkerFactory = new TypeScript.AstWalkerFactory();
 
-            public parse(script: TypeScript.Script): TypeScript.AST {
-                var state: TypeScript.AST[] = [];
+            public parse(script: TypeScript.Script): Expression {
+                var state: any[] = [];
                 var visitor = new ExpressionVisitor();
                 var callback = (ast, parent, walker) => visitor.visit(ast, parent, walker);
                 var walker = this.globalAstWalkerFactory.getWalker(callback, null, null, state);
                 
                 walker.walk(script.bod, script);
                 
-                return state[0];
+                return new Expression(state[0], state[1]);
             }
         }
 
         class ExpressionVisitor {
-            private startedCollecting: bool = false;
-            
             public visit(ast: TypeScript.AST, parent: TypeScript.AST, walker: TypeScript.IAstWalker): TypeScript.AST {
-                if (this.startedCollecting === true) {
-                    walker.state.push(ast);
-                } else if (ast.nodeType == TypeScript.NodeType.Return) {
-                    this.startedCollecting = true;
+                switch (ast.nodeType) {
+                    case TypeScript.NodeType.Return: {
+                        var returnStmt = <TypeScript.ReturnStatement>ast;
+                        walker.state.push(returnStmt.returnExpression);
+                        walker.options.stopWalk();
+                        return;
+                    }
+                    case TypeScript.NodeType.ArgDecl: {
+                        var arg = <TypeScript.ArgDecl>ast;
+                        walker.state.push(arg.id.actualText);
+                        return;
+                    }
                 }
 
                 return ast;
             }
+        }
+
+        export class Expression {
+            private static expressionAdapter = new ExpressionAdapter();
+
+            public static parse(script: TypeScript.Script): Expression {
+                return expressionAdapter.parse(script);
+            }
+
+            constructor(public parameter: string, public body: TypeScript.AST) { }
         }
     }
 }

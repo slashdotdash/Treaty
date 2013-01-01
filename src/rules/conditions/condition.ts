@@ -10,7 +10,6 @@ module Treaty {
             // Condition building convenience methods
             export class Condition {
                 private static expressionParser: Treaty.Compilation.ExpressionParser = new Treaty.Compilation.ExpressionParser();
-                private static expressionAdapter: Treaty.Compilation.ExpressionAdapter = new Treaty.Compilation.ExpressionAdapter();
 
                 public static equal(instanceType: string, property: Function, value: any): PropertyEqualCondition {
                     return new PropertyEqualCondition(instanceType, parseExpression(property), value);
@@ -41,7 +40,7 @@ module Treaty {
                 }
 
                 private static parseExpression(property: Function): TypeScript.AST {
-                    return expressionAdapter.parse(expressionParser.parse(property));
+                    return Treaty.Compilation.Expression.parse(expressionParser.parse(property)).body;
                 }
 
                 public static each(instanceType: string, property: Function): PropertyEachCondition {
