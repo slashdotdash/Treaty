@@ -39,8 +39,8 @@ module Treaty {
                     return new PropertyLessThanOrEqualCondition(instanceType, parseExpression(property), value);
                 }
 
-                private static parseExpression(property: Function): TypeScript.AST {
-                    return Treaty.Compilation.Expression.parse(expressionParser.parse(property)).body;
+                private static parseExpression(property: Function): Treaty.Compilation.Expression {
+                    return Treaty.Compilation.Expression.parse(expressionParser.parse(property));
                 }
 
                 public static each(instanceType: string, property: Function): PropertyEachCondition {
@@ -49,11 +49,11 @@ module Treaty {
             }
 
             export interface IPropertyCondition extends Treaty.Rules.ICondition {
-                memberExpression: TypeScript.AST;
+                memberExpression: Treaty.Compilation.Expression;
             }
 
             export class PropertyEqualCondition implements IPropertyCondition {
-                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: any) { }
+                constructor (public instanceType: string, public memberExpression: Treaty.Compilation.Expression, public value: any) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);
@@ -61,7 +61,7 @@ module Treaty {
             }
 
             export class PropertyNotEqualCondition implements IPropertyCondition {
-                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: any) { }
+                constructor (public instanceType: string, public memberExpression: Treaty.Compilation.Expression, public value: any) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);
@@ -69,7 +69,7 @@ module Treaty {
             }
 
             export class PropertyExistsCondition implements IPropertyCondition {
-                constructor (public instanceType: string, public memberExpression: TypeScript.AST) { }
+                constructor (public instanceType: string, public memberExpression: Treaty.Compilation.Expression) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);
@@ -77,7 +77,7 @@ module Treaty {
             }
 
             export class PropertyGreaterThanCondition implements IPropertyCondition {
-                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: number) { }
+                constructor (public instanceType: string, public memberExpression: Treaty.Compilation.Expression, public value: number) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);
@@ -85,7 +85,7 @@ module Treaty {
             }
 
             export class PropertyGreaterThanOrEqualCondition implements IPropertyCondition {
-                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: number) { }
+                constructor (public instanceType: string, public memberExpression: Treaty.Compilation.Expression, public value: number) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);
@@ -93,7 +93,7 @@ module Treaty {
             }
 
             export class PropertyLessThanCondition implements IPropertyCondition {
-                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: number) { }
+                constructor (public instanceType: string, public memberExpression: Treaty.Compilation.Expression, public value: number) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);
@@ -101,7 +101,7 @@ module Treaty {
             }
 
             export class PropertyLessThanOrEqualCondition implements IPropertyCondition {
-                constructor (public instanceType: string, public memberExpression: TypeScript.AST, public value: number) { }
+                constructor (public instanceType: string, public memberExpression: Treaty.Compilation.Expression, public value: number) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);
@@ -109,7 +109,7 @@ module Treaty {
             }
 
             export class PropertyEachCondition implements IPropertyCondition {
-                constructor (public instanceType: string, public memberExpression: TypeScript.AST) { }
+                constructor (public instanceType: string, public memberExpression: Treaty.Compilation.Expression) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);

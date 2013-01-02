@@ -53,11 +53,11 @@ module Treaty {
                 var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
 
                 new PropertyExpressionVisitor(instanceType, leftNodeSelectorFactory(alphaFactory), this.runtime)
-                    .createSelector(condition.leftCondition.memberExpression)
+                    .createSelector(condition.leftCondition.memberExpression.body)
                     .select();
 
                 new PropertyExpressionVisitor(instanceType, rightNodeSelectorFactory(alphaFactory), this.runtime)
-                    .createSelector(condition.rightCondition.memberExpression)
+                    .createSelector(condition.rightCondition.memberExpression.body)
                     .select();
 
                 return true;
@@ -171,13 +171,13 @@ module Treaty {
                 throw 'Not Supported';
             }
 
-            private compile(instanceType: string, memberExpression: TypeScript.AST, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
+            private compile(instanceType: string, memberExpression: Treaty.Compilation.Expression, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
                 var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(instanceType, node => this.alphaNodes.push(node), this.runtime));
                 var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
                 var nodeFactory = selectorFactory(alphaFactory);
 
                 new PropertyExpressionVisitor(instanceType, nodeFactory, this.runtime)
-                    .createSelector(memberExpression)
+                    .createSelector(memberExpression.body)
                     .select();
             }
         }

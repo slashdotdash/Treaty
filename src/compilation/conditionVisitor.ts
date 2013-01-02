@@ -46,16 +46,25 @@ module Treaty {
 
         export class ConditionVisitor {
             private startedCollecting: bool = false;
-            
+            private parameterName: string;
+
             constructor (private instanceType: string) { }
 
             public visit(ast: TypeScript.AST, parent: TypeScript.AST, walker: TypeScript.IAstWalker): TypeScript.AST {
-                if (this.startedCollecting === true) {
-                    if (ast instanceof TypeScript.BinaryExpression) {
-                        this.visitBinary(<TypeScript.BinaryExpression>ast, walker);
-                    }                    
-                } else if (ast.nodeType == TypeScript.NodeType.Return) {
-                    this.startedCollecting = true;
+                switch (ast.nodeType) {
+                    case TypeScript.NodeType.Return: {
+                        this.startedCollecting = true;
+                        break;
+                    }
+                    case TypeScript.NodeType.ArgDecl: {
+                        var arg = <TypeScript.ArgDecl>ast;
+                        this.parameterName = arg.id.text;
+                        break;
+                    }
+                }
+
+                if (this.startedCollecting && ast instanceof TypeScript.BinaryExpression) {
+                    this.visitBinary(<TypeScript.BinaryExpression>ast, walker);
                 }
 
                 return ast;
@@ -65,7 +74,8 @@ module Treaty {
                 switch (binaryExpr.nodeType) {
                     case TypeScript.NodeType.Dot: {
                         var condition = this.parseBoolean(binaryExpr);
-                        return this.appendCondition(walker, condition);
+                        this.appendCondition(walker, condition);
+                        break;
                     }
                     case TypeScript.NodeType.Eq:
                     case TypeScript.NodeType.Ne:
@@ -75,19 +85,21 @@ module Treaty {
                     case TypeScript.NodeType.Le:
                     {
                         var condition = this.extractPropertyCondition(binaryExpr);
-                        return this.appendCondition(walker, condition);
+                        this.appendCondition(walker, condition);
+                        break;
                     }
                     case TypeScript.NodeType.LogAnd: {
-                        // Logical and, joining two conditions, handled by visitor continuing walking tree
-                        return;
+                        // Logical and, joining two conditions, handled by visitor continuing to walk the tree
+                        break;
                     }
                     case TypeScript.NodeType.LogOr: {
                         var leftCondition = this.extractPropertyCondition(<TypeScript.BinaryExpression>binaryExpr.operand1);
                         var rightCondition = this.extractPropertyCondition(<TypeScript.BinaryExpression>binaryExpr.operand2);
 
-                        var condition = new Treaty.Rules.Conditions.OrCondition(this.instanceType, leftCondition, rightCondition);
+                        var orCondition = new Treaty.Rules.Conditions.OrCondition(this.instanceType, leftCondition, rightCondition);
 
-                        return this.appendCondition(walker, condition);
+                        this.appendCondition(walker, orCondition);
+                        break;
                     }
                     default:
                         console.log('NodeType "' + binaryExpr.nodeType + '" is not yet supported');
@@ -95,12 +107,10 @@ module Treaty {
             }
 
             private extractPropertyCondition(binaryExpr: TypeScript.BinaryExpression): Treaty.Rules.Conditions.IPropertyCondition {
-                var condition = this.parseBinary(binaryExpr, this.propertyConditionFactoryFor(binaryExpr));
-
-                return <Treaty.Rules.Conditions.IPropertyCondition>condition;
+                return this.parseBinary(binaryExpr, this.propertyConditionFactoryFor(binaryExpr));
             }
 
-            private propertyConditionFactoryFor(binaryExpr: TypeScript.BinaryExpression): (memberExpression: any, value: any) => Treaty.Rules.ICondition {
+            private propertyConditionFactoryFor(binaryExpr: TypeScript.BinaryExpression): (memberExpression: Treaty.Compilation.Expression, value: any) => Treaty.Rules.Conditions.IPropertyCondition {
                 switch (binaryExpr.nodeType) {
                     case TypeScript.NodeType.Eq: {
                         return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
@@ -132,25 +142,25 @@ module Treaty {
                 walker.options.goChildren = false;
             }
 
-            private parseBoolean(binaryExpr: TypeScript.BinaryExpression): Treaty.Rules.ICondition {
+            private parseBoolean(binaryExpr: TypeScript.BinaryExpression): Treaty.Rules.Conditions.IPropertyCondition {
                 var lhs = new LeftHandSideExpressionVisitor();                        
                 
                 lhs.visitMember(binaryExpr);
                 
-                var memberExpression = lhs.member;
+                var memberExpression = new Treaty.Compilation.Expression(this.parameterName, lhs.member);
                 var value = true;
-
+                
                 return new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
             }
 
-            private parseBinary(binaryExpr: TypeScript.BinaryExpression, conditionFactory: (memberExpression: any, value: any) => Treaty.Rules.ICondition): Treaty.Rules.ICondition {
+            private parseBinary(binaryExpr: TypeScript.BinaryExpression, conditionFactory: (memberExpression: Treaty.Compilation.Expression, value: any) => Treaty.Rules.Conditions.IPropertyCondition): Treaty.Rules.Conditions.IPropertyCondition {
                 var lhs = new LeftHandSideExpressionVisitor();                        
                 var rhs = new RightHandSideExpressionVisitor()
 
                 lhs.visitMember(binaryExpr.operand1);
                 rhs.visitConstant(binaryExpr.operand2);
 
-                var memberExpression = lhs.member;
+                var memberExpression = new Treaty.Compilation.Expression(this.parameterName, lhs.member);
                 var value = rhs.value;
 
                 // TODO: Convert value to member type?
@@ -275,7 +285,7 @@ module Treaty {
                     }
                     case TypeScript.NodeType.ArgDecl: {
                         var arg = <TypeScript.ArgDecl>ast;
-                        walker.state.push(arg.id.actualText);
+                        walker.state.push(arg.id.text);
                         return;
                     }
                 }
