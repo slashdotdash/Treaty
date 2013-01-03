@@ -27,11 +27,17 @@ module Treaty {
         }
 
         export class ActivationFact {
-            public static extract(context: IActivationContext): any {
+            public static extract(context: IActivationContext, binding?: Treaty.Compilation.BindingVariable): any {
                 var fact = context.fact;
 
                 while (fact instanceof ActivationToken) {
-                    fact = (<ActivationToken>fact).value;
+                    var token = <ActivationToken>fact;
+
+                    if (token.binding.equals(binding)) {
+                        return token.value;
+                    }
+
+                    fact = token.value;
                 }
 
                 return fact;
@@ -39,7 +45,7 @@ module Treaty {
         }
 
         export class ActivationToken {
-            constructor (private sourceType: string, private valueType: string, public context: IActivationContext, public value: any) { }
+            constructor (public binding: Treaty.Compilation.BindingVariable, private sourceType: string, private valueType: string, public context: IActivationContext, public value: any) { }
         }
 
         class ActivationContext implements IActivationContext {
@@ -124,7 +130,7 @@ module Treaty {
             }
 
             private filterPendingJoins(context: IActivationContext): void {
-                this.joins = this.joins.filter(join => join.isApplicable(context));
+                this.joins = _.filter(this.joins, (join: PendingJoin) => join.isApplicable(context));
             }
 
             private join(callback: (next: Treaty.Rules.IActivationContext) => bool): void {

@@ -78,8 +78,9 @@ module Treaty {
 
             public build(): IConsequence[] {
                 var consequences = new IConsequence[];
+                var parameterName = Treaty.Rules.Consequences.Consequence.extractParameterName(this.consequence);
 
-                consequences.push(new Treaty.Rules.Consequences.DelegateConsequence(this.instanceType, this.consequence));
+                consequences.push(new Treaty.Rules.Consequences.DelegateConsequence(this.instanceType, this.consequence, parameterName));
 
                 return consequences;
             }

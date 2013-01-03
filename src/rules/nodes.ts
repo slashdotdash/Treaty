@@ -54,7 +54,7 @@ module Treaty {
         export class PropertyNode implements INode, IActivation {
             public successors = new IActivation[];
 
-            constructor (public id: number, public instanceType: string, public memberName: string) { }
+            constructor (public id: number, public binding: Treaty.Compilation.BindingVariable, public instanceType: string, public memberName: string) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitPropertyNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -66,8 +66,7 @@ module Treaty {
 
             public activate(context: Treaty.Rules.IActivationContext): void {
                 this.withValue(context, value => {
-                    var activationToken = new Rules.ActivationToken(this.instanceType, TypeDescriptor.toType(value), context, value);
-
+                    var activationToken = new Rules.ActivationToken(this.binding, this.instanceType, TypeDescriptor.toType(value), context, value);
                     var propertyContext = context.createContext('ActivationToken', activationToken);
 
                     _.each(this.successors, (activation: IActivation) => activation.activate(propertyContext));
@@ -244,7 +243,7 @@ module Treaty {
                 var token = <Treaty.Rules.ActivationToken>context.fact;
                 
                 this.elementMatch(token.value, item => {
-                    var activationToken = new Treaty.Rules.ActivationToken(context.instanceType, TypeDescriptor.toType(item), context, item);
+                    var activationToken = new Treaty.Rules.ActivationToken(null, context.instanceType, TypeDescriptor.toType(item), context, item);
                     
                     var propertyContext = context.createContext('ActivationToken', activationToken);
 
@@ -329,7 +328,7 @@ module Treaty {
                 this.rightActivation.rightActivate(context, right => {                    
                     var joinValue = new JoinedValue(ActivationFact.extract(context), right.fact);
 
-                    var activationToken = new Rules.ActivationToken(this.instanceType, TypeDescriptor.toType(joinValue), context, joinValue);
+                    var activationToken = new Treaty.Rules.ActivationToken(null, this.instanceType, TypeDescriptor.toType(joinValue), context, joinValue);
                     
                     var activationContext = context.createContext('ActivationToken', activationToken);
 
@@ -361,7 +360,7 @@ module Treaty {
         }
 
         export class DelegateProductionNode implements IActivation {
-            constructor (public id: number, public instanceType: string, private callback: (instance) => void ) { }
+            constructor (public id: number, public instanceType: string, private binding: Treaty.Compilation.BindingVariable, private callback: (instance) => void) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitDelegateNode(this, next => true);
@@ -369,7 +368,7 @@ module Treaty {
 
             public activate(context: Treaty.Rules.IActivationContext): void {
                 context.schedule(session => {
-                    var fact = ActivationFact.extract(context);
+                    var fact = ActivationFact.extract(context, this.binding);
 
                     this.callback(fact);
                 });

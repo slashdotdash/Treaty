@@ -174,7 +174,7 @@ module Treaty {
         export class AlphaNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private alphaNode: Treaty.Rules.AlphaNode;
 
-            constructor (public next: ISelectNode, private instanceType: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+            constructor (public next: ISelectNode, private variable: BindingVariable, private instanceType: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();
             }
 
@@ -380,7 +380,7 @@ module Treaty {
         export class PropertyNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private propertyNode: Rules.PropertyNode;
 
-            constructor (public next: ISelectNode, public instanceType: string, public memberName: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+            constructor (public next: ISelectNode, public binding: BindingVariable, public instanceType: string, public memberName: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();
             }
 
@@ -392,7 +392,7 @@ module Treaty {
                 node.accept(this);
                 
                 if (this.propertyNode == null) {
-                    this.propertyNode = <Rules.PropertyNode>this.runtime.createNode(id => new Rules.PropertyNode(id, this.instanceType, this.memberName));
+                    this.propertyNode = <Rules.PropertyNode>this.runtime.createNode(id => new Rules.PropertyNode(id, this.binding, this.instanceType, this.memberName));
 
                     node.addActivation(this.propertyNode);
                 }

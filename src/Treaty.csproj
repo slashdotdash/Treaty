@@ -43,6 +43,7 @@
     <TypeScriptCompile Include="graphing\rulesEngineGraph.ts" />
     <TypeScriptCompile Include="graphing\exporter.ts" />
     <TypeScriptCompile Include="rules\configuration.ts" />
+    <Content Include="tests\conditions\named-join.ts" />
     <Content Include="tests\conditions\or.ts" />
     <Content Include="tests\conditions\join.ts" />
     <Content Include="tests\conditions\multiple.ts" />

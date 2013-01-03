@@ -44,21 +44,11 @@ module Treaty {
             }
 
             public visitOrCondition(condition: Treaty.Rules.Conditions.OrCondition): bool {
-                var instanceType = condition.instanceType;
-
                 var leftNodeSelectorFactory = this.getNodeSelectorFactory(condition.leftCondition);
                 var rightNodeSelectorFactory = this.getNodeSelectorFactory(condition.rightCondition);
 
-                var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(instanceType, node => this.alphaNodes.push(new OrRuleNodeSelector(node)), this.runtime));
-                var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
-
-                new PropertyExpressionVisitor(instanceType, leftNodeSelectorFactory(alphaFactory), this.runtime)
-                    .createSelector(condition.leftCondition.memberExpression.body)
-                    .select();
-
-                new PropertyExpressionVisitor(instanceType, rightNodeSelectorFactory(alphaFactory), this.runtime)
-                    .createSelector(condition.rightCondition.memberExpression.body)
-                    .select();
+                this.compile(condition.instanceType, condition.leftCondition.memberExpression, leftNodeSelectorFactory);
+                this.compile(condition.instanceType, condition.rightCondition.memberExpression, rightNodeSelectorFactory);
 
                 return true;
             }
@@ -173,11 +163,21 @@ module Treaty {
 
             private compile(instanceType: string, memberExpression: Treaty.Compilation.Expression, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
                 var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(instanceType, node => this.alphaNodes.push(node), this.runtime));
-                var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
+                var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), new BindingVariable(memberExpression.parameter), instanceType, this.runtime));
                 var nodeFactory = selectorFactory(alphaFactory);
 
                 new PropertyExpressionVisitor(instanceType, nodeFactory, this.runtime)
-                    .createSelector(memberExpression.body)
+                    .createSelector(memberExpression.body, memberExpression.parameter)
+                    .select();
+            }
+
+            private compileOr(instanceType: string, memberExpression: Treaty.Compilation.Expression, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
+                var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(instanceType, node => this.alphaNodes.push(new OrRuleNodeSelector(<RuleNodeSelector>node)), this.runtime));
+                var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), new BindingVariable(memberExpression.parameter), instanceType, this.runtime));
+                var nodeFactory = selectorFactory(alphaFactory);
+
+                new PropertyExpressionVisitor(instanceType, nodeFactory, this.runtime)
+                    .createSelector(memberExpression.body, memberExpression.parameter)
                     .select();
             }
         }
@@ -192,16 +192,26 @@ module Treaty {
             }
         }
 
+        export class BindingVariable {
+            constructor(public name: string) { }
+            
+            public equals(other?: BindingVariable): bool {
+                if (other == null) return false;
+
+                return this.name == other.name;
+            }
+        }
+
         export class PropertyExpressionVisitor {
             private nodeSelector: ISelectNode;
 
             constructor (private instanceType: string, private nodeFactory: INodeSelectorFactory, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
-            public createSelector(expression: TypeScript.AST): ISelectNode {
+            public createSelector(expression: TypeScript.AST, parameter: string): ISelectNode {
                 if (expression instanceof TypeScript.Identifier) {
                     this.visitParameter(<TypeScript.Identifier>expression);
                 } else if (expression instanceof TypeScript.BinaryExpression) {
-                    this.visitBinary(<TypeScript.BinaryExpression>expression);
+                    this.visitBinary(<TypeScript.BinaryExpression>expression, parameter);
                 } else {
                     console.log('Expression type "' + TypeDescriptor.toType(expression) + '" not yet supported.');
                 }
@@ -213,13 +223,13 @@ module Treaty {
                 this.nodeSelector = new TypeNodeSelector(this.nodeFactory.create(), this.instanceType, this.runtime);
             }
 
-            private visitBinary(binaryExpr: TypeScript.BinaryExpression): void {
+            private visitBinary(binaryExpr: TypeScript.BinaryExpression, parameter: string): void {
                 var identifier = <TypeScript.Identifier>binaryExpr.operand2;
 
-                var propertyNodeFactory = new NodeSelectorFactory(() => new PropertyNodeSelector(this.nodeFactory.create(), this.instanceType, identifier.text, this.runtime));
+                var propertyNodeFactory = new NodeSelectorFactory(() => new PropertyNodeSelector(this.nodeFactory.create(), new BindingVariable(parameter), this.instanceType, identifier.text, this.runtime));
                 var visitor = new PropertyExpressionVisitor(this.instanceType, propertyNodeFactory, this.runtime);
                 
-                this.nodeSelector = visitor.createSelector(binaryExpr.operand1);
+                this.nodeSelector = visitor.createSelector(binaryExpr.operand1, parameter);
             }
         }
 
@@ -246,7 +256,8 @@ module Treaty {
 
             private visitDelegateConsequence(consequence: Treaty.Rules.Consequences.DelegateConsequence): bool {
                 this.conditionCompiler.matchJoinNode(consequence.instanceType, joinNode => {
-                    var node = <Treaty.Rules.DelegateProductionNode>this.runtime.createNode(id => new Treaty.Rules.DelegateProductionNode(id, consequence.instanceType, consequence.callback));
+                    var binding = new Treaty.Compilation.BindingVariable(consequence.parameterName);
+                    var node = <Treaty.Rules.DelegateProductionNode>this.runtime.createNode(id => new Treaty.Rules.DelegateProductionNode(id, consequence.instanceType, binding, consequence.callback));
 
                     joinNode.addActivation(node);
                 });
