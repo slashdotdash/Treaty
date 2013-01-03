@@ -19,6 +19,8 @@ module Treaty {
             withCondition(condition: Treaty.Rules.ICondition): RuleFactory;
 
             withConsequence(instanceType: string, callback: (instance: any) => void ): RuleFactory;
+
+            withAddFactConsequence(instanceType: string, fact: (instance: any) => any): RuleFactory;
         }
 
         export class Factory {

@@ -25,22 +25,22 @@ module Treaty {
             }
 
             public visitAlphaNode(node: Treaty.Rules.AlphaNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.AlphaNode, node.instanceType, 'Alpha Node\\n' + node.instanceType));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.AlphaNode, node.instanceType, node.instanceType));
                 this.createEdge();
 
                 return this.next(() => next(this));
             }
 
             public visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.PropertyNode, node.instanceType, node.instanceType + '\\n' + node.memberName));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.PropertyNode, node.instanceType, node.instanceType + '.' + node.memberName));
                 this.createEdge();
 
                 return this.next(() => next(this));                
             }
 
             public visitEqualNode(node: Treaty.Rules.EqualNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.EqualNode, node.instanceType, '=='));
-                this.createEdge();
+                //this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.EqualNode, node.instanceType, '=='));
+                //this.createEdge();
 
                 return this.next(() => next(this));
             }
@@ -60,7 +60,7 @@ module Treaty {
             }
 
             public visitValueNode(node: Treaty.Rules.ValueNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ValueNode, node.instanceType, this.getNodeValue(node)));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ValueNode, node.instanceType, '== ' + this.getNodeValue(node)));
                 this.createEdge();
 
                 return this.next(() => next(this));
@@ -103,7 +103,7 @@ module Treaty {
             }
 
             public visitLeftJoinNode(node: Treaty.Rules.LeftJoinNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.LeftJoinNode, node.instanceType, 'Left Join Node'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.LeftJoinNode, node.instanceType, node.instanceType));
                 
                 if (this.rightActivationEquals(node.id)) {
                     this.edges.push(new Edge(this.current, this.stack[this.stack.length - 1], this.current.targetType));
@@ -115,7 +115,7 @@ module Treaty {
             }
 
             public visitOuterJoinNode(node: Treaty.Rules.OuterJoinNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.OuterJoinNode, node.instanceType, 'Outer Join Node'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.OuterJoinNode, node.instanceType, node.instanceType));
                 
                 if (this.rightActivationEquals(node.id)) {
                     this.edges.push(new Edge(this.current, this.stack[this.stack.length - 1], this.current.targetType));
@@ -127,7 +127,7 @@ module Treaty {
             }
 
             public visitConstantNode(node: Treaty.Rules.ConstantNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ConstantNode, 'Constant', 'Dummy'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.ConstantNode, 'Constant', ''));
                 
                 if (this.stack.length > 0 && this.rightActivationEquals(node.id)) {
                     this.edges.push(new Edge(this.current, this.stack[this.stack.length - 1], this.current.targetType));
@@ -137,14 +137,14 @@ module Treaty {
             }
 
             public visitDelegateNode(node: Treaty.Rules.DelegateProductionNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.DelegateProductionNode, node.instanceType, 'Delegate'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.DelegateProductionNode, node.instanceType, node.instanceType));
                 this.createEdge();
 
                 return this.next(() => next(this));
             }
             
             public visitAddFactNode(node: Treaty.Rules.AddFactNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.AddFactNode, node.instanceType, 'AddFact'));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.AddFactNode, node.instanceType, '=> ' + node.instanceType));
                 this.createEdge();
 
                 return this.next(() => next(this));

@@ -43,10 +43,13 @@ module Treaty {
 
                 attrs.push('shape=' + this.shape(vertex.shape()));
                 attrs.push('style=filled');
-                attrs.push('color=gainsboro');
+                attrs.push('color=black');
+                attrs.push('fillcolor=' + vertex.colour());
+                attrs.push('fontcolor=' + vertex.fontColour());
+                attrs.push('fontname=Arial');                
                 attrs.push('label="' + vertex.title + '"');
                 //attrs.push('comment="' + vertex.targetType + '"');
-                    
+
                 this.append(vertex.identifier + ' [' + attrs.join(',') + '];')
             }
 
@@ -93,22 +96,59 @@ module Treaty {
 
             public shape(): Shape {
                 switch (this.vertex.vertexType) {
-                    case VertexType.RulesEngine:
-                    case VertexType.AlphaNode:
-                    case VertexType.JoinNode:
-                    case VertexType.LeftJoinNode:
-                    case VertexType.OuterJoinNode:
-                        return Shape.Ellipse;
-
                     case VertexType.ConstantNode:
                         return Shape.Circle;
 
                     case VertexType.DelegateProductionNode:
-                    case VertexType.AddFactNode:
                         return Shape.DoubleCircle;
 
                     default:
-                        return Shape.Circle;
+                        return Shape.Ellipse;
+                }
+            }
+
+            public colour(): string {
+                switch (this.vertex.vertexType) {
+                    case VertexType.RulesEngine:
+                        return 'black';
+
+                    case VertexType.AlphaNode:
+                        return 'yellow';
+
+                    case VertexType.PropertyNode:
+                        return 'red';
+
+                    case VertexType.ValueNode:
+                    case VertexType.CompareNode:
+                        return 'blue';
+
+                    case VertexType.JoinNode:
+                    case VertexType.LeftJoinNode:
+                    case VertexType.OuterJoinNode:
+                        return 'green';
+
+                    case VertexType.ConstantNode:
+                        return 'pink';
+
+                    case VertexType.DelegateProductionNode:
+                    case VertexType.AddFactNode:
+                        return 'gainsboro';
+
+                    default:
+                        return '';
+                }
+            }
+
+            public fontColour(): string {
+                switch (this.vertex.vertexType) {
+                    case VertexType.RulesEngine:
+                    case VertexType.PropertyNode:
+                    case VertexType.ValueNode:
+                    case VertexType.CompareNode:
+                        return 'white';
+
+                    default:
+                        return 'black';
                 }
             }
 

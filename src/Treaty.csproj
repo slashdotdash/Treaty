@@ -54,6 +54,7 @@
     <Content Include="tests\conditions\lessThan.ts" />
     <Content Include="tests\conditions\greaterThan.ts" />
     <Content Include="tests\consequences\addFact.ts" />
+    <Content Include="tests\consequences\delegate.ts" />
     <Content Include="tests\factory.ts" />
     <Content Include="tests\graphing\dotNotation.ts" />
     <Content Include="tests\parsing\or.ts" />
