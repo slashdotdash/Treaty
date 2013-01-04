@@ -86,7 +86,7 @@ module Treaty {
         export class DotVertex {
             public identifier: string;
             public title: string;
-            public targetType: string;
+            public targetType: Type;
 
             constructor (private vertex: Vertex) {
                 this.identifier = 'n' + vertex.vertexType.toString() + vertex.id.toString();

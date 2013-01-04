@@ -23,7 +23,7 @@ module Treaty {
             private conditions: Treaty.Rules.ConditionConfiguration;
             private consequences: Treaty.Rules.ConsequenceConfiguration;
 
-            constructor(private instanceType: string) {
+            constructor(private instanceType: Treaty.Type) {
                 this.conditions = new Treaty.Rules.ConditionConfiguration(instanceType);
                 this.consequences = new Treaty.Rules.ConsequenceConfiguration();
             }
@@ -66,10 +66,10 @@ module Treaty {
         export class ConditionConfiguration implements IConfigureCondition {
             public conditions: Treaty.Rules.ICondition[] = [];
 
-            constructor(private instanceType: string) { }
+            constructor(private instanceType: Treaty.Type) { }
 
             public withCondition(condition: Treaty.Rules.ICondition): void {
-                if (condition.instanceType != this.instanceType) {
+                if (condition.instanceType.not(this.instanceType)) {
                     throw 'Type mismatch for condition, expected: ' + this.instanceType + ', but got: ' + condition.instanceType;
                 }
 

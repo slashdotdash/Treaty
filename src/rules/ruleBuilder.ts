@@ -32,12 +32,12 @@ module Treaty {
             }
 
             public when(instanceType: string, expression: (instance) => bool): IBuildRule {
-                this.conditionBuilders.push(new ConditionBuilder(instanceType, expression));
+                this.conditionBuilders.push(new ConditionBuilder(Type.create(instanceType), expression));
                 return this;
             }
 
             public then(instanceType: string, expression: (instance) => void ): IBuildRule {
-                this.consequenceBuilders.push(new ConsequenceBuilder(instanceType, expression));
+                this.consequenceBuilders.push(new ConsequenceBuilder(Type.create(instanceType), expression));
                 return this;
             }
 
@@ -64,7 +64,7 @@ module Treaty {
         export class ConditionBuilder {
             private conditionParser = new Treaty.Compilation.ConditionParser();
 
-            constructor (private instanceType: string, private expression: (instance) => bool) { }
+            constructor (private instanceType: Treaty.Type, private expression: (instance) => bool) { }
 
             public build(expressionParser: Treaty.Compilation.ExpressionParser): ICondition[] {
                 var script = expressionParser.parse(this.expression);
@@ -74,7 +74,7 @@ module Treaty {
         }
 
         export class ConsequenceBuilder {
-            constructor (private instanceType: string, private consequence: (instance) => void) { }
+            constructor (private instanceType: Treaty.Type, private consequence: (instance) => void) { }
 
             public build(): IConsequence[] {
                 var consequences = new IConsequence[];

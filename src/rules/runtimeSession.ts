@@ -7,19 +7,19 @@
 module Treaty {
     export module Rules {
         export interface ISession {
-            assert(instanceType: string, fact: any): void;
+            assert(instanceType: Treaty.Type, fact: any): void;
 
             run(): void;
 
-            factsOfType(instanceType: string): any[];
+            factsOfType(instanceType: Treaty.Type): any[];
         }
 
         export interface IActivationContext {
-            instanceType: string;
+            instanceType: Treaty.Type;
 
             fact: any;
             
-            createContext(instanceType: string, fact: any): IActivationContext;
+            createContext(instanceType: Treaty.Type, fact: any): IActivationContext;
 
             access(id: number, callback: (memory: ContextMemory) => void): void;
 
@@ -43,9 +43,9 @@ module Treaty {
         }
 
         class ActivationContext implements IActivationContext {
-            constructor (private context: IActivationContext, public instanceType: string, public fact: any) { }
+            constructor (private context: IActivationContext, public instanceType: Treaty.Type, public fact: any) { }
 
-            public createContext(instanceType: string, fact: any): IActivationContext {
+            public createContext(instanceType: Treaty.Type, fact: any): IActivationContext {
                 return this.context.createContext(instanceType, fact);
             }
 
@@ -64,11 +64,11 @@ module Treaty {
             private agenda = new Agenda();
 
             public fact: any = null;
-            public instanceType: string = null;
+            public instanceType: Treaty.Type = null;
 
             constructor (private runtime: IActivate, private objectCache: Treaty.Collections.Cache) { }
 
-            public assert(instanceType: string, fact: any): void {
+            public assert(instanceType: Treaty.Type, fact: any): void {
                 var context = new ActivationContext(this, instanceType, fact);
 
                 this.runtime.activate(context);
@@ -80,8 +80,8 @@ module Treaty {
                 this.agenda.run();
             }
 
-            public factsOfType(instanceType: string): any[] {
-                var matching = _.filter(this.facts, (context: IActivationContext) => context.instanceType == instanceType)
+            public factsOfType(instanceType: Treaty.Type): any[] {
+                var matching = _.filter(this.facts, (context: IActivationContext) => context.instanceType.equals(instanceType))
 
                 return _.map(matching, (context: IActivationContext) => {
 
@@ -91,7 +91,7 @@ module Treaty {
                 });
             }
 
-            public createContext(instanceType: string, fact: any): IActivationContext {
+            public createContext(instanceType: Treaty.Type, fact: any): IActivationContext {
                 return new ActivationContext(this, instanceType, fact);
             }
 

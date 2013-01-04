@@ -53,7 +53,7 @@ module Treaty {
                             wasCalled = false;
                             
                             session = subject.createSession();
-                            session.assert('Person', new Person('Bob'));
+                            session.assert(Treaty.Type.create('Person'), new Person('Bob'));
                             session.run();
                         });
 

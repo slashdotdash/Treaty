@@ -65,7 +65,7 @@ module Treaty {
 
             public visitConsequence(consequence: Treaty.Rules.IConsequence): bool { return true; }
 
-            public matchJoinNode(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool {
+            public matchJoinNode(instanceType: Treaty.Type, callback: (node: Treaty.Rules.INode) => void): bool {
                 if (this.alphaNodes.length == 0) 
                     return false;
 
@@ -171,7 +171,7 @@ module Treaty {
                 throw 'Not Supported';
             }
 
-            private compile(instanceType: string, memberExpression: Treaty.Compilation.Expression, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
+            private compile(instanceType: Treaty.Type, memberExpression: Treaty.Compilation.Expression, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
                 var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(instanceType, node => this.alphaNodes.push(node), this.runtime));
                 var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
                 var nodeFactory = selectorFactory(alphaFactory);
@@ -184,10 +184,11 @@ module Treaty {
 
         export class GenericType {
             public isGeneric: bool = false;
-            public instanceTypes: string[] = [];
+            public instanceTypes: Treaty.Type[] = [];
 
-            constructor(private instanceType: string) {
-                this.instanceTypes = instanceType.split('|');
+            constructor(private instanceType: Treaty.Type) {
+                _.each(instanceType.name.split('|'), (typeName: string) => this.instanceTypes.push(Type.create(typeName)));
+
                 this.isGeneric = this.instanceTypes.length > 1;
             }
         }
@@ -195,7 +196,7 @@ module Treaty {
         export class PropertyExpressionVisitor {
             private nodeSelector: ISelectNode;
 
-            constructor (private instanceType: string, private nodeFactory: INodeSelectorFactory, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+            constructor (private instanceType: Treaty.Type, private nodeFactory: INodeSelectorFactory, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
             public createSelector(expression: TypeScript.AST): ISelectNode {
                 if (expression instanceof TypeScript.Identifier) {
@@ -203,7 +204,7 @@ module Treaty {
                 } else if (expression instanceof TypeScript.BinaryExpression) {
                     this.visitBinary(<TypeScript.BinaryExpression>expression);
                 } else {
-                    console.log('Expression type "' + TypeDescriptor.toType(expression) + '" not yet supported.');
+                    console.log('Expression type "' + Type.of(expression) + '" not yet supported.');
                 }
 
                 return this.nodeSelector;
