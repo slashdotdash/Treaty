@@ -57,6 +57,7 @@
     <Content Include="tests\consequences\delegate.ts" />
     <Content Include="tests\extensions\type.ts" />
     <Content Include="tests\factory.ts" />
+    <Content Include="tests\graphing\multipleTypes.ts" />
     <Content Include="tests\graphing\dotNotation.ts" />
     <Content Include="tests\parsing\or.ts" />
     <Content Include="tests\parsing\math.ts" />

@@ -377,7 +377,7 @@ module Treaty {
         }
 
         export class AddFactNode implements IActivation {
-            constructor (public id: number, public instanceType: Treaty.Type, private fact: (instance) => any ) { }
+            constructor (public id: number, public instanceType: Treaty.Type, public newFactType: Treaty.Type, private fact: (instance) => any ) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitAddFactNode(this, next => true);

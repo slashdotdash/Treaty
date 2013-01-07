@@ -144,7 +144,7 @@ module Treaty {
             }
             
             public visitAddFactNode(node: Treaty.Rules.AddFactNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.AddFactNode, node.instanceType, '=> ' + node.instanceType));
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.AddFactNode, node.instanceType, node.instanceType + '=> ' + node.newFactType));
                 this.createEdge();
 
                 return this.next(() => next(this));

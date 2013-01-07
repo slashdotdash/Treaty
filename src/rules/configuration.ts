@@ -86,7 +86,7 @@ module Treaty {
             }
 
             public withAddFactConsequence(instanceType: string, fact: (instance: any) => any ): void {
-                var consequence = Treaty.Rules.Consequences.Consequence.addFact(instanceType, fact);
+                var consequence = Treaty.Rules.Consequences.Consequence.addFact(instanceType, instanceType, fact);
                 this.consequences.push(consequence);
             }
         }
@@ -103,6 +103,19 @@ module Treaty {
                     var joined = <JoinedValue>join;
                     
                     callback(joined.left, joined.right);
+                });
+                this.consequences.push(consequence);
+            }
+
+            public withAddFactConsequence(instanceType: string, createFact: (left: any, right: any) => any ): void {
+                var joinType = new Array('Join', this.leftType, this.rightType).join('|');  // HACK: Pseudo generic type until proper TypeScript supports
+
+                var consequence = Treaty.Rules.Consequences.Consequence.addFact(joinType, instanceType, fact => {
+                    var joined = <JoinedValue>join;
+
+                    var newFact = createFact(joined.left, joined.right);
+
+                    return newFact;
                 });
                 this.consequences.push(consequence);
             }

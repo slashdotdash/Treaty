@@ -135,7 +135,7 @@ module Treaty {
                         return 'gainsboro';
 
                     default:
-                        return '';
+                        return 'white';
                 }
             }
 

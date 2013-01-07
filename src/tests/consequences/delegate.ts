@@ -47,7 +47,7 @@ module Treaty {
                     });
 
                     it("should execute consequence asserting new fact", () => {
-                        expect(factory.session.factsOfType('Violation').length).toBe(1);
+                        expect(factory.session.factsOfType(Treaty.Type.create('Violation')).length).toBe(1);
                     });
 
                     it("should execute delegate consequence with asserted new fact", () => {
@@ -64,7 +64,7 @@ module Treaty {
                     });
 
                     it("should assert new fact", () => {
-                        expect(factory.session.factsOfType('Violation').length).toBe(1);
+                        expect(factory.session.factsOfType(Treaty.Type.create('Violation')).length).toBe(1);
                     });
 
                     it("should not execute delegate consequence with asserted new fact", () => {

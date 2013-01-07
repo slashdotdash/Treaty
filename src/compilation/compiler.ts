@@ -257,7 +257,7 @@ module Treaty {
 
             private visitAddFactConsequence(consequence: Treaty.Rules.Consequences.AddFactConsequence): bool {
                 this.conditionCompiler.matchJoinNode(consequence.instanceType, joinNode => {
-                    var node = <Treaty.Rules.AddFactNode>this.runtime.createNode(id => new Treaty.Rules.AddFactNode(id, consequence.instanceType, consequence.fact));
+                    var node = <Treaty.Rules.AddFactNode>this.runtime.createNode(id => new Treaty.Rules.AddFactNode(id, consequence.instanceType, consequence.newFactType, consequence.fact));
 
                     joinNode.addActivation(node);
                 });

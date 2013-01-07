@@ -10,8 +10,8 @@ module Treaty {
                     return new DelegateConsequence(Type.create(instanceType), callback);
                 }
 
-                public static addFact(instanceType: string, fact: (instance) => any): AddFactConsequence {
-                    return new AddFactConsequence(Type.create(instanceType), fact);
+                public static addFact(instanceType: string, newFactType: string, fact: (instance) => any): AddFactConsequence {
+                    return new AddFactConsequence(Type.create(instanceType), Type.create(newFactType), fact);
                 }
             }
 
@@ -24,7 +24,7 @@ module Treaty {
             }
 
             export class AddFactConsequence implements Treaty.Rules.IConsequence {
-                constructor (public instanceType: Treaty.Type, public fact: (instance) => any) { }
+                constructor (public instanceType: Treaty.Type, public newFactType: Treaty.Type, public fact: (instance) => any) { }
 
                 public accept(visitor: IVisitor): bool {
                     return visitor.visitConsequence(this);
