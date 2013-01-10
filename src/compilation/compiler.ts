@@ -70,7 +70,6 @@ module Treaty {
                     return false;
 
                 if (instanceType.isGenericType()) {
-                    debugger;
                     if (instanceType.getGenericTypeDefinition() == 'Tuple<,>') {
                         var typeArgs = instanceType.getGenericArguments();
 
@@ -119,7 +118,7 @@ module Treaty {
                 
                 if (left != null) {
                     if (left instanceof Treaty.Rules.AlphaNode) {
-                        this.runtime.matchJoinNodeOne(left, join => left = join);
+                        this.runtime.matchJoinNodeOne(instanceType, left, join => left = join);
                     }
 
                     callback(left);

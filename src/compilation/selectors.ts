@@ -24,7 +24,7 @@ module Treaty {
         }
 
         export interface ISelectLeftJoinRuleNode {
-            match(callback: (node: Treaty.Rules.LeftJoinNode) => void): void;
+            match(instanceType: Treaty.Type, discardType: Treaty.Type, callback: (node: Treaty.Rules.LeftJoinNode) => void): void;
         }
 
         export class NodeSelectorFactory implements INodeSelectorFactory {
@@ -69,8 +69,8 @@ module Treaty {
                 return this.parent.select(instanceType, callback);
             }
 
-            public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
-                this.runtime.matchLeftJoinNode(this.node, callback);
+            public match(instanceType: Treaty.Type, discardType: Treaty.Type, callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
+                this.runtime.matchLeftJoinNode(instanceType, discardType, this.node, callback);
             }
         }
 
@@ -81,8 +81,8 @@ module Treaty {
                 return this.selector.select(instanceType, callback);
             }
 
-            public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
-                this.selector.match(callback);
+            public match(instanceType: Treaty.Type, discardType: Treaty.Type, callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
+                this.selector.match(instanceType, discardType, callback);
             }
         }
 
@@ -120,16 +120,16 @@ module Treaty {
 
             public select(instanceType: Treaty.Type, callback: (node: Treaty.Rules.INode) => void ): bool {
                 if (this.instanceType.equals(instanceType) && this.leftJoinNode == undefined) {
-                    this.left.match(node => this.leftJoinNode = node);
+                    this.left.match(this.instanceType, this.discardType, node => this.leftJoinNode = node);
                 }
 
-                if (this.leftJoinNode != null && this.instanceType.equals(instanceType)) {
+                if (this.leftJoinNode != null && instanceType.equals(this.leftJoinNode.instanceType)) {
                     callback(this.leftJoinNode);
                     return true;
                 }
 
                 if (this.parent == undefined) {
-                    if (this.instanceType.not(instanceType)) {
+                    if (!this.instanceType.isGenericType() || this.instanceType.getGenericTypeDefinition() != 'Token<,>') {
                         return false;
                     }
 
@@ -142,12 +142,12 @@ module Treaty {
                 return this.parent.select(instanceType, callback);
             }
 
-            public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
+            public match(instanceType: Treaty.Type, discardType: Treaty.Type, callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
                 if (this.leftJoinNode == undefined) {
-                    this.left.match(node => this.leftJoinNode = node);
+                    this.left.match(instanceType, discardType, node => this.leftJoinNode = node);
                 }
 
-                this.runtime.matchLeftJoinNode(this.leftJoinNode, callback);
+                this.runtime.matchLeftJoinNode(instanceType, discardType, this.leftJoinNode, callback);
             }
         }
 
@@ -195,7 +195,6 @@ module Treaty {
                 node.accept(this);
                 
                 if (this.alphaNode == null) {
-                    debugger;
                     this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, this.instanceType));
 
                     node.addActivation(this.alphaNode);

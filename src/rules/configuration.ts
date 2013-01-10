@@ -108,7 +108,6 @@ module Treaty {
             }
 
             public withAddFactConsequence(instanceType: string, createFact: (left: any, right: any) => any ): void {
-                debugger;
                 var joinType = Treaty.Type.generic('Tuple', Treaty.Type.create(this.leftType), Treaty.Type.create(this.rightType));
 
                 var consequence = new Treaty.Rules.Consequences.AddFactConsequence(joinType, Treaty.Type.create(instanceType), join => {

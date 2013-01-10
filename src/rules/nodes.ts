@@ -285,7 +285,7 @@ module Treaty {
         export class LeftJoinNode implements INode, IActivation, IRightActivation {
             public successors = new IActivation[];
 
-            constructor (public id: number, public instanceType: Treaty.Type, public rightActivation: Rules.IRightActivation) { }
+            constructor (public id: number, public instanceType: Treaty.Type, public discardType: Treaty.Type, public rightActivation: Rules.IRightActivation) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitLeftJoinNode(this, next => this.rightActivation.accept(next) && _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -350,7 +350,7 @@ module Treaty {
         }
 
         export class ConstantNode implements IRightActivation {
-            constructor (public id: number) { }
+            constructor (public id: number, public instanceType: Treaty.Type) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitConstantNode(this, visitor => true);
