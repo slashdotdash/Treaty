@@ -2,9 +2,11 @@
 
 module Treaty {
     // Rudimentary type syntax until TypeScript supports generics
+    // TODO: Does not currently support type namespace
     export class Type {
         public static stringType: Type = new Type('String');
         public static numberType: Type = new Type('Number');
+        public static booleanType: Type = new Type('Boolean');
         public static arrayType: Type = new Type('Array');
         public static objectType: Type = new Type('Object');
         public static functionType: Type = new Type('Function');
@@ -26,6 +28,14 @@ module Treaty {
             return this.registry.lookup(typeName);
         }
 
+        // Pseudo generic types
+        //  'Token', 'ExampleClass', 'string' => 'Token<ExampleClass, string>'
+        public static generic(typeName: string, type1: Type, type2?: Type, type3?: Type, type4?: Type, type5?: Type): Type {
+            var args = _.filter([type1, type2, type3, type4, type5], (type: Type) => type !== undefined);
+            
+            return new Type(typeName + '<' + _.select(args, (type: Type) => type.name).join(', ') + '>', true);
+        }
+
         private static toType(obj: any): string {
             if (obj === undefined) return 'Undefined';
             if (obj === null) return 'Null';
@@ -33,8 +43,39 @@ module Treaty {
             return obj.constructor.name;
         } 
 
-        // Do not call constructor, use statuc create factory method
-        constructor(public name: string) { }
+        // Do not call constructor, use static create factory method
+        constructor(public name: string, private isGeneric: bool = false) { }
+
+        public isGenericType(): bool {
+            return this.isGeneric;
+        }
+
+        public getGenericArguments(): Type[] {
+            if (this.isGeneric) {
+                var args: Type[] = [];
+                var types = this.name.substr(this.name.indexOf('<') + 1);
+                types = types.substr(0, types.length - 1);
+
+                _.each(types.split(', '), (type: string) => args.push(Type.create(type)));
+                return args;
+            }
+
+            throw 'Not a generic type';
+        }
+
+        // Tuple<A, B> => 'Tuple<,>'
+        public getGenericTypeDefinition(): string {
+            if (this.isGeneric) {
+                var type = this.name.substr(0, this.name.indexOf('<'));
+
+                var args: string[] = [];
+                _.each(this.getGenericArguments(), (type: Type) => args.push(''))
+
+                return type + '<' + args.join(',') + '>';
+            }
+
+            throw 'Not a generic type';
+        }
 
         public equals(other: Type): bool {
             return this.name == other.name;
@@ -55,6 +96,7 @@ module Treaty {
         constructor() {
             this.register(Type.stringType);
             this.register(Type.numberType);
+            this.register(Type.booleanType);
             this.register(Type.arrayType);
             this.register(Type.objectType);
             this.register(Type.functionType);

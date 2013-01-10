@@ -8,7 +8,7 @@
 module Treaty {
     export module Compilation {
         export interface INodeSelectorFactory {
-            create(): ISelectNode;
+            create(type: Treaty.Type): ISelectNode;
         }
 
         export interface ISelectNode {
@@ -28,10 +28,10 @@ module Treaty {
         }
 
         export class NodeSelectorFactory implements INodeSelectorFactory {
-            constructor (private factory: () => ISelectNode) { }
+            constructor (private factory: (type: Treaty.Type) => ISelectNode) { }
 
-            public create(): ISelectNode {
-                var node = this.factory();
+            public create(type: Treaty.Type): ISelectNode {
+                var node = this.factory(type);
                 
                 if (node == null) 
                     node = this.createNullSelector();
@@ -60,7 +60,10 @@ module Treaty {
                 }
 
                 if (this.parent == undefined) {
-                    this.parent = new DiscardRuleNodeSelector(this.instanceType, this, this.runtime);
+                    var genericArgs = this.instanceType.getGenericArguments();
+                    if (genericArgs.length != 2) throw 'Invalid generic args, expected 2 got: ' + genericArgs.length;
+
+                    this.parent = new DiscardRuleNodeSelector(genericArgs[0], genericArgs[1], this, this.runtime);
                 }
 
                 return this.parent.select(instanceType, callback);
@@ -113,7 +116,7 @@ module Treaty {
             private parent: ISelectRuleNode;
             private leftJoinNode: Treaty.Rules.LeftJoinNode;
 
-            constructor (private instanceType: Treaty.Type, private left: ISelectLeftJoinRuleNode, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+            constructor (private instanceType: Treaty.Type, private discardType: Treaty.Type, private left: ISelectLeftJoinRuleNode, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
             public select(instanceType: Treaty.Type, callback: (node: Treaty.Rules.INode) => void ): bool {
                 if (this.instanceType.equals(instanceType) && this.leftJoinNode == undefined) {
@@ -130,7 +133,10 @@ module Treaty {
                         return false;
                     }
 
-                    this.parent = new DiscardRuleNodeSelector(this.instanceType, this, this.runtime);
+                    var genericArgs = this.instanceType.getGenericArguments();
+                    if (genericArgs.length != 2) throw 'Invalid generic args, expected 2 got: ' + genericArgs.length;
+
+                    this.parent = new DiscardRuleNodeSelector(genericArgs[0], genericArgs[1], this, this.runtime);
                 }
 
                 return this.parent.select(instanceType, callback);
@@ -189,7 +195,8 @@ module Treaty {
                 node.accept(this);
                 
                 if (this.alphaNode == null) {
-                    this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, node.instanceType));
+                    debugger;
+                    this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, this.instanceType));
 
                     node.addActivation(this.alphaNode);
                 }
@@ -201,7 +208,19 @@ module Treaty {
         export class EqualNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private equalNode: Treaty.Rules.EqualNode;
 
-            constructor (public next: ISelectNode, private value: any, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+            public static create(type: Treaty.Type, next: INodeSelectorFactory, value: any, valueType: Treaty.Type, runtime: Treaty.Rules.IRuntimeConfiguration): EqualNodeSelector {
+                var nextSelector = next.create(type);
+
+                var typeArgs = type.getGenericArguments();
+                var tokenValueType = typeArgs[1];
+                if (tokenValueType.not(valueType)) {
+                    throw 'Value type "' + valueType + '" does not match token type "' + tokenValueType + '"';
+                }
+
+                return new EqualNodeSelector(nextSelector, typeArgs[0], value, valueType, runtime)
+            }
+
+            constructor (public next: ISelectNode, private type: Treaty.Type, private value: any, private valueType: Treaty.Type, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();
             }
 
@@ -214,15 +233,13 @@ module Treaty {
 
                 node.accept(this);
                 
-                var valueType = Type.of(this.value);
-
                 if (this.equalNode == null) {
-                    this.equalNode = <Rules.EqualNode>this.runtime.createNode(id => new Rules.EqualNode(id, valueType));
+                    this.equalNode = <Rules.EqualNode>this.runtime.createNode(id => new Rules.EqualNode(id, this.type, this.valueType));
 
                     node.addActivation(this.equalNode);
                 }
 
-                var valueNode = this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, valueType, this.value)));
+                var valueNode = this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, this.valueType, this.value)));
 
                 this.next.selectNode(valueNode);
             }
@@ -382,7 +399,7 @@ module Treaty {
         export class PropertyNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private propertyNode: Rules.PropertyNode;
 
-            constructor (public next: ISelectNode, public instanceType: Treaty.Type, public memberName: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+            constructor (public next: ISelectNode, public instanceType: Treaty.Type, public propertyType: Treaty.Type, public memberName: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();
             }
 
@@ -394,7 +411,11 @@ module Treaty {
                 node.accept(this);
                 
                 if (this.propertyNode == null) {
-                    this.propertyNode = <Rules.PropertyNode>this.runtime.createNode(id => new Rules.PropertyNode(id, this.instanceType, this.memberName));
+                    this.propertyNode = <Rules.PropertyNode>this.runtime.createNode(id => {
+                        var nodeType = Treaty.Type.generic('Token', this.instanceType, this.propertyType);
+
+                        return new Rules.PropertyNode(id, nodeType, this.propertyType, this.memberName);
+                    });
 
                     node.addActivation(this.propertyNode);
                 }

@@ -26,6 +26,10 @@ module Treaty {
             schedule(action: (session: ISession) => void ): void;
         }
 
+        export class Token {
+            constructor(public item1: IActivationContext, public item2: any, public item2Type: Treaty.Type) { }
+        }
+
         export class ActivationFact {
             public static extract(context: IActivationContext): any {
                 var fact = context.fact;

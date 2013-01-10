@@ -40,8 +40,8 @@ module Treaty {
                     return new PropertyLessThanOrEqualCondition(Type.create(instanceType), parseExpression(property), value);
                 }
 
-                public static each(instanceType: string, property: Function): PropertyEachCondition {
-                    return new PropertyEachCondition(Type.create(instanceType), parseExpression(property));
+                public static each(instanceType: string, property: Function, itemType: string): PropertyEachCondition {
+                    return new PropertyEachCondition(Type.create(instanceType), parseExpression(property), Type.create(itemType));
                 }
 
                 private static parseExpression(property: Function): Treaty.Compilation.Expression {
@@ -51,10 +51,12 @@ module Treaty {
 
             export interface IPropertyCondition extends Treaty.Rules.ICondition {
                 memberExpression: Treaty.Compilation.Expression;
+
+                valueType: Treaty.Type;
             }
 
             export class PropertyEqualCondition implements IPropertyCondition {
-                constructor (public instanceType: Treaty.Type, public memberExpression: Treaty.Compilation.Expression, public value: any, public valueType: Type) { }
+                constructor (public instanceType: Treaty.Type, public memberExpression: Treaty.Compilation.Expression, public value: any, public valueType: Treaty.Type) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);
@@ -62,7 +64,7 @@ module Treaty {
             }
 
             export class PropertyNotEqualCondition implements IPropertyCondition {
-                constructor (public instanceType: Treaty.Type, public memberExpression: Treaty.Compilation.Expression, public value: any, public valueType: Type) { }
+                constructor (public instanceType: Treaty.Type, public memberExpression: Treaty.Compilation.Expression, public value: any, public valueType: Treaty.Type) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);
@@ -70,7 +72,11 @@ module Treaty {
             }
 
             export class PropertyExistsCondition implements IPropertyCondition {
-                constructor (public instanceType: Treaty.Type, public memberExpression: Treaty.Compilation.Expression) { }
+                public valueType: Treaty.Type;
+
+                constructor (public instanceType: Treaty.Type, public memberExpression: Treaty.Compilation.Expression) { 
+                    this.valueType = this.instanceType;
+                }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);
@@ -118,7 +124,7 @@ module Treaty {
             }
 
             export class PropertyEachCondition implements IPropertyCondition {
-                constructor (public instanceType: Treaty.Type, public memberExpression: Treaty.Compilation.Expression) { }
+                constructor (public instanceType: Treaty.Type, public memberExpression: Treaty.Compilation.Expression, public valueType: Treaty.Type) { }
 
                 public accept(visitor: Treaty.Rules.IVisitor): bool {
                     return visitor.visitCondition(this);

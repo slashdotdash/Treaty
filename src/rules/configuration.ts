@@ -108,9 +108,10 @@ module Treaty {
             }
 
             public withAddFactConsequence(instanceType: string, createFact: (left: any, right: any) => any ): void {
-                var joinType = new Array('Join', this.leftType, this.rightType).join('|');  // HACK: Pseudo generic type until proper TypeScript supports
+                debugger;
+                var joinType = Treaty.Type.generic('Tuple', Treaty.Type.create(this.leftType), Treaty.Type.create(this.rightType));
 
-                var consequence = Treaty.Rules.Consequences.Consequence.addFact(joinType, instanceType, fact => {
+                var consequence = new Treaty.Rules.Consequences.AddFactConsequence(joinType, Treaty.Type.create(instanceType), join => {
                     var joined = <JoinedValue>join;
 
                     var newFact = createFact(joined.left, joined.right);

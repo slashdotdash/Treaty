@@ -23,6 +23,7 @@ module Treaty {
 
         export interface INode {
             id: number;
+
             instanceType: Treaty.Type;
 
             successors: IActivation[];
@@ -54,7 +55,7 @@ module Treaty {
         export class PropertyNode implements INode, IActivation {
             public successors = new IActivation[];
 
-            constructor (public id: number, public instanceType: Treaty.Type, public memberName: string) { }
+            constructor (public id: number, public instanceType: Treaty.Type, public propertyType: Treaty.Type, public memberName: string) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitPropertyNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -108,7 +109,7 @@ module Treaty {
         export class EqualNode implements IActivation {
             private values: ValueNode[] = [];
 
-            constructor (public id: number, public instanceType: Treaty.Type) { }
+            constructor (public id: number, public type: Treaty.Type, public propertyType: Treaty.Type) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitEqualNode(this, next => _.all(this.values, (activation: IActivation) => activation.accept(next)));
