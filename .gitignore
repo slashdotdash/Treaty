@@ -9,3 +9,5 @@ packages/*
 *.nupkg
 _Chutzpah.*
 *.js.map
+tmp.dot
+tmp.png
