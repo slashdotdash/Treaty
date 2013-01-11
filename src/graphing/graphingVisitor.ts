@@ -32,7 +32,12 @@ module Treaty {
             }
 
             public visitPropertyNode(node: Treaty.Rules.PropertyNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
-                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.PropertyNode, node.instanceType, node.instanceType + '.' + node.memberName));
+                var nodeType = node.instanceType;
+                if (node.instanceType.isGenericType()) {
+                    nodeType = node.instanceType.getGenericArguments()[0];
+                }
+
+                this.current = this.getVertex(node.id, id => new Vertex(id, VertexType.PropertyNode, node.instanceType, nodeType + '.' + node.memberName));
                 this.createEdge();
 
                 return this.next(() => next(this));                

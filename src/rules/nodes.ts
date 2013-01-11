@@ -327,7 +327,7 @@ module Treaty {
             }
             
             public activate(context: Treaty.Rules.IActivationContext): void {
-                this.rightActivation.rightActivate(context, right => {                    
+                this.rightActivation.rightActivate(context, right => {
                     var joinValue = new JoinedValue(ActivationFact.extract(context), right.fact);
 
                     var activationToken = new Rules.ActivationToken(this.instanceType, Type.of(joinValue), context, joinValue);

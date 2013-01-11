@@ -97,9 +97,9 @@ module Treaty {
             constructor(private leftType: string, private rightType: string) { }
 
             public withConsequence(callback: (left: any, right: any) => void ): void {
-                var joinType = new Array('Join', this.leftType, this.rightType).join('|');  // HACK: Pseudo generic type until proper TypeScript supports
-
-                var consequence = Treaty.Rules.Consequences.Consequence.delegate(joinType, join => {
+                var joinType = Treaty.Type.generic('Tuple', Treaty.Type.create(this.leftType), Treaty.Type.create(this.rightType));
+                
+                var consequence = new Treaty.Rules.Consequences.DelegateConsequence(joinType, join => {
                     var joined = <JoinedValue>join;
                     
                     callback(joined.left, joined.right);
