@@ -52,8 +52,8 @@ module Treaty {
             public select(instanceType: Treaty.Type, callback: (node: Treaty.Rules.INode) => void): bool {
                 if (this.node instanceof Treaty.Rules.AlphaNode) {
                     var alphaNode = <Treaty.Rules.AlphaNode>this.node;
-                    
-                    if (alphaNode.instanceType.equals(instanceType) || alphaNode.instanceType.equals(Type.arrayType)) {
+
+                    if (alphaNode.instanceType.equals(instanceType)) {
                         callback(this.node);
                         return true;
                     }
@@ -195,7 +195,14 @@ module Treaty {
                 node.accept(this);
                 
                 if (this.alphaNode == null) {
-                    this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, this.instanceType));
+                    var selectorType = this.instanceType;
+
+                    if (node instanceof Treaty.Rules.EachNode) {
+                        var eachNode = <Treaty.Rules.EachNode>node;
+                        selectorType = eachNode.selectorType;
+                    }
+
+                    this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, selectorType));
 
                     node.addActivation(this.alphaNode);
                 }
@@ -349,7 +356,7 @@ module Treaty {
         export class EachNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private eachNode: Rules.EachNode;
 
-            constructor (public next: ISelectNode, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+            constructor (public next: ISelectNode, private instanceType: Treaty.Type, private itemType: Treaty.Type, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();
             }
 
@@ -363,7 +370,8 @@ module Treaty {
                 node.accept(this);
 
                 if (this.eachNode == null) {
-                    this.eachNode = <Rules.EachNode>this.runtime.createNode(id => new Rules.EachNode(id, Type.arrayType, this.forEach));
+                    var listType = Treaty.Type.generic('Array', this.itemType);
+                    this.eachNode = <Rules.EachNode>this.runtime.createNode(id => new Rules.EachNode(id, this.instanceType, listType, this.itemType, this.forEach));
 
                     node.addActivation(this.eachNode);
                 }

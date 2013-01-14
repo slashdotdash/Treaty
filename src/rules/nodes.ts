@@ -230,8 +230,11 @@ module Treaty {
 
         export class EachNode implements INode, IActivation {
             public successors = new IActivation[];
-            
-            constructor (public id: number, public instanceType: Treaty.Type, private elementMatch: (list: any[], callback: (item: any) => void) => void) { }
+            public selectorType: Treaty.Type;
+
+            constructor (public id: number, public instanceType: Treaty.Type, private listType: Treaty.Type, private itemType: Treaty.Type, private elementMatch: (list: any[], callback: (item: any) => void) => void) {
+                this.selectorType = Type.generic('Token', Type.generic('Token', this.instanceType, this.listType), this.itemType);
+            }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitEachNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -245,7 +248,7 @@ module Treaty {
                 var token = <Treaty.Rules.ActivationToken>context.fact;
                 
                 this.elementMatch(token.value, item => {
-                    var activationToken = new Treaty.Rules.ActivationToken(context.instanceType, Type.of(item), context, item);
+                    var activationToken = new Treaty.Rules.ActivationToken(context.instanceType, this.itemType, context, item);
                     
                     var propertyContext = context.createContext('ActivationToken', activationToken);
 

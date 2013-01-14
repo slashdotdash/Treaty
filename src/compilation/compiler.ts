@@ -175,7 +175,8 @@ module Treaty {
                 }
                 
                 if (condition instanceof Treaty.Rules.Conditions.PropertyEachCondition) {
-                    return next => new NodeSelectorFactory(type => new EachNodeSelector(next.create(type), this.runtime));
+                    var eachCondition = <Treaty.Rules.Conditions.PropertyEachCondition>condition;
+                    return next => new NodeSelectorFactory(type => new EachNodeSelector(next.create(type), eachCondition.instanceType, eachCondition.valueType, this.runtime));
                 }
 
                 throw 'Not Supported';
