@@ -1,4 +1,5 @@
-/// <reference path="..\collections\cache.ts" />
+///<reference path="..\collections\cache.ts" />
+///<reference path='..\..\lib\Underscore.js\underscore.js' />
 
 module Treaty {
     // Rudimentary type syntax until TypeScript supports generics
@@ -33,7 +34,7 @@ module Treaty {
         public static generic(typeName: string, type1: Type, type2?: Type, type3?: Type, type4?: Type, type5?: Type): Type {
             var args = _.filter([type1, type2, type3, type4, type5], (type: Type) => type !== undefined);
             
-            return new Type(typeName + '<' + _.select(args, (type: Type) => type.name).join(', ') + '>', true);
+            return new Type(typeName + '<' + _.select(args, (type: Type) => type.name).join(', ') + '>', args);
         }
 
         private static toType(obj: any): string {
@@ -43,8 +44,12 @@ module Treaty {
             return obj.constructor.name;
         } 
 
+        private isGeneric: bool;
+
         // Do not call constructor, use static create factory method
-        constructor(public name: string, private isGeneric: bool = false) { }
+        constructor(public name: string, private genericArgs: Treaty.Type[] = []) {
+            this.isGeneric = this.genericArgs.length > 0;
+        }
 
         public isGenericType(): bool {
             return this.isGeneric;
@@ -52,12 +57,7 @@ module Treaty {
 
         public getGenericArguments(): Type[] {
             if (this.isGeneric) {
-                var args: Type[] = [];
-                var types = this.name.substr(this.name.indexOf('<') + 1);
-                types = types.substr(0, types.length - 1);
-
-                _.each(types.split(', '), (type: string) => args.push(Type.create(type)));
-                return args;
+                return this.genericArgs;
             }
 
             throw 'Not a generic type';
@@ -69,7 +69,7 @@ module Treaty {
                 var type = this.name.substr(0, this.name.indexOf('<'));
 
                 var args: string[] = [];
-                _.each(this.getGenericArguments(), (type: Type) => args.push(''))
+                _.each(this.genericArgs, (type: Type) => args.push(''))
 
                 return type + '<' + args.join(',') + '>';
             }

@@ -41,6 +41,32 @@ module Treaty {
                         expect(Treaty.Type.create('Example')).toEqual(exampleType);
                     });
                 });
+
+                describe("generic types", () => {
+                    var genericType: Treaty.Type;
+
+                    beforeEach(() => {
+                        // "A<B<C, D>, E>"
+                        genericType = Treaty.Type.generic('A', 
+                            Treaty.Type.generic('B', Treaty.Type.create('C'), Treaty.Type.create('D')), 
+                            Treaty.Type.create('E'));
+                    });
+
+                    it("should implement toString()", () => {
+                        expect(genericType.toString()).toBe('A<B<C, D>, E>');
+                    });
+
+                    it("should get generic type definition", () => {
+                        expect(genericType.getGenericTypeDefinition()).toBe('A<,>');
+                    });
+
+                    it("should get generic type definition", () => {
+                        var genericArgs = genericType.getGenericArguments();
+                        expect(genericArgs.length).toBe(2);
+                        expect(genericArgs[0].name).toBe('B<C, D>');
+                        expect(genericArgs[1].name).toBe('E');
+                    });
+                });
             });
         }
     }
