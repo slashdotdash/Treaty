@@ -8,7 +8,7 @@
 module Treaty {
     export module Compilation {
         export interface INodeSelectorFactory {
-            create(): ISelectNode;
+            create(type: Treaty.Type): ISelectNode;
         }
 
         export interface ISelectNode {
@@ -20,18 +20,18 @@ module Treaty {
         }
 
         export interface ISelectRuleNode {
-            select(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool;
+            select(instanceType: Treaty.Type, callback: (node: Treaty.Rules.INode) => void): bool;
         }
 
         export interface ISelectLeftJoinRuleNode {
-            match(callback: (node: Treaty.Rules.LeftJoinNode) => void): void;
+            match(instanceType: Treaty.Type, discardType: Treaty.Type, callback: (node: Treaty.Rules.LeftJoinNode) => void): void;
         }
 
         export class NodeSelectorFactory implements INodeSelectorFactory {
-            constructor (private factory: () => ISelectNode) { }
+            constructor (private factory: (type: Treaty.Type) => ISelectNode) { }
 
-            public create(): ISelectNode {
-                var node = this.factory();
+            public create(type: Treaty.Type): ISelectNode {
+                var node = this.factory(type);
                 
                 if (node == null) 
                     node = this.createNullSelector();
@@ -47,39 +47,42 @@ module Treaty {
         export class RuleNodeSelector implements ISelectRuleNode, ISelectLeftJoinRuleNode {
             private parent: ISelectRuleNode;
 
-            constructor (private instanceType: string, private node: Treaty.Rules.INode, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+            constructor (private instanceType: Treaty.Type, private node: Treaty.Rules.INode, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
-            public select(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool {
+            public select(instanceType: Treaty.Type, callback: (node: Treaty.Rules.INode) => void): bool {
                 if (this.node instanceof Treaty.Rules.AlphaNode) {
                     var alphaNode = <Treaty.Rules.AlphaNode>this.node;
-                    
-                    if (alphaNode.instanceType == instanceType || alphaNode.instanceType == 'Array') {
+
+                    if (alphaNode.instanceType.equals(instanceType)) {
                         callback(this.node);
                         return true;
                     }
                 }
 
                 if (this.parent == undefined) {
-                    this.parent = new DiscardRuleNodeSelector(this.instanceType, this, this.runtime);
+                    var genericArgs = this.instanceType.getGenericArguments();
+                    if (genericArgs.length != 2) throw 'Invalid generic args, expected 2 got: ' + genericArgs.length;
+
+                    this.parent = new DiscardRuleNodeSelector(genericArgs[0], genericArgs[1], this, this.runtime);
                 }
 
                 return this.parent.select(instanceType, callback);
             }
 
-            public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
-                this.runtime.matchLeftJoinNode(this.node, callback);
+            public match(instanceType: Treaty.Type, discardType: Treaty.Type, callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
+                this.runtime.matchLeftJoinNode(instanceType, discardType, this.node, callback);
             }
         }
 
         export class OrRuleNodeSelector implements ISelectRuleNode, ISelectLeftJoinRuleNode {
             constructor (private selector: RuleNodeSelector) { }
 
-            public select(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool {
+            public select(instanceType: Treaty.Type, callback: (node: Treaty.Rules.INode) => void): bool {
                 return this.selector.select(instanceType, callback);
             }
 
-            public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
-                this.selector.match(callback);
+            public match(instanceType: Treaty.Type, discardType: Treaty.Type, callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
+                this.selector.match(instanceType, discardType, callback);
             }
         }
 
@@ -87,9 +90,9 @@ module Treaty {
             private parent: ISelectRuleNode;
             private node: Treaty.Rules.OuterJoinNode;
 
-            constructor (private leftInstanceType: string, private rightInstanceType: string, private next: Treaty.Compilation.ConditionCompiler, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+            constructor (private leftInstanceType: Treaty.Type, private rightInstanceType: Treaty.Type, private next: Treaty.Compilation.ConditionCompiler, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
-            public select(instanceType: string, callback: (node: Treaty.Rules.INode) => void ): bool {
+            public select(instanceType: Treaty.Type, callback: (node: Treaty.Rules.INode) => void ): bool {
                 if (this.node == undefined) {
                     this.next.matchJoinNode(this.leftInstanceType, left => {
                         this.next.matchJoinNode(this.rightInstanceType, right => {
@@ -113,35 +116,38 @@ module Treaty {
             private parent: ISelectRuleNode;
             private leftJoinNode: Treaty.Rules.LeftJoinNode;
 
-            constructor (private instanceType: string, private left: ISelectLeftJoinRuleNode, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+            constructor (private instanceType: Treaty.Type, private discardType: Treaty.Type, private left: ISelectLeftJoinRuleNode, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
-            public select(instanceType: string, callback: (node: Treaty.Rules.INode) => void ): bool {
-                if (this.instanceType == instanceType && this.leftJoinNode == undefined) {
-                    this.left.match(node => this.leftJoinNode = node);
+            public select(instanceType: Treaty.Type, callback: (node: Treaty.Rules.INode) => void ): bool {
+                if (this.instanceType.equals(instanceType) && this.leftJoinNode == undefined) {
+                    this.left.match(this.instanceType, this.discardType, node => this.leftJoinNode = node);
                 }
 
-                if (this.leftJoinNode != null && this.instanceType == instanceType) {
+                if (this.leftJoinNode != null && instanceType.equals(this.leftJoinNode.instanceType)) {
                     callback(this.leftJoinNode);
                     return true;
                 }
 
                 if (this.parent == undefined) {
-                    if (this.instanceType != instanceType) {
+                    if (!this.instanceType.isGenericType() || this.instanceType.getGenericTypeDefinition() != 'Token<,>') {
                         return false;
                     }
 
-                    this.parent = new DiscardRuleNodeSelector(this.instanceType, this, this.runtime);
+                    var genericArgs = this.instanceType.getGenericArguments();
+                    if (genericArgs.length != 2) throw 'Invalid generic args, expected 2 got: ' + genericArgs.length;
+
+                    this.parent = new DiscardRuleNodeSelector(genericArgs[0], genericArgs[1], this, this.runtime);
                 }
 
                 return this.parent.select(instanceType, callback);
             }
 
-            public match(callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
+            public match(instanceType: Treaty.Type, discardType: Treaty.Type, callback: (node: Treaty.Rules.LeftJoinNode) => void ): void {
                 if (this.leftJoinNode == undefined) {
-                    this.left.match(node => this.leftJoinNode = node);
+                    this.left.match(instanceType, discardType, node => this.leftJoinNode = node);
                 }
 
-                this.runtime.matchLeftJoinNode(this.leftJoinNode, callback);
+                this.runtime.matchLeftJoinNode(instanceType, discardType, this.leftJoinNode, callback);
             }
         }
 
@@ -158,7 +164,7 @@ module Treaty {
         export class ConditionAlphaNodeSelector implements ISelectNode {
             public next: ISelectNode = null;
             
-            constructor (private instanceType: string, private nodeCallback: (node: ISelectRuleNode) => void, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+            constructor (private instanceType: Treaty.Type, private nodeCallback: (node: ISelectRuleNode) => void, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
             public select(): void {
                 throw 'not implemented';
@@ -174,7 +180,7 @@ module Treaty {
         export class AlphaNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private alphaNode: Treaty.Rules.AlphaNode;
 
-            constructor (public next: ISelectNode, private instanceType: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+            constructor (public next: ISelectNode, private instanceType: Treaty.Type, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();
             }
 
@@ -189,7 +195,14 @@ module Treaty {
                 node.accept(this);
                 
                 if (this.alphaNode == null) {
-                    this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, node.instanceType));
+                    var selectorType = this.instanceType;
+
+                    if (node instanceof Treaty.Rules.EachNode) {
+                        var eachNode = <Treaty.Rules.EachNode>node;
+                        selectorType = eachNode.selectorType;
+                    }
+
+                    this.alphaNode = <Rules.AlphaNode>this.runtime.createNode(id => new Rules.AlphaNode(id, selectorType));
 
                     node.addActivation(this.alphaNode);
                 }
@@ -201,7 +214,19 @@ module Treaty {
         export class EqualNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private equalNode: Treaty.Rules.EqualNode;
 
-            constructor (public next: ISelectNode, private value: any, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+            public static create(type: Treaty.Type, next: INodeSelectorFactory, value: any, valueType: Treaty.Type, runtime: Treaty.Rules.IRuntimeConfiguration): EqualNodeSelector {
+                var nextSelector = next.create(type);
+
+                var typeArgs = type.getGenericArguments();
+                var tokenValueType = typeArgs[1];
+                if (tokenValueType.not(valueType)) {
+                    throw 'Value type "' + valueType + '" does not match token type "' + tokenValueType + '"';
+                }
+
+                return new EqualNodeSelector(nextSelector, typeArgs[0], value, valueType, runtime)
+            }
+
+            constructor (public next: ISelectNode, private type: Treaty.Type, private value: any, private valueType: Treaty.Type, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();
             }
 
@@ -214,15 +239,13 @@ module Treaty {
 
                 node.accept(this);
                 
-                var valueType = TypeDescriptor.toType(this.value);
-
                 if (this.equalNode == null) {
-                    this.equalNode = <Rules.EqualNode>this.runtime.createNode(id => new Rules.EqualNode(id, valueType));
+                    this.equalNode = <Rules.EqualNode>this.runtime.createNode(id => new Rules.EqualNode(id, this.type, this.valueType));
 
                     node.addActivation(this.equalNode);
                 }
 
-                var valueNode = this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, valueType, this.value)));
+                var valueNode = this.equalNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, this.valueType, this.value)));
 
                 this.next.selectNode(valueNode);
             }
@@ -249,13 +272,15 @@ module Treaty {
                                 
                 node.accept(this);
 
+                var valueType = Type.create(this.value);
+
                 if (this.notEqualNode == null) {
-                    this.notEqualNode = <Rules.NotEqualNode>this.runtime.createNode(id => new Treaty.Rules.NotEqualNode(id, TypeDescriptor.toType(this.value)));
+                    this.notEqualNode = <Rules.NotEqualNode>this.runtime.createNode(id => new Treaty.Rules.NotEqualNode(id, valueType));
 
                     node.addActivation(this.notEqualNode);
                 }
 
-                var valueNode = this.notEqualNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, TypeDescriptor.toType(this.value), this.value)));
+                var valueNode = this.notEqualNode.findOrCreate(this.value, () => this.runtime.createNode(id => new Rules.ValueNode(id, valueType, this.value)));
 
                 this.next.selectNode(valueNode);
             }
@@ -283,7 +308,7 @@ module Treaty {
                 node.accept(this);
 
                 if (this.existsNode == null) {
-                    this.existsNode = <Rules.ExistsNode>this.runtime.createNode(id => new Rules.ExistsNode(id, 'Exists'));
+                    this.existsNode = <Rules.ExistsNode>this.runtime.createNode(id => new Rules.ExistsNode(id, Type.create('Exists')));
 
                     node.addActivation(this.existsNode);
                 }
@@ -314,7 +339,7 @@ module Treaty {
                 node.accept(this);
 
                 if (this.compareNode == null) {
-                    this.compareNode = <Treaty.Rules.CompareNode>this.runtime.createNode(id => new Treaty.Rules.CompareNode(id, TypeDescriptor.toType(this.value), this.comparator, this.value));
+                    this.compareNode = <Treaty.Rules.CompareNode>this.runtime.createNode(id => new Treaty.Rules.CompareNode(id, Type.of(this.value), this.comparator, this.value));
 
                     node.addActivation(this.compareNode);
                 }
@@ -331,7 +356,7 @@ module Treaty {
         export class EachNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private eachNode: Rules.EachNode;
 
-            constructor (public next: ISelectNode, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+            constructor (public next: ISelectNode, private instanceType: Treaty.Type, private itemType: Treaty.Type, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();
             }
 
@@ -345,7 +370,8 @@ module Treaty {
                 node.accept(this);
 
                 if (this.eachNode == null) {
-                    this.eachNode = <Rules.EachNode>this.runtime.createNode(id => new Rules.EachNode(id, 'Array', this.forEach));
+                    var listType = Treaty.Type.generic('Array', this.itemType);
+                    this.eachNode = <Rules.EachNode>this.runtime.createNode(id => new Rules.EachNode(id, this.instanceType, listType, this.itemType, this.forEach));
 
                     node.addActivation(this.eachNode);
                 }
@@ -364,7 +390,7 @@ module Treaty {
         }
 
         export class TypeNodeSelector implements ISelectNode {
-            constructor (public next: ISelectNode, public instanceType: string, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+            constructor (public next: ISelectNode, public instanceType: Treaty.Type, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
             public select(): void {
                 var alphaNode = this.runtime.getAlphaNode(this.instanceType);
@@ -380,7 +406,7 @@ module Treaty {
         export class PropertyNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private propertyNode: Rules.PropertyNode;
 
-            constructor (public next: ISelectNode, public instanceType: string, public memberName: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+            constructor (public next: ISelectNode, public instanceType: Treaty.Type, public propertyType: Treaty.Type, public memberName: string, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();
             }
 
@@ -392,7 +418,11 @@ module Treaty {
                 node.accept(this);
                 
                 if (this.propertyNode == null) {
-                    this.propertyNode = <Rules.PropertyNode>this.runtime.createNode(id => new Rules.PropertyNode(id, this.instanceType, this.memberName));
+                    this.propertyNode = <Rules.PropertyNode>this.runtime.createNode(id => {
+                        var nodeType = Treaty.Type.generic('Token', this.instanceType, this.propertyType);
+
+                        return new Rules.PropertyNode(id, nodeType, this.propertyType, this.memberName);
+                    });
 
                     node.addActivation(this.propertyNode);
                 }

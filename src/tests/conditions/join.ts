@@ -42,7 +42,7 @@ module Treaty {
                     expect(factory.rulesEngine.alphaNodes.count).toBe(2);
                 });
 
-                xit("should output to dot notation", () => {
+                it("should output to dot notation", () => {
                     console.log(factory.toDotNotation('Join'));
                 });
 

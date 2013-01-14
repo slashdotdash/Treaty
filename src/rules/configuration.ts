@@ -23,7 +23,7 @@ module Treaty {
             private conditions: Treaty.Rules.ConditionConfiguration;
             private consequences: Treaty.Rules.ConsequenceConfiguration;
 
-            constructor(private instanceType: string) {
+            constructor(private instanceType: Treaty.Type) {
                 this.conditions = new Treaty.Rules.ConditionConfiguration(instanceType);
                 this.consequences = new Treaty.Rules.ConsequenceConfiguration();
             }
@@ -66,10 +66,10 @@ module Treaty {
         export class ConditionConfiguration implements IConfigureCondition {
             public conditions: Treaty.Rules.ICondition[] = [];
 
-            constructor(private instanceType: string) { }
+            constructor(private instanceType: Treaty.Type) { }
 
             public withCondition(condition: Treaty.Rules.ICondition): void {
-                if (condition.instanceType != this.instanceType) {
+                if (condition.instanceType.not(this.instanceType)) {
                     throw 'Type mismatch for condition, expected: ' + this.instanceType + ', but got: ' + condition.instanceType;
                 }
 
@@ -86,7 +86,7 @@ module Treaty {
             }
 
             public withAddFactConsequence(instanceType: string, fact: (instance: any) => any ): void {
-                var consequence = Treaty.Rules.Consequences.Consequence.addFact(instanceType, fact);
+                var consequence = Treaty.Rules.Consequences.Consequence.addFact(instanceType, instanceType, fact);
                 this.consequences.push(consequence);
             }
         }
@@ -97,12 +97,25 @@ module Treaty {
             constructor(private leftType: string, private rightType: string) { }
 
             public withConsequence(callback: (left: any, right: any) => void ): void {
-                var joinType = new Array('Join', this.leftType, this.rightType).join('|');  // HACK: Pseudo generic type until proper TypeScript supports
-
-                var consequence = Treaty.Rules.Consequences.Consequence.delegate(joinType, join => {
+                var joinType = Treaty.Type.generic('Tuple', Treaty.Type.create(this.leftType), Treaty.Type.create(this.rightType));
+                
+                var consequence = new Treaty.Rules.Consequences.DelegateConsequence(joinType, join => {
                     var joined = <JoinedValue>join;
                     
                     callback(joined.left, joined.right);
+                });
+                this.consequences.push(consequence);
+            }
+
+            public withAddFactConsequence(instanceType: string, createFact: (left: any, right: any) => any ): void {
+                var joinType = Treaty.Type.generic('Tuple', Treaty.Type.create(this.leftType), Treaty.Type.create(this.rightType));
+
+                var consequence = new Treaty.Rules.Consequences.AddFactConsequence(joinType, Treaty.Type.create(instanceType), join => {
+                    var joined = <JoinedValue>join;
+
+                    var newFact = createFact(joined.left, joined.right);
+
+                    return newFact;
                 });
                 this.consequences.push(consequence);
             }

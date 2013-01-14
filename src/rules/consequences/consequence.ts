@@ -7,16 +7,16 @@ module Treaty {
             // Condition building convenience methods
             export class Consequence {
                 public static delegate(instanceType: string, callback: (instance) => void): DelegateConsequence {
-                    return new DelegateConsequence(instanceType, callback);
+                    return new DelegateConsequence(Type.create(instanceType), callback);
                 }
 
-                public static addFact(instanceType: string, fact: (instance) => any): AddFactConsequence {
-                    return new AddFactConsequence(instanceType, fact);
+                public static addFact(instanceType: string, newFactType: string, fact: (instance) => any): AddFactConsequence {
+                    return new AddFactConsequence(Type.create(instanceType), Type.create(newFactType), fact);
                 }
             }
 
             export class DelegateConsequence implements Treaty.Rules.IConsequence {
-                constructor (public instanceType: string, public callback: (instance) => void) { }
+                constructor (public instanceType: Treaty.Type, public callback: (instance) => void) { }
 
                 public accept(visitor: IVisitor): bool {
                     return visitor.visitConsequence(this);
@@ -24,7 +24,7 @@ module Treaty {
             }
 
             export class AddFactConsequence implements Treaty.Rules.IConsequence {
-                constructor (public instanceType: string, public fact: (instance) => any) { }
+                constructor (public instanceType: Treaty.Type, public newFactType: Treaty.Type, public fact: (instance) => any) { }
 
                 public accept(visitor: IVisitor): bool {
                     return visitor.visitConsequence(this);

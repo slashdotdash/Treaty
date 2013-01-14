@@ -1,5 +1,6 @@
 bin
 obj
+/lib
 *.suo
 *.user
 *.pidb
@@ -8,3 +9,5 @@ packages/*
 *.nupkg
 _Chutzpah.*
 *.js.map
+tmp.dot
+tmp.png

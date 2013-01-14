@@ -26,11 +26,11 @@ module Treaty {
                 var matchedLines: OrderLine[] = [];
 
                 beforeEach(() => {
-                    var condition = Treaty.Rules.Conditions.Condition.each('Order', (o: Order) => o.lines);
+                    var condition = Treaty.Rules.Conditions.Condition.each('Order', (o: Order) => o.lines, 'OrderLine');
 
                     factory = new Treaty.Tests.Factory()
                         .withCondition(condition)
-                        .withConsequence('OrderLine', (l: OrderLine) => matchedLines.push(l))
+                        .withConsequence('Token<Token<Order, Array<OrderLine>>, OrderLine>', (l: OrderLine) => matchedLines.push(l))
                         .buildRulesEngine();
                 });
                 

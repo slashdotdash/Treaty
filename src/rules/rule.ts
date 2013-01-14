@@ -5,7 +5,7 @@ module Treaty {
     export module Rules {
         
         export interface ICondition extends IAcceptVisitor {
-            instanceType: string; 
+            instanceType: Treaty.Type; 
         }
 
         export interface IConsequence extends IAcceptVisitor {

@@ -19,13 +19,13 @@ module Treaty {
         export interface IRuntimeConfiguration {
             createNode(factory: (id: number) => any): any;
 
-            getAlphaNode(instanceType: string): Treaty.Rules.AlphaNode;
+            getAlphaNode(instanceType: Treaty.Type): Treaty.Rules.AlphaNode;
 
-            matchJoinNodeOne(left: Treaty.Rules.INode, callback: (joinNode: Treaty.Rules.INode) => void): void;
+            matchJoinNodeOne(instanceType: Treaty.Type, left: Treaty.Rules.INode, callback: (joinNode: Treaty.Rules.INode) => void): void;
 
             matchJoinNodeTwo(left: Treaty.Rules.INode, right: Treaty.Rules.INode, callback: (joinNode: Treaty.Rules.INode) => void): void;
 
-            matchLeftJoinNode(left: Treaty.Rules.INode, callback: (joinNode: Treaty.Rules.LeftJoinNode) => void): void;
+            matchLeftJoinNode(instanceType: Treaty.Type, discardType: Treaty.Type, left: Treaty.Rules.INode, callback: (joinNode: Treaty.Rules.LeftJoinNode) => void): void;
 
             matchOuterJoinNode(left: Treaty.Rules.INode, right: Treaty.Rules.INode, callback: (outerJoinNode: Treaty.Rules.OuterJoinNode) => void): void;
         }
@@ -53,15 +53,15 @@ module Treaty {
                 return factory(this.nextNodeId++);
             }
 
-            public getAlphaNode(instanceType: string): Treaty.Rules.AlphaNode {
-                return <Treaty.Rules.AlphaNode>this.alphaNodes.getItem(instanceType, x => this.createAlphaNode(instanceType));
+            public getAlphaNode(instanceType: Treaty.Type): Treaty.Rules.AlphaNode {
+                return <Treaty.Rules.AlphaNode>this.alphaNodes.getItem(instanceType.name, x => this.createAlphaNode(instanceType));
             }
 
-            public matchJoinNodeOne(left: Rules.INode, callback: (joinNode: Rules.INode) => void ): void {
+            public matchJoinNodeOne(instanceType: Treaty.Type, left: Rules.INode, callback: (joinNode: Rules.INode) => void ): void {
                 var node: JoinNode = _.find(left.successors, (node: JoinNode) => node.rightActivation instanceof ConstantNode);
 
                 if (node == undefined) {
-                    var rightActivation = <ConstantNode>this.createNode(id => new ConstantNode(id));
+                    var rightActivation = <ConstantNode>this.createNode(id => new ConstantNode(id, instanceType));
 
                     node = <JoinNode>this.createNode(id => new JoinNode(id, left.instanceType, rightActivation));
 
@@ -87,13 +87,13 @@ module Treaty {
                     callback(node);
             }
 
-            public matchLeftJoinNode(left: Rules.INode, callback: (joinNode: Rules.LeftJoinNode) => void ): void {
+            public matchLeftJoinNode(instanceType: Treaty.Type, discardType: Treaty.Type, left: Rules.INode, callback: (joinNode: Rules.LeftJoinNode) => void ): void {
                 var node: LeftJoinNode = _.find(left.successors, (node: LeftJoinNode) => node.rightActivation instanceof ConstantNode);
 
                 if (node == undefined) {
-                    var rightActivation = <ConstantNode>this.createNode(id => new ConstantNode(id));
+                    var rightActivation = <ConstantNode>this.createNode(id => new ConstantNode(id, instanceType));
 
-                    node = <LeftJoinNode>this.createNode(id => new LeftJoinNode(id, left.instanceType, rightActivation));
+                    node = <LeftJoinNode>this.createNode(id => new LeftJoinNode(id, instanceType, discardType, rightActivation));
 
                     left.addActivation(node);
                 }
@@ -117,7 +117,7 @@ module Treaty {
                     callback(node);
             }
 
-            private createAlphaNode(instanceType: string): Treaty.Rules.AlphaNode {
+            private createAlphaNode(instanceType: Treaty.Type): Treaty.Rules.AlphaNode {
                 var alphaNode = <Treaty.Rules.AlphaNode>this.createNode(id => new Treaty.Rules.AlphaNode(id, instanceType));
                 
                 // TODO: Add activations for each implemented interface of the given instance type

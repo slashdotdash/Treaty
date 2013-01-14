@@ -23,7 +23,8 @@ module Treaty {
 
         export interface INode {
             id: number;
-            instanceType: string;
+
+            instanceType: Treaty.Type;
 
             successors: IActivation[];
             
@@ -35,7 +36,7 @@ module Treaty {
         export class AlphaNode implements INode, IActivation {
             public successors = new IActivation[];
             
-            constructor (public id: number, public instanceType: string) { }
+            constructor (public id: number, public instanceType: Treaty.Type) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitAlphaNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -54,7 +55,7 @@ module Treaty {
         export class PropertyNode implements INode, IActivation {
             public successors = new IActivation[];
 
-            constructor (public id: number, public instanceType: string, public memberName: string) { }
+            constructor (public id: number, public instanceType: Treaty.Type, public propertyType: Treaty.Type, public memberName: string) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitPropertyNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -66,7 +67,7 @@ module Treaty {
 
             public activate(context: Treaty.Rules.IActivationContext): void {
                 this.withValue(context, value => {
-                    var activationToken = new Rules.ActivationToken(this.instanceType, TypeDescriptor.toType(value), context, value);
+                    var activationToken = new Rules.ActivationToken(this.instanceType, Type.of(value), context, value);
 
                     var propertyContext = context.createContext('ActivationToken', activationToken);
 
@@ -90,7 +91,7 @@ module Treaty {
         export class ValueNode implements INode, IActivation {
             public successors = new IActivation[];
             
-            constructor (public id: number, public instanceType: string, public value: any) { }
+            constructor (public id: number, public instanceType: Treaty.Type, public value: any) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitValueNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -108,7 +109,7 @@ module Treaty {
         export class EqualNode implements IActivation {
             private values: ValueNode[] = [];
 
-            constructor (public id: number, public instanceType: string) { }
+            constructor (public id: number, public type: Treaty.Type, public propertyType: Treaty.Type) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitEqualNode(this, next => _.all(this.values, (activation: IActivation) => activation.accept(next)));
@@ -146,7 +147,7 @@ module Treaty {
         export class NotEqualNode implements IActivation {
             private values: ValueNode[] = [];
 
-            constructor (public id: number, public instanceType: string) { }
+            constructor (public id: number, public instanceType: Treaty.Type) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitNotEqualNode(this, next => _.all(this.values, (activation: IActivation) => activation.accept(next)));
@@ -183,7 +184,7 @@ module Treaty {
         export class ExistsNode implements INode, IActivation {
             public successors = new IActivation[];
             
-            constructor (public id: number, public instanceType: string) { }
+            constructor (public id: number, public instanceType: Treaty.Type) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitExistsNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -208,7 +209,7 @@ module Treaty {
         export class CompareNode implements INode, IActivation {
             public successors = new IActivation[];
             
-            constructor (public id: number, public instanceType: string, public comparator: IComparator, public value: any) { }
+            constructor (public id: number, public instanceType: Treaty.Type, public comparator: IComparator, public value: any) { }
             
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitCompareNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -229,8 +230,11 @@ module Treaty {
 
         export class EachNode implements INode, IActivation {
             public successors = new IActivation[];
-            
-            constructor (public id: number, public instanceType: string, private elementMatch: (list: any[], callback: (item: any) => void) => void) { }
+            public selectorType: Treaty.Type;
+
+            constructor (public id: number, public instanceType: Treaty.Type, private listType: Treaty.Type, private itemType: Treaty.Type, private elementMatch: (list: any[], callback: (item: any) => void) => void) {
+                this.selectorType = Type.generic('Token', Type.generic('Token', this.instanceType, this.listType), this.itemType);
+            }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitEachNode(this, next => _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -244,7 +248,7 @@ module Treaty {
                 var token = <Treaty.Rules.ActivationToken>context.fact;
                 
                 this.elementMatch(token.value, item => {
-                    var activationToken = new Treaty.Rules.ActivationToken(context.instanceType, TypeDescriptor.toType(item), context, item);
+                    var activationToken = new Treaty.Rules.ActivationToken(context.instanceType, this.itemType, context, item);
                     
                     var propertyContext = context.createContext('ActivationToken', activationToken);
 
@@ -256,7 +260,7 @@ module Treaty {
         export class JoinNode implements INode {
             public successors = new IActivation[];
 
-            constructor (public id: number, public instanceType: string, public rightActivation: Rules.IRightActivation) { }
+            constructor (public id: number, public instanceType: Treaty.Type, public rightActivation: Rules.IRightActivation) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitJoinNode(this, next => this.rightActivation.accept(next) && _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -284,7 +288,7 @@ module Treaty {
         export class LeftJoinNode implements INode, IActivation, IRightActivation {
             public successors = new IActivation[];
 
-            constructor (public id: number, public instanceType: string, public rightActivation: Rules.IRightActivation) { }
+            constructor (public id: number, public instanceType: Treaty.Type, public discardType: Treaty.Type, public rightActivation: Rules.IRightActivation) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitLeftJoinNode(this, next => this.rightActivation.accept(next) && _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -313,9 +317,9 @@ module Treaty {
 
         export class OuterJoinNode implements Treaty.Rules.INode {
             public successors = new IActivation[];
-            public instanceType: string = 'Join';
+            public instanceType: Treaty.Type = Type.create('Join');
 
-            constructor (public id: number, public leftInstanceType: string, public rightInstanceType: string, public rightActivation: Rules.IRightActivation) { }
+            constructor (public id: number, public leftinstanceType: Treaty.Type, public rightinstanceType: Treaty.Type, public rightActivation: Rules.IRightActivation) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitOuterJoinNode(this, next => this.rightActivation.accept(next) && _.all(this.successors, (activation: IActivation) => activation.accept(next)));
@@ -326,10 +330,10 @@ module Treaty {
             }
             
             public activate(context: Treaty.Rules.IActivationContext): void {
-                this.rightActivation.rightActivate(context, right => {                    
+                this.rightActivation.rightActivate(context, right => {
                     var joinValue = new JoinedValue(ActivationFact.extract(context), right.fact);
 
-                    var activationToken = new Rules.ActivationToken(this.instanceType, TypeDescriptor.toType(joinValue), context, joinValue);
+                    var activationToken = new Rules.ActivationToken(this.instanceType, Type.of(joinValue), context, joinValue);
                     
                     var activationContext = context.createContext('ActivationToken', activationToken);
 
@@ -349,7 +353,7 @@ module Treaty {
         }
 
         export class ConstantNode implements IRightActivation {
-            constructor (public id: number) { }
+            constructor (public id: number, public instanceType: Treaty.Type) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitConstantNode(this, visitor => true);
@@ -361,7 +365,7 @@ module Treaty {
         }
 
         export class DelegateProductionNode implements IActivation {
-            constructor (public id: number, public instanceType: string, private callback: (instance) => void ) { }
+            constructor (public id: number, public instanceType: Treaty.Type, private callback: (instance) => void ) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitDelegateNode(this, next => true);
@@ -377,7 +381,7 @@ module Treaty {
         }
 
         export class AddFactNode implements IActivation {
-            constructor (public id: number, public instanceType: string, private fact: (instance) => any ) { }
+            constructor (public id: number, public instanceType: Treaty.Type, public newFactType: Treaty.Type, private fact: (instance) => any ) { }
 
             public accept(visitor: Treaty.Compilation.IRuntimeVisitor): bool {
                 return visitor.visitAddFactNode(this, next => true);
@@ -389,7 +393,7 @@ module Treaty {
 
                     var newFact = this.fact(fact);
                     
-                    session.assert(TypeDescriptor.toType(newFact), newFact);
+                    session.assert(Type.of(newFact), newFact);
                 });
             }
         }

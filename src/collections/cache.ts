@@ -8,13 +8,17 @@ module Treaty {
             public getItem(key: string, createWhenMissing: (k: string) => any): any {
                 var item = this.items[key];
 
-                if (item == undefined) {
+                if (item === undefined) {
                     item = createWhenMissing(key);
-                    this.count++;
-                    this.items[key] = item;
+                    this.insert(key, item);
                 }
 
                 return item;
+            }
+
+            public insert(key: string, item: any): void {
+                this.count++;
+                this.items[key] = item;
             }
 
             public withMatching(key: string, callback: (found: any) => void ): bool {

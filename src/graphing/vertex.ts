@@ -21,7 +21,7 @@ module Treaty {
         }
 
         export class Vertex {
-            constructor (public id: number, public vertexType: VertexType, public targetType: string, public title: string) { }
+            constructor (public id: number, public vertexType: VertexType, public targetType: Type, public title: string) { }
         }
     }
 }

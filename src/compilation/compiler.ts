@@ -38,7 +38,7 @@ module Treaty {
             public visitCondition(condition: Treaty.Rules.Conditions.IPropertyCondition): bool {
                 var nodeSelectorFactory = this.getNodeSelectorFactory(condition);
 
-                this.compile(condition.instanceType, condition.memberExpression, nodeSelectorFactory);
+                this.compile(condition.instanceType, condition.memberExpression, condition.valueType, nodeSelectorFactory);
 
                 return true;
             }
@@ -49,15 +49,15 @@ module Treaty {
                 var leftNodeSelectorFactory = this.getNodeSelectorFactory(condition.leftCondition);
                 var rightNodeSelectorFactory = this.getNodeSelectorFactory(condition.rightCondition);
 
-                var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(instanceType, node => this.alphaNodes.push(new OrRuleNodeSelector(node)), this.runtime));
-                var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
+                var conditionFactory = new NodeSelectorFactory(type => new ConditionAlphaNodeSelector(type, node => this.alphaNodes.push(new OrRuleNodeSelector(node)), this.runtime));
+                var alphaFactory = new NodeSelectorFactory(type => new AlphaNodeSelector(conditionFactory.create(type), instanceType, this.runtime));
 
                 new PropertyExpressionVisitor(instanceType, leftNodeSelectorFactory(alphaFactory), this.runtime)
-                    .createSelector(condition.leftCondition.memberExpression.body)
+                    .createSelector(condition.leftCondition.memberExpression.body, condition.leftCondition.valueType)
                     .select();
 
                 new PropertyExpressionVisitor(instanceType, rightNodeSelectorFactory(alphaFactory), this.runtime)
-                    .createSelector(condition.rightCondition.memberExpression.body)
+                    .createSelector(condition.rightCondition.memberExpression.body, condition.rightCondition.valueType)
                     .select();
 
                 return true;
@@ -65,15 +65,18 @@ module Treaty {
 
             public visitConsequence(consequence: Treaty.Rules.IConsequence): bool { return true; }
 
-            public matchJoinNode(instanceType: string, callback: (node: Treaty.Rules.INode) => void): bool {
+            public matchJoinNode(instanceType: Treaty.Type, callback: (node: Treaty.Rules.INode) => void): bool {
                 if (this.alphaNodes.length == 0) 
                     return false;
 
-                var joinType = new GenericType(instanceType);
-                if (joinType.isGeneric) {
-                    var tupleSelector = new TupleNodeSelector(joinType.instanceTypes[1], joinType.instanceTypes[2], this, this.runtime);
+                if (instanceType.isGenericType()) {
+                    if (instanceType.getGenericTypeDefinition() == 'Tuple<,>') {
+                        var typeArgs = instanceType.getGenericArguments();
+
+                        var tupleSelector = new TupleNodeSelector(typeArgs[0], typeArgs[1], this, this.runtime);
                     
-                    return tupleSelector.select(joinType.instanceTypes[0], callback);
+                        return tupleSelector.select(instanceType, callback);
+                    }
                 }
 
                 var left: Rules.INode = null;
@@ -115,7 +118,7 @@ module Treaty {
                 
                 if (left != null) {
                     if (left instanceof Treaty.Rules.AlphaNode) {
-                        this.runtime.matchJoinNodeOne(left, join => left = join);
+                        this.runtime.matchJoinNodeOne(instanceType, left, join => left = join);
                     }
 
                     callback(left);
@@ -127,67 +130,76 @@ module Treaty {
             private getNodeSelectorFactory(condition: Treaty.Rules.Conditions.IPropertyCondition): (factory: INodeSelectorFactory) => INodeSelectorFactory {
                 if (condition instanceof Treaty.Rules.Conditions.PropertyEqualCondition) {
                     var equalCondition = <Treaty.Rules.Conditions.PropertyEqualCondition>condition;
-                    return next => new NodeSelectorFactory(() => new EqualNodeSelector(next.create(), equalCondition.value, this.runtime));
+
+                    return next => new NodeSelectorFactory(type => EqualNodeSelector.create(type, next, equalCondition.value, equalCondition.valueType, this.runtime));
                 }
                 
                 if (condition instanceof Treaty.Rules.Conditions.PropertyNotEqualCondition) {
                     var notEqualCondition = <Treaty.Rules.Conditions.PropertyNotEqualCondition>condition;
-                    return next => new NodeSelectorFactory(() => new NotEqualNodeSelector(next.create(), notEqualCondition.value, this.runtime));
+
+                    return next => new NodeSelectorFactory(type => new NotEqualNodeSelector(next.create(type), notEqualCondition.value, this.runtime));
                 }
                 
                 if (condition instanceof Treaty.Rules.Conditions.PropertyExistsCondition) {
                     var existsCondition = <Treaty.Rules.Conditions.PropertyExistsCondition>condition;
-                    return next => new NodeSelectorFactory(() => new ExistsNodeSelector(next.create(), this.runtime));
+
+                    return next => new NodeSelectorFactory(type => new ExistsNodeSelector(next.create(type), this.runtime));
                 }
                 
                 if (condition instanceof Treaty.Rules.Conditions.PropertyGreaterThanCondition) {
                     var gtCondition = <Treaty.Rules.Conditions.PropertyGreaterThanCondition>condition;
                     var gtComparator = new Treaty.Rules.GreaterThanValueComparator();
-                    return next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), gtComparator, gtCondition.value, this.runtime));
+
+                    return next => new NodeSelectorFactory(type => new CompareNodeSelector(next.create(type), gtComparator, gtCondition.value, this.runtime));
                 }
                 
                 if (condition instanceof Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition) {
                     var geCondition = <Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition>condition;
                     var geComparator = new Treaty.Rules.GreaterThanOrEqualValueComparator();
-                    return next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), geComparator, geCondition.value, this.runtime));
+
+                    return next => new NodeSelectorFactory(type => new CompareNodeSelector(next.create(type), geComparator, geCondition.value, this.runtime));
                 }
                 
                 if (condition instanceof Treaty.Rules.Conditions.PropertyLessThanCondition) {
                     var ltCondition = <Treaty.Rules.Conditions.PropertyLessThanCondition>condition;
                     var ltComparator = new Treaty.Rules.LessThanValueComparator();
-                    return next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), ltComparator, ltCondition.value, this.runtime));
+
+                    return next => new NodeSelectorFactory(type => new CompareNodeSelector(next.create(type), ltComparator, ltCondition.value, this.runtime));
                 }
                 
                 if (condition instanceof Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition) {
                     var leCondition = <Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition>condition;
                     var leComparator = new Treaty.Rules.LessThanOrEqualValueComparator();
-                    return next => new NodeSelectorFactory(() => new CompareNodeSelector(next.create(), leComparator, leCondition.value, this.runtime));
+
+                    return next => new NodeSelectorFactory(type => new CompareNodeSelector(next.create(type), leComparator, leCondition.value, this.runtime));
                 }
                 
                 if (condition instanceof Treaty.Rules.Conditions.PropertyEachCondition) {
-                    return next => new NodeSelectorFactory(() => new EachNodeSelector(next.create(), this.runtime));
+                    var eachCondition = <Treaty.Rules.Conditions.PropertyEachCondition>condition;
+                    return next => new NodeSelectorFactory(type => new EachNodeSelector(next.create(type), eachCondition.instanceType, eachCondition.valueType, this.runtime));
                 }
 
                 throw 'Not Supported';
             }
 
-            private compile(instanceType: string, memberExpression: Treaty.Compilation.Expression, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
-                var conditionFactory = new NodeSelectorFactory(() => new ConditionAlphaNodeSelector(instanceType, node => this.alphaNodes.push(node), this.runtime));
-                var alphaFactory = new NodeSelectorFactory(() => new AlphaNodeSelector(conditionFactory.create(), instanceType, this.runtime));
+            private compile(instanceType: Treaty.Type, memberExpression: Treaty.Compilation.Expression, propertyType: Treaty.Type, selectorFactory: (factory: INodeSelectorFactory) => INodeSelectorFactory): void {
+                var conditionFactory = new NodeSelectorFactory(type => new ConditionAlphaNodeSelector(type, node => this.alphaNodes.push(node), this.runtime));
+                var alphaFactory = new NodeSelectorFactory(type => new AlphaNodeSelector(conditionFactory.create(type), type, this.runtime));
                 var nodeFactory = selectorFactory(alphaFactory);
 
                 new PropertyExpressionVisitor(instanceType, nodeFactory, this.runtime)
-                    .createSelector(memberExpression.body)
+                    .createSelector(memberExpression.body, propertyType)
                     .select();
             }
         }
 
         export class GenericType {
             public isGeneric: bool = false;
-            public instanceTypes: string[] = [];
+            public instanceTypes: Treaty.Type[] = [];
 
-            constructor(private instanceType: string) {
-                this.instanceTypes = instanceType.split('|');
+            constructor(private instanceType: Treaty.Type) {
+                _.each(instanceType.name.split('|'), (typeName: string) => this.instanceTypes.push(Type.create(typeName)));
+
                 this.isGeneric = this.instanceTypes.length > 1;
             }
         }
@@ -195,31 +207,36 @@ module Treaty {
         export class PropertyExpressionVisitor {
             private nodeSelector: ISelectNode;
 
-            constructor (private instanceType: string, private nodeFactory: INodeSelectorFactory, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
+            constructor (private instanceType: Treaty.Type, private nodeFactory: INodeSelectorFactory, private runtime: Treaty.Rules.IRuntimeConfiguration) { }
 
-            public createSelector(expression: TypeScript.AST): ISelectNode {
+            public createSelector(expression: TypeScript.AST, propertyType: Treaty.Type): ISelectNode {
                 if (expression instanceof TypeScript.Identifier) {
                     this.visitParameter(<TypeScript.Identifier>expression);
                 } else if (expression instanceof TypeScript.BinaryExpression) {
-                    this.visitBinary(<TypeScript.BinaryExpression>expression);
+                    this.visitBinary(<TypeScript.BinaryExpression>expression, propertyType);
                 } else {
-                    console.log('Expression type "' + TypeDescriptor.toType(expression) + '" not yet supported.');
+                    console.log('Expression type "' + Type.of(expression) + '" not yet supported.');
                 }
 
                 return this.nodeSelector;
             }
 
             private visitParameter(parameter: TypeScript.Identifier): void {
-                this.nodeSelector = new TypeNodeSelector(this.nodeFactory.create(), this.instanceType, this.runtime);
+                this.nodeSelector = new TypeNodeSelector(this.nodeFactory.create(this.instanceType), this.instanceType, this.runtime);
             }
 
-            private visitBinary(binaryExpr: TypeScript.BinaryExpression): void {
+            private visitBinary(binaryExpr: TypeScript.BinaryExpression, propertyType: Treaty.Type): void {
                 var identifier = <TypeScript.Identifier>binaryExpr.operand2;
 
-                var propertyNodeFactory = new NodeSelectorFactory(() => new PropertyNodeSelector(this.nodeFactory.create(), this.instanceType, identifier.text, this.runtime));
+                var propertyNodeFactory = new NodeSelectorFactory(type => {
+                    var tokenType = Treaty.Type.generic('Token', type, propertyType);
+
+                    return new PropertyNodeSelector(this.nodeFactory.create(tokenType), type, propertyType, identifier.text, this.runtime);
+                });
+
                 var visitor = new PropertyExpressionVisitor(this.instanceType, propertyNodeFactory, this.runtime);
                 
-                this.nodeSelector = visitor.createSelector(binaryExpr.operand1);
+                this.nodeSelector = visitor.createSelector(binaryExpr.operand1, propertyType);
             }
         }
 
@@ -256,7 +273,7 @@ module Treaty {
 
             private visitAddFactConsequence(consequence: Treaty.Rules.Consequences.AddFactConsequence): bool {
                 this.conditionCompiler.matchJoinNode(consequence.instanceType, joinNode => {
-                    var node = <Treaty.Rules.AddFactNode>this.runtime.createNode(id => new Treaty.Rules.AddFactNode(id, consequence.instanceType, consequence.fact));
+                    var node = <Treaty.Rules.AddFactNode>this.runtime.createNode(id => new Treaty.Rules.AddFactNode(id, consequence.instanceType, consequence.newFactType, consequence.fact));
 
                     joinNode.addActivation(node);
                 });

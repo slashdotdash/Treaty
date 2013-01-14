@@ -30,7 +30,7 @@ module Treaty {
         export class ConditionParser {
             private globalAstWalkerFactory: TypeScript.AstWalkerFactory = new TypeScript.AstWalkerFactory();
             
-            public parse(instanceType: string, script: TypeScript.Script): Treaty.Rules.ICondition[] {
+            public parse(instanceType: Treaty.Type, script: TypeScript.Script): Treaty.Rules.ICondition[] {
                 var state: Treaty.Rules.ICondition[] = [];
                 var visitor = new ConditionVisitor(instanceType);
             
@@ -48,7 +48,7 @@ module Treaty {
             private startedCollecting: bool = false;
             private parameterName: string;
 
-            constructor (private instanceType: string) { }
+            constructor (private instanceType: Treaty.Type) { }
 
             public visit(ast: TypeScript.AST, parent: TypeScript.AST, walker: TypeScript.IAstWalker): TypeScript.AST {
                 switch (ast.nodeType) {
@@ -113,10 +113,10 @@ module Treaty {
             private propertyConditionFactoryFor(binaryExpr: TypeScript.BinaryExpression): (memberExpression: Treaty.Compilation.Expression, value: any) => Treaty.Rules.Conditions.IPropertyCondition {
                 switch (binaryExpr.nodeType) {
                     case TypeScript.NodeType.Eq: {
-                        return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
+                        return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value, Treaty.Type.of(value));
                     }
                     case TypeScript.NodeType.Ne: {
-                        return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyNotEqualCondition(this.instanceType, memberExpression, value);
+                        return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyNotEqualCondition(this.instanceType, memberExpression, value, Treaty.Type.of(value));
                     }
                     case TypeScript.NodeType.Gt: {
                         return (memberExpression, value) => new Treaty.Rules.Conditions.PropertyGreaterThanCondition(this.instanceType, memberExpression, value);
@@ -150,7 +150,7 @@ module Treaty {
                 var memberExpression = new Treaty.Compilation.Expression(this.parameterName, lhs.member);
                 var value = true;
                 
-                return new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value);
+                return new Treaty.Rules.Conditions.PropertyEqualCondition(this.instanceType, memberExpression, value, Treaty.Type.of(value));
             }
 
             private parseBinary(binaryExpr: TypeScript.BinaryExpression, conditionFactory: (memberExpression: Treaty.Compilation.Expression, value: any) => Treaty.Rules.Conditions.IPropertyCondition): Treaty.Rules.Conditions.IPropertyCondition {

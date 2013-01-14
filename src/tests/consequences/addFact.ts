@@ -38,7 +38,7 @@ module Treaty {
                     });
 
                     it("should execute consequence asserting new fact", () => {
-                        expect(factory.session.factsOfType('EligibleToVote').length).toBe(1);
+                        expect(factory.session.factsOfType(Treaty.Type.create('EligibleToVote')).length).toBe(1);
                     });
                 });
 
@@ -48,7 +48,7 @@ module Treaty {
                     });
 
                     it("should not execute consequence", () => {
-                        expect(factory.session.factsOfType('EligibleToVote').length).toBe(0);
+                        expect(factory.session.factsOfType(Treaty.Type.create('EligibleToVote')).length).toBe(0);
                     });
                 });
             });
@@ -59,12 +59,12 @@ module Treaty {
 
                 beforeEach(() => {
                     factory = new Treaty.Tests.Factory()
-                        .withCondition(Treaty.Rules.Conditions.Condition.greaterThanOrEqual('Person', (p: Person) => p.age, 18))
-                        .withAddFactConsequence('Person', (p: Person) => new EligibleToVote(p))
-                        .buildRule()
-                        .withCondition(Treaty.Rules.Conditions.Condition.equal('EligibleToVote', (e: EligibleToVote) => e.person.name, 'Ben'))
-                        .withConsequence('EligibleToVote', (e: EligibleToVote) => wasCalled = true)
-                        .buildRule()
+                        .rule(rule => rule
+                            .withCondition(Treaty.Rules.Conditions.Condition.greaterThanOrEqual('Person', (p: Person) => p.age, 18))
+                            .withAddFactConsequence('Person', (p: Person) => new EligibleToVote(p)))
+                        .rule(rule => rule
+                            .withCondition(Treaty.Rules.Conditions.Condition.equal('EligibleToVote', (e: EligibleToVote) => e.person.name, 'Ben'))
+                            .withConsequence('EligibleToVote', (e: EligibleToVote) => wasCalled = true))
                         .buildRulesEngine();
                 });
 
@@ -75,7 +75,7 @@ module Treaty {
                     });
 
                     it("should execute consequence asserting new fact", () => {
-                        expect(factory.session.factsOfType('EligibleToVote').length).toBe(1);
+                        expect(factory.session.factsOfType(Treaty.Type.create('EligibleToVote')).length).toBe(1);
                     });
 
                     it("should execute second consequence activated by new fact", () => {
@@ -90,7 +90,7 @@ module Treaty {
                     });
 
                     it("should execute consequence asserting new fact", () => {
-                        expect(factory.session.factsOfType('EligibleToVote').length).toBe(1);
+                        expect(factory.session.factsOfType(Treaty.Type.create('EligibleToVote')).length).toBe(1);
                     });
 
                     it("should not execute second consequence", () => {
