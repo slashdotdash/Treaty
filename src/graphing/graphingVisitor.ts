@@ -78,7 +78,11 @@ module Treaty {
                     return value;
                 }
 
-                return '\\"' + value + '\\"'
+                if (value instanceof String) {
+                    return '\\"' + value + '\\"'
+                }
+
+                return Treaty.Type.of(value).toString();
             }
 
             public visitCompareNode(node: Treaty.Rules.CompareNode, next: (visitor: Treaty.Compilation.IRuntimeVisitor) => bool): bool {
