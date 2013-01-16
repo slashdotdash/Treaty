@@ -195,14 +195,23 @@ module Treaty {
             }
 
             public activate(context: Treaty.Rules.IActivationContext): void {
+                if (context.fact !== null && Treaty.Type.of(context.fact).equals(this.instanceType)) {
+                    this.activateSuccessors(context);
+                    return;
+                }
+
                 var token = <Treaty.Rules.ActivationToken>context.fact;
                 
                 if (token.value.hasOwnProperty('length')) {
                     var length = token.value['length'];
                     if (length > 0) {
-                        _.each(this.successors, (activation: IActivation) => activation.activate(context));
+                        this.activateSuccessors(context);
                     }
                 }
+            }
+
+            private activateSuccessors(context: Treaty.Rules.IActivationContext): void {
+                _.each(this.successors, (activation: IActivation) => activation.activate(context));
             }
         }
 

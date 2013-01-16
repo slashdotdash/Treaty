@@ -143,7 +143,7 @@ module Treaty {
                 if (condition instanceof Treaty.Rules.Conditions.PropertyExistsCondition) {
                     var existsCondition = <Treaty.Rules.Conditions.PropertyExistsCondition>condition;
 
-                    return next => new NodeSelectorFactory(type => new ExistsNodeSelector(next.create(type), this.runtime));
+                    return next => new NodeSelectorFactory(type => new ExistsNodeSelector(next.create(type), existsCondition.instanceType, this.runtime));
                 }
                 
                 if (condition instanceof Treaty.Rules.Conditions.PropertyGreaterThanCondition) {

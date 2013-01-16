@@ -8,6 +8,7 @@
 ///<reference path='..\..\rules\' />
 ///<reference path='..\..\rules\conditions\' />
 ///<reference path='..\..\compilation\' />
+///<reference path='..\..\graphing\' />
 
 module Treaty {
     module Tests {
@@ -22,7 +23,41 @@ module Treaty {
             }
 
             describe("exists condition", () => {
-                var factory = new Treaty.Tests.Factory();                
+                var factory: Treaty.Tests.Factory;
+                var wasCalled = false;
+
+                beforeEach(() => {
+                    factory = new Treaty.Tests.Factory()
+                        .rule(rule => rule
+                            .withCondition(Treaty.Rules.Conditions.Condition.exists('Order', (o: Order) => o))
+                            .withConsequence('Order', (o: Order) => wasCalled = true))
+                        .buildRulesEngine();
+                });
+
+                it("should compile rule", () => {
+                    expect(factory.rulesEngine.alphaNodes.count).toBe(1);
+                });
+
+                it("should output to dot notation", () => {
+                    console.log(factory.toDotNotation('Exists'));
+                });
+
+                describe("runtime session", () => {
+                    describe("matching not null item", () => {
+                        beforeEach(() => {
+                            wasCalled = false;
+                            factory.createSession().assertFact('Order', new Order([])).run();
+                        });
+
+                        it("should execute consequence", () => {
+                            expect(wasCalled).toBe(true);
+                        });                        
+                    });
+                });
+            });
+
+            describe("list exists condition", () => {
+                var factory: Treaty.Tests.Factory;                
                 var matchedOrders: Order[] = [];
 
                 beforeEach(() => {

@@ -294,7 +294,7 @@ module Treaty {
         export class ExistsNodeSelector extends Treaty.Compilation.RuntimeVisitor implements ISelectNode, IRuntimeVisitor {
             private existsNode: Rules.ExistsNode;
 
-            constructor (public next: ISelectNode, private runtime: Treaty.Rules.IRuntimeConfiguration) {
+            constructor (public next: ISelectNode, private instanceType: Treaty.Type, private runtime: Treaty.Rules.IRuntimeConfiguration) {
                 super();
             }
 
@@ -308,7 +308,7 @@ module Treaty {
                 node.accept(this);
 
                 if (this.existsNode == null) {
-                    this.existsNode = <Rules.ExistsNode>this.runtime.createNode(id => new Rules.ExistsNode(id, Type.create('Exists')));
+                    this.existsNode = <Rules.ExistsNode>this.runtime.createNode(id => new Rules.ExistsNode(id, this.instanceType));
 
                     node.addActivation(this.existsNode);
                 }
