@@ -1,12 +1,4 @@
-/// <reference path="..\..\..\typings\jasmine-1.2.d.ts" />
-/// <reference path="..\..\rules\ruleBuilder.ts" />
-/// <reference path="..\..\rules\rulesEngineBuilder.ts" />
-/// <reference path="..\..\rules\rule.ts" />
-
-///<reference path='..\..\..\lib\TypeScript\compiler\' />
-///<reference path='..\..\rules\' />
-///<reference path='..\..\rules\conditions\' />
-///<reference path='..\..\compilation\' />
+///<reference path='..\testReferences.ts' />
 
 module Treaty {
     module Tests {

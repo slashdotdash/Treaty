@@ -31,6 +31,7 @@
     <TypeScriptCompile Include="tests\rules\ruleBuilding.ts" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="tests\testReferences.ts" />
     <TypeScriptCompile Include="rules\comparison.ts" />
     <TypeScriptCompile Include="extensions\object.ts" />
     <TypeScriptCompile Include="compilation\runtimeVisitor.ts" />
@@ -63,6 +64,7 @@
     <Content Include="tests\parsing\math.ts" />
     <Content Include="tests\parsing\multiple.ts" />
     <Content Include="tests\parsing\expression.ts" />
+    <Content Include="tests\runtime\retract.ts" />
     <Content Include="tests\runtime\session.ts" />
     <TypeScriptCompile Include="tests\rules\rulesEngineBuilding.ts" />
     <TypeScriptCompile Include="collections\cache.ts" />

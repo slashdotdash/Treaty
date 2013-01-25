@@ -1,16 +1,4 @@
-///<reference path='..\..\typings\jasmine-1.2.d.ts' />
-///<reference path='..\..\lib\TypeScript\compiler\typescript.ts' />
-
-///<reference path='..\compilation\compiler.ts' />
-///<reference path='..\rules\rule.ts' />
-///<reference path='..\rules\configuration.ts' />
-///<reference path='..\rules\rulesEngineBuilder.ts' />
-///<reference path='..\rules\ruleBuilder.ts' />
-///<reference path='..\rules\conditions\condition.ts' />
-///<reference path='..\rules\consequences\consequence.ts' />
-
-///<reference path='..\graphing\graphingVisitor.ts' />
-///<reference path='..\graphing\exporter.ts' />
+///<reference path='testReferences.ts' />
 
 module Treaty {
     export module Tests {
