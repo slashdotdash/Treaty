@@ -5,6 +5,7 @@
 ///<reference path='..\compilation\selectors.ts' />
 ///<reference path='..\compilation\conditionVisitor.ts' />
 ///<reference path='..\rules\nodes.ts' />
+///<reference path='..\rules\configuration.ts' />
 ///<reference path='..\rules\rule.ts' />
 ///<reference path='..\rules\rulesEngineBuilder.ts' />
 ///<reference path='..\rules\ruleBuilder.ts' />

@@ -16,7 +16,7 @@ module Treaty {
                 beforeEach(() => {
                     var rule = ruleFactory.rule()
                         .named('Rule')
-                        .when('Person', (p: Person) => p.name == 'Bob')
+                        .when('Person', (p: Person) => p.name == 'Ben')
                         .then('Person', (p: Person) => wasCalled = true)
                         .build();
 
@@ -24,44 +24,30 @@ module Treaty {
 
                     subject = rulesEngineBuilder.build();
                 });
-                
-                it("should compile rule", () => {
-                    expect(subject.alphaNodes.count).toBe(1);
-                });
 
                 describe("runtime session", () => {
                     var session: Treaty.Rules.ISession;
-                    
-                    describe("matching equal value", () => {
+                    var person: Person;
+                    var factHandle: Treaty.Rules.FactHandle;
+
+                    describe("asserting new fact", () => {
                         beforeEach(() => {
-                            wasCalled = false;
-                            
+                            wasCalled = false;                            
                             session = subject.createSession();
-                            session.assert(Treaty.Type.create('Person'), new Person('Bob'));
+                            person = new Person('Ben');
+
+                            factHandle = session.assert(Treaty.Type.create('Person'), person);
                             session.run();
                         });
 
-                        it("should assert fact creating an alpha node", () => {
-                            expect(subject.alphaNodes.count).toBeGreaterThan(0);
-                        });
-
-                        it("should execute consequence", () => {
-                            expect(wasCalled).toBeTruthy();
+                        it("should return fact handle for inserted fact", () => {
+                            expect(factHandle).toNotBe(null);
+                            expect(factHandle instanceof Treaty.Rules.FactHandle).toBeTruthy();
                         })
-                    });
-                    
-                    describe("not matching inequal value", () => {
-                        beforeEach(() => {
-                            wasCalled = false;
 
-                            session = subject.createSession();
-                            session.assert(Treaty.Type.create('Person'), new Person('Joe'));
-                            session.run();
+                        it("should relate handle to asserted fact", () => {
+                            expect(factHandle.fact).toBe(person);
                         });
-
-                        it("should not execute consequence", () => {
-                            expect(wasCalled).toBeFalsy();
-                        })
                     });
                 });
             });

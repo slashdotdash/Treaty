@@ -31,7 +31,7 @@ module Treaty {
 
                 beforeEach(() => {
                     runtime = new Treaty.Rules.RulesEngine();
-                    subject = new Treaty.Compilation.PropertyExpressionVisitor('Example', new NullNodeSelectorFactory(), runtime);
+                    subject = new Treaty.Compilation.PropertyExpressionVisitor(Treaty.Type.create('Example'), new NullNodeSelectorFactory(), runtime);
                     expressionParser = new Treaty.Compilation.ExpressionParser();
                 });                
 
@@ -58,7 +58,7 @@ module Treaty {
                         var script = expressionParser.parse((example: Example) => example);
                         var expression = Treaty.Compilation.Expression.parse(script);
 
-                        selector = subject.createSelector(expression.body);
+                        selector = subject.createSelector(expression.body, Treaty.Type.create('Example'));
                     });
 
                     it("should access no level property", () => {
@@ -67,7 +67,7 @@ module Treaty {
 
                     it("should select expected type", () => {
                         var typeNodeSelector = <Treaty.Compilation.TypeNodeSelector>selector;
-                        expect(typeNodeSelector.instanceType).toBe('Example');
+                        expect(typeNodeSelector.instanceType).toBe(Treaty.Type.create('Example'));
                     });
 
                     it("should have no next", () => {
@@ -80,7 +80,7 @@ module Treaty {
                         var script = expressionParser.parse((example: Example) => example.other);
                         var expression = Treaty.Compilation.Expression.parse(script);
 
-                        selector = subject.createSelector(expression.body);
+                        selector = subject.createSelector(expression.body, Treaty.Type.create('Other'));
                     });
 
                     it("should access no level property", () => {
@@ -89,7 +89,7 @@ module Treaty {
 
                     it("should select expected type", () => {
                         var typeNodeSelector = <Treaty.Compilation.TypeNodeSelector>selector;
-                        expect(typeNodeSelector.instanceType).toBe('Example');
+                        expect(typeNodeSelector.instanceType).toBe(Treaty.Type.create('Example'));
                     });
 
                     it("should access first level property", () => {
@@ -111,7 +111,7 @@ module Treaty {
                         var script = expressionParser.parse((example: Example) => example.other.another);
                         var expression = Treaty.Compilation.Expression.parse(script);
 
-                        selector = subject.createSelector(expression.body);
+                        selector = subject.createSelector(expression.body, Treaty.Type.create('Another'));
                     });
 
                     it("should access no level property", () => {
@@ -141,7 +141,7 @@ module Treaty {
                         var script = expressionParser.parse((example: Example) => example.other.another.andOneMore);
                         var expression = Treaty.Compilation.Expression.parse(script);
 
-                        selector = subject.createSelector(expression.body);
+                        selector = subject.createSelector(expression.body, Treaty.Type.create('OneMore'));
                     });
 
                     it("should access no level property", () => {

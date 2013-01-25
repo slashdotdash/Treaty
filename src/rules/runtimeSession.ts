@@ -7,7 +7,7 @@
 module Treaty {
     export module Rules {
         export interface ISession {
-            assert(instanceType: Treaty.Type, fact: any): void;
+            assert(instanceType: Treaty.Type, fact: any): Treaty.Rules.FactHandle;
 
             run(): void;
 
@@ -24,6 +24,10 @@ module Treaty {
             access(id: number, callback: (memory: ContextMemory) => void): void;
 
             schedule(action: (session: ISession) => void ): void;
+        }
+
+        export class FactHandle {
+            constructor(public fact: any) { }
         }
 
         export class Token {
@@ -72,12 +76,14 @@ module Treaty {
 
             constructor (private runtime: IActivate, private objectCache: Treaty.Collections.Cache) { }
 
-            public assert(instanceType: Treaty.Type, fact: any): void {
+            public assert(instanceType: Treaty.Type, fact: any): FactHandle {
                 var context = new ActivationContext(this, instanceType, fact);
 
                 this.runtime.activate(context);
 
                 this.facts.push(context);
+
+                return new FactHandle(fact);
             }
 
             public run(): void {
