@@ -5,9 +5,9 @@ module Treaty {
         module Rules {
             describe("rules engine building", function () {
                 var subject = new Treaty.Rules.RulesEngineBuilder();
-                
+
                 it("should add rules", function () {
-                    subject.addRule(new Treaty.Rules.Rule('rule', new Treaty.Rules.ICondition[], new Treaty.Rules.IConsequence[]));
+                    subject.addRule(new Treaty.Rules.Rule('rule', [], []));
                 });
             });
         }

@@ -1,10 +1,4 @@
-///<reference path='..\extensions\object.ts' />
-///<reference path='.\rulesEngine.ts' />
-///<reference path='.\comparison.ts' />
-///<reference path='..\compilation\compiler.ts' />
-
-///<reference path='..\..\typings\underscore-typed-1.4.d.ts' />
-///<reference path='..\..\lib\Underscore.js\underscore.js' />
+///<reference path='..\references.ts' />
 
 module Treaty {
     export module Rules {
@@ -67,9 +61,9 @@ module Treaty {
 
             public activate(context: Treaty.Rules.IActivationContext): void {
                 this.withValue(context, value => {
-                    var activationToken = new Rules.ActivationToken(this.instanceType, Type.of(value), context, value);
+                    var activationToken = new Treaty.Rules.ActivationToken(this.instanceType, Type.of(value), context, value);
 
-                    var propertyContext = context.createContext('ActivationToken', activationToken);
+                    var propertyContext = context.createContext(Treaty.Type.create('ActivationToken'), activationToken);
 
                     _.each(this.successors, (activation: IActivation) => activation.activate(propertyContext));
                 });
@@ -259,7 +253,7 @@ module Treaty {
                 this.elementMatch(token.value, item => {
                     var activationToken = new Treaty.Rules.ActivationToken(context.instanceType, this.itemType, context, item);
                     
-                    var propertyContext = context.createContext('ActivationToken', activationToken);
+                    var propertyContext = context.createContext(Treaty.Type.create('ActivationToken'), activationToken);
 
                     _.each(this.successors, (activation: IActivation) => activation.activate(propertyContext));
                 });
@@ -344,7 +338,7 @@ module Treaty {
 
                     var activationToken = new Rules.ActivationToken(this.instanceType, Type.of(joinValue), context, joinValue);
                     
-                    var activationContext = context.createContext('ActivationToken', activationToken);
+                    var activationContext = context.createContext(Treaty.Type.create('ActivationToken'), activationToken);
 
                     this.activateMatch(activationContext);
                 });

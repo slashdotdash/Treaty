@@ -13,7 +13,7 @@ module Treaty {
 
                 describe("string member expression equals", () => {
                     beforeEach(() => {
-                        subject = new Treaty.Rules.ConditionBuilder('Entity', (entity: Entity) => entity.name == 'Ben' || entity.gender == 'M');
+                        subject = new Treaty.Rules.ConditionBuilder(Treaty.Type.create('Entity'), (entity: Entity) => entity.name == 'Ben' || entity.gender == 'M');
                         conditions = subject.build(new Treaty.Compilation.ExpressionParser());
                     });
                 

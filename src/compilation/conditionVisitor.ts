@@ -1,8 +1,4 @@
-///<reference path='..\..\lib\TypeScript\compiler\typescript.ts' />
-
-/// <reference path="..\rules\rule.ts" />
-/// <reference path="..\rules\ruleBuilder.ts" />
-/// <reference path="..\rules\conditions\condition.ts" />
+///<reference path='..\references.ts' />
 
 module Treaty {
     export module Compilation {

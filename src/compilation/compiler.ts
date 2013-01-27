@@ -1,10 +1,4 @@
-///<reference path='.\selectors.ts' />
-///<reference path='..\rules\nodes.ts' />
-///<reference path='..\rules\rule.ts' />
-///<reference path='..\rules\rulesEngine.ts' />
-///<reference path='..\rules\comparison.ts' />
-///<reference path='..\rules\conditions\condition.ts' />
-///<reference path='..\rules\consequences\consequence.ts' />
+///<reference path='..\references.ts' />
 
 module Treaty {
     export module Compilation {

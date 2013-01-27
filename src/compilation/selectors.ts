@@ -1,15 +1,7 @@
-///<reference path='.\compiler.ts' />
-///<reference path='.\runtimeVisitor.ts' />
-///<reference path='..\rules\rule.ts' />
-///<reference path='..\rules\rulesEngine.ts' />
-///<reference path='..\rules\comparison.ts' />
-///<reference path='..\rules\conditions\condition.ts' />
+// /<reference path='..\references.ts' />
 
 module Treaty {
     export module Compilation {
-        export interface INodeSelectorFactory {
-            create(type: Treaty.Type): ISelectNode;
-        }
 
         export interface ISelectNode {
             next: ISelectNode;
@@ -17,6 +9,10 @@ module Treaty {
             select(): void;
 
             selectNode(node: Treaty.Rules.INode): void;
+        }
+
+        export interface INodeSelectorFactory {
+            create(type: Treaty.Type): ISelectNode;
         }
 
         export interface ISelectRuleNode {
@@ -30,7 +26,7 @@ module Treaty {
         export class NodeSelectorFactory implements INodeSelectorFactory {
             constructor (private factory: (type: Treaty.Type) => ISelectNode) { }
 
-            public create(type: Treaty.Type): ISelectNode {
+            public create(type: Treaty.Type): Treaty.Compilation.ISelectNode {
                 var node = this.factory(type);
                 
                 if (node == null) 

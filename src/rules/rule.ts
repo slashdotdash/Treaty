@@ -1,5 +1,4 @@
-///<reference path='.\conditions\condition.ts' />
-///<reference path='.\consequences\consequence.ts' />
+///<reference path='..\references.ts' />
 
 module Treaty {
     export module Rules {
@@ -22,7 +21,7 @@ module Treaty {
         }
         
         export interface IAcceptVisitor {
-            accept(visitor: IVisitor): bool;
+            accept(visitor: Treaty.Rules.IVisitor): bool;
         }
 
         export class Rule implements IAcceptVisitor {

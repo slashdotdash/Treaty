@@ -13,7 +13,7 @@ module Treaty {
 
                 describe("number member expression greater than and equal", () => {
                     beforeEach(() => {
-                        subject = new Treaty.Rules.ConditionBuilder('Order', (order: Order) => order.amount > 3 + 4 && order.amount == 16/2);
+                        subject = new Treaty.Rules.ConditionBuilder(Treaty.Type.create('Order'), (order: Order) => order.amount > 3 + 4 && order.amount == 16/2);
                         conditions = subject.build(new Treaty.Compilation.ExpressionParser());
                     });
                 

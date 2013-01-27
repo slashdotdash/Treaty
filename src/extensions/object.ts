@@ -1,5 +1,4 @@
-///<reference path="..\collections\cache.ts" />
-///<reference path='..\..\lib\Underscore.js\underscore.js' />
+///<reference path='..\references.ts' />
 
 module Treaty {
     // Rudimentary type syntax until TypeScript supports generics

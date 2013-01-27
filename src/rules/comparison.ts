@@ -1,8 +1,4 @@
-///<reference path='.\rulesEngine.ts' />
-///<reference path='..\compilation\compiler.ts' />
-
-///<reference path='..\..\typings\underscore-typed-1.4.d.ts' />
-///<reference path='..\..\lib\Underscore.js\underscore.js' />
+///<reference path='..\references.ts' />
 
 module Treaty {
     export module Rules {

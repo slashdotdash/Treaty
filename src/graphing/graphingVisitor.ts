@@ -1,7 +1,4 @@
-///<reference path='..\compilation\runtimeVisitor.ts' />
-///<reference path='.\vertex.ts' />
-///<reference path='.\edge.ts' />
-///<reference path='.\rulesEngineGraph.ts' />
+///<reference path='..\references.ts' />
 
 module Treaty {
     export module Graphing {

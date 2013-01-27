@@ -1,0 +1,26 @@
+///<reference path='..\lib\TypeScript\compiler\typescript.ts' />
+///<reference path='..\typings\underscore-typed.d.ts' />
+// /<reference path='..\lib\Underscore.js\underscore.js' />
+
+///<reference path='collections/cache.ts' />
+///<reference path='extensions/object.ts' />
+///<reference path='compilation/runtimeVisitor.ts' />
+///<reference path='rules/nodes.ts' />
+///<reference path='rules/rulesEngine.ts' />
+///<reference path='compilation/compiler.ts' />
+///<reference path='compilation/conditionVisitor.ts' />
+///<reference path='compilation/selectors.ts' />
+///<reference path='facts/fact.ts' />
+///<reference path='graphing/edge.ts' />
+///<reference path='graphing/exporter.ts' />
+///<reference path='graphing/graphingVisitor.ts' />
+///<reference path='graphing/rulesEngineGraph.ts' />
+///<reference path='graphing/vertex.ts' />
+///<reference path='rules/conditions/condition.ts' />
+///<reference path='rules/consequences/consequence.ts' />
+///<reference path='rules/comparison.ts' />
+///<reference path='rules/configuration.ts' />
+///<reference path='rules/rule.ts' />
+///<reference path='rules/ruleBuilder.ts' />
+///<reference path='rules/rulesEngineBuilder.ts' />
+///<reference path='rules/runtimeSession.ts' />

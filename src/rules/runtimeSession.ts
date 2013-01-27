@@ -1,8 +1,4 @@
-///<reference path='.\rule.ts' />
-///<reference path='.\nodes.ts' />
-///<reference path='.\rulesEngine.ts' />
-///<reference path='.\consequences\consequence.ts' />
-///<reference path='..\collections\cache.ts' />
+///<reference path='..\references.ts' />
 
 module Treaty {
     export module Rules {
@@ -47,7 +43,7 @@ module Treaty {
         }
 
         export class ActivationToken {
-            constructor (private sourceType: string, private valueType: string, public context: IActivationContext, public value: any) { }
+            constructor(private sourceType: Treaty.Type, private valueType: Treaty.Type, public context: IActivationContext, public value: any) { }
         }
 
         class ActivationContext implements IActivationContext {

@@ -1,6 +1,4 @@
-///<reference path='.\rule.ts' />
-///<reference path='.\consequences\consequence.ts' />
-///<reference path='..\compilation\conditionVisitor.ts' />
+///<reference path='..\references.ts' />
 
 module Treaty {
     export module Rules {

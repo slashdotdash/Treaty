@@ -13,7 +13,7 @@ module Treaty {
 
                 describe("string member expression equals", () => {
                     beforeEach(() => {
-                        subject = new Treaty.Rules.ConditionBuilder('Entity', (entity: Entity) => entity.name == 'Ben');
+                        subject = new Treaty.Rules.ConditionBuilder(Treaty.Type.create('Entity'), (entity: Entity) => entity.name == 'Ben');
                         conditions = subject.build(new Treaty.Compilation.ExpressionParser());
                     });
                 
@@ -35,7 +35,7 @@ module Treaty {
 
                 describe("string member expression not equal", () => {
                     beforeEach(() => {
-                        subject = new Treaty.Rules.ConditionBuilder('Entity', (entity: Entity) => entity.name != 'Ben');
+                        subject = new Treaty.Rules.ConditionBuilder(Treaty.Type.create('Entity'), (entity: Entity) => entity.name != 'Ben');
                         conditions = subject.build(new Treaty.Compilation.ExpressionParser());
                     });
                 
@@ -57,7 +57,7 @@ module Treaty {
 
                 describe("boolean member expression", () => {
                     beforeEach(() => {
-                        subject = new Treaty.Rules.ConditionBuilder('Entity', (entity: Entity) => entity.flag);
+                        subject = new Treaty.Rules.ConditionBuilder(Treaty.Type.create('Entity'), (entity: Entity) => entity.flag);
                         conditions = subject.build(new Treaty.Compilation.ExpressionParser());
                     });
                 
@@ -79,7 +79,7 @@ module Treaty {
 
                 describe("number member expression greater than", () => {
 	                beforeEach(() => {
-		                subject = new Treaty.Rules.ConditionBuilder('Entity', (entity: Entity) => entity.age > 18);
+	                    subject = new Treaty.Rules.ConditionBuilder(Treaty.Type.create('Entity'), (entity: Entity) => entity.age > 18);
 		                conditions = subject.build(new Treaty.Compilation.ExpressionParser());
 	                });
 
@@ -101,7 +101,7 @@ module Treaty {
 
                 describe("number member expression greater than or equal", () => {
 	                beforeEach(() => {
-		                subject = new Treaty.Rules.ConditionBuilder('Entity', (entity: Entity) => entity.age >= 18);
+	                    subject = new Treaty.Rules.ConditionBuilder(Treaty.Type.create('Entity'), (entity: Entity) => entity.age >= 18);
 		                conditions = subject.build(new Treaty.Compilation.ExpressionParser());
 	                });
 
@@ -123,7 +123,7 @@ module Treaty {
 
                 describe("number member expression less than", () => {
 	                beforeEach(() => {
-		                subject = new Treaty.Rules.ConditionBuilder('Entity', (entity: Entity) => entity.age < 21);
+	                    subject = new Treaty.Rules.ConditionBuilder(Treaty.Type.create('Entity'), (entity: Entity) => entity.age < 21);
 		                conditions = subject.build(new Treaty.Compilation.ExpressionParser());
 	                });
 
@@ -145,7 +145,7 @@ module Treaty {
 
                 describe("number member expression less than or equal", () => {
 	                beforeEach(() => {
-		                subject = new Treaty.Rules.ConditionBuilder('Entity', (entity: Entity) => entity.age <= 21);
+	                    subject = new Treaty.Rules.ConditionBuilder(Treaty.Type.create('Entity'), (entity: Entity) => entity.age <= 21);
 		                conditions = subject.build(new Treaty.Compilation.ExpressionParser());
 	                });
 

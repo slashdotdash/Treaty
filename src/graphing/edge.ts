@@ -1,4 +1,4 @@
-///<reference path='.\vertex.ts' />
+///<reference path='..\references.ts' />
 
 module Treaty {
     export module Graphing {
