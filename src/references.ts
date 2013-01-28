@@ -1,6 +1,6 @@
 ///<reference path='..\lib\TypeScript\compiler\typescript.ts' />
 ///<reference path='..\typings\underscore-typed.d.ts' />
-///<reference path='..\lib\Underscore.js\underscore.js' />
+/// <reference path='..\lib\Underscore.js\underscore.js' />
 
 ///<reference path='collections/cache.ts' />
 ///<reference path='extensions/object.ts' />

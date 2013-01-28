@@ -27,7 +27,7 @@ module Treaty {
 
                     it("should extract condition properties", () => {
                         var propertyEqualCondition = <Treaty.Rules.Conditions.PropertyEqualCondition>conditions[0];
-                        expect(propertyEqualCondition.instanceType).toBe('Entity');
+                        expect(propertyEqualCondition.instanceType).toBe(Treaty.Type.create('Entity'));
                         expect(propertyEqualCondition.memberExpression).toNotBe(null);
                         expect(propertyEqualCondition.value).toBe('Ben');
                     });
@@ -49,7 +49,7 @@ module Treaty {
 
                     it("should extract condition properties", () => {
                         var propertyEqualCondition = <Treaty.Rules.Conditions.PropertyNotEqualCondition>conditions[0];
-                        expect(propertyEqualCondition.instanceType).toBe('Entity');
+                        expect(propertyEqualCondition.instanceType).toBe(Treaty.Type.create('Entity'));
                         expect(propertyEqualCondition.memberExpression).toNotBe(null);
                         expect(propertyEqualCondition.value).toBe('Ben');
                     });
@@ -71,7 +71,7 @@ module Treaty {
 
                     it("should extract condition properties", () => {
                         var propertyEqualCondition = <Treaty.Rules.Conditions.PropertyEqualCondition>conditions[0];
-                        expect(propertyEqualCondition.instanceType).toBe('Entity');
+                        expect(propertyEqualCondition.instanceType).toBe(Treaty.Type.create('Entity'));
                         expect(propertyEqualCondition.memberExpression).toNotBe(null);
                         expect(propertyEqualCondition.value).toBeTruthy();
                     });
@@ -93,7 +93,7 @@ module Treaty {
 
 	                it("should extract condition properties", () => {
 		                var condition = <Treaty.Rules.Conditions.PropertyGreaterThanCondition>conditions[0];
-		                expect(condition.instanceType).toBe('Entity');
+		                expect(condition.instanceType).toBe(Treaty.Type.create('Entity'));
 		                expect(condition.memberExpression).toNotBe(null);
 		                expect(condition.value).toBe(18);
 	                });
@@ -115,7 +115,7 @@ module Treaty {
 
 	                it("should extract condition properties", () => {
 		                var condition = <Treaty.Rules.Conditions.PropertyGreaterThanOrEqualCondition>conditions[0];
-		                expect(condition.instanceType).toBe('Entity');
+		                expect(condition.instanceType).toBe(Treaty.Type.create('Entity'));
 		                expect(condition.memberExpression).toNotBe(null);
 		                expect(condition.value).toBe(18);
 	                });
@@ -137,7 +137,7 @@ module Treaty {
 
 	                it("should extract condition properties", () => {
 		                var condition = <Treaty.Rules.Conditions.PropertyLessThanCondition>conditions[0];
-		                expect(condition.instanceType).toBe('Entity');
+		                expect(condition.instanceType).toBe(Treaty.Type.create('Entity'));
 		                expect(condition.memberExpression).toNotBe(null);
 		                expect(condition.value).toBe(21);
 	                });
@@ -159,7 +159,7 @@ module Treaty {
 
 	                it("should extract condition properties", () => {
 		                var condition = <Treaty.Rules.Conditions.PropertyLessThanOrEqualCondition>conditions[0];
-		                expect(condition.instanceType).toBe('Entity');
+		                expect(condition.instanceType).toBe(Treaty.Type.create('Entity'));
 		                expect(condition.memberExpression).toNotBe(null);
 		                expect(condition.value).toBe(21);
 	                });

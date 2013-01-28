@@ -28,14 +28,14 @@ module Treaty {
 
                     it("should extract condition properties from first expression", () => {
                         var condition = <Treaty.Rules.Conditions.PropertyEqualCondition>conditions[0];
-                        expect(condition.instanceType).toBe('Entity');
+                        expect(condition.instanceType).toBe(Treaty.Type.create('Entity'));
                         expect(condition.memberExpression).toNotBe(null);
                         expect(condition.value).toBe('Ben');
                     });
 
                     it("should extract condition properties from second expression", () => {
                         var condition = <Treaty.Rules.Conditions.PropertyEqualCondition>conditions[1];
-                        expect(condition.instanceType).toBe('Entity');
+                        expect(condition.instanceType).toBe(Treaty.Type.create('Entity'));
                         expect(condition.memberExpression).toNotBe(null);
                         expect(condition.value).toBe('M');
                     });

@@ -28,7 +28,7 @@ module Treaty {
                     it("should extract left and right conditions", () => {
                         var condition = <Treaty.Rules.Conditions.OrCondition>conditions[0];
 
-                        expect(condition.instanceType).toBe('Entity');
+                        expect(condition.instanceType).toBe(Treaty.Type.create('Entity'));
                         expect(condition.leftCondition).toNotBe(null);
                         expect(condition.rightCondition).toNotBe(null);
                     });
@@ -37,7 +37,7 @@ module Treaty {
                         var orCondition = <Treaty.Rules.Conditions.OrCondition>conditions[0];
                         var condition =  <Treaty.Rules.Conditions.PropertyEqualCondition>orCondition.leftCondition;
 
-                        expect(condition.instanceType).toBe('Entity');
+                        expect(condition.instanceType).toBe(Treaty.Type.create('Entity'));
                         expect(condition.memberExpression).toNotBe(null);
                         expect(condition.value).toBe('Ben');
                     });
@@ -46,7 +46,7 @@ module Treaty {
                         var orCondition = <Treaty.Rules.Conditions.OrCondition>conditions[0];
                         var condition =  <Treaty.Rules.Conditions.PropertyEqualCondition>orCondition.rightCondition;
 
-                        expect(condition.instanceType).toBe('Entity');
+                        expect(condition.instanceType).toBe(Treaty.Type.create('Entity'));
                         expect(condition.memberExpression).toNotBe(null);
                         expect(condition.value).toBe('M');
                     });
