@@ -1,0 +1,22 @@
+{
+  "name": "Treaty",
+  "version": "0.1.0",
+  "description": "Rules Engine written in TypeScript implementing the Rete algorithm.",
+  "main": "grunt.js",
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/slashdotdash/Treaty.git"
+  },
+  "keywords": [
+    "TypeScript",
+    "Rules Engine",
+    "Rete"
+  ],
+  "author": "Ben Smith",
+  "license": "MIT",
+  "gitHead": "eb94fb3fa1d578f92dc8cbee9320ba51511be22d",
+  "readmeFilename": "README.md"
+}

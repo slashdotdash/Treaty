@@ -11,3 +11,4 @@ _Chutzpah.*
 *.js.map
 tmp.dot
 tmp.png
+node_modules
